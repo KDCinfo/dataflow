@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Mapping Flow Analysis Tool</title>
+  <link rel="stylesheet" href="./dataflow.css">
+  <meta name="description" content="A tool to map and visualize branching data flows.">
+  <meta name="keywords" content="data clumps, data flow, data mapping, data visualization">
+
+  <!-- favion -->
+
+  <!-- facebook -->
+  <meta property="og:title" content="Data Clump Mapping and Flow Tool | DCMaFT">
+  <meta property="og:site_name" content="Data Clump Mapping and Flow Tool | DCMaFT">
+  <meta property="og:description" content="A tool to map and visualize data clumps and their flow.">
+  <meta property="og:image" content="https://via.placeholder.com/1200x628.png?text=DCMaFT">
+  <meta property="og:url" content="https://kdcinfo.com/app/dataflow/">
+  <meta property="og:type" content="website">
+</head>
+
+<body>
+  <div class="container">
+    <div class="form-container">
+      <h2>Add/Edit Code Clump</h2>
+      <form id="clumpForm" class="info-panel">
+        <label for="clumpName">Clump Name:</label>
+        <input type="text" id="clumpName" required><br><br>
+
+        <label for="clumpCode">Clump Code:</label>
+        <textarea id="clumpCode" required></textarea><br><br>
+
+        <label for="linkTo">Link to Clump:</label>
+        <select id="linkTo">
+          <option value="">None</option>
+        </select><br><br>
+
+        <label for="columnSelect">Column to Add To:</label>
+        <select id="columnSelect">
+          <option value="last">Last Column</option>
+        </select><br><br>
+
+        <div class="form-buttons">
+          <button type="submit">Save Clump</button>
+          <button type="reset">Cancel</button>
+        </div>
+      </form>
+
+      <hr>
+      <!-- Export and Import buttons -->
+      <div class="info-panel info-panel-sub export-import">
+        <button onclick="exportData()">Export Data</button>
+        <button onclick="importData()">Import Data</button>
+        <input type="file" id="importFile" style="display: none;" onchange="handleImport(event)">
+      </div>
+
+      <hr>
+      <!-- Show fields for 'lastAddedLumpID', and 'lastAddedCol' -->
+      <div class="info-panel info-panel-sub script-vars">
+        <p>Last Clump ID: <span id="lastAddedClumpIdTag">0</span></p>
+        <p>Last Column: <span id="lastAddedColTag">1</span></p>
+      </div>
+    </div>
+    <div class="output-container">
+      <div class="grid" id="clumpContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    // Keeping the JavaScript in the same file, at least
+    // for now, to alleviate the potential for caching issues.
+
+    const debugging = true;
+
+    // Local storage key used to store clumps.
+    const localStorageClumps = 'clumps50';
+
+    const clumpContainer = document.getElementById('clumpContainer');
+
+    const clumpName = document.getElementById('clumpName');
+    const clumpCode = document.getElementById('clumpCode');
+    const linkTo = document.getElementById('linkTo');
+    const columnSelect = document.getElementById('columnSelect');
+
+    // DATA: [editingIndex] Updated when edited a clump, and reset when clump is saved.
+    let editingIndex = null;  // Track if we’re editing an existing clump
+
+    // DATA: [clumps] A list of data clumps are stored in the browser's local storage.
+    // Clumps contain the data for each clump, and an ID for placement and linking.
+    // The clumpMatrix, below, is used to render the clumps in their correct positions.
+    let clumps = JSON.parse(localStorage.getItem(localStorageClumps) || '[]');
+
+    // DATA: [clumpMatrix] A 2D array to keep track of clump ID cell placement, empty
+    //                     cells, and matrix width (rows) and height (cols) detection.
+    //
+    // This is primarily to keep track of where empty slots need to be.
+    // But it is also used to determine the last column and row
+    //   and to identify cells that need shifting up or down when a clump is deleted or added
+    //   (rows and columns are padded with empty cells to keep the matrix even-sided).
+    //
+    // IDs are >= 1, so we can use 0 to represent empty slots.
+    //
+    // In this example, clump ID 3 is linked to clump ID 2,
+    //   and clump ID 5 is linked to clump ID 4.
+    //
+    // const clumpMatrix = [
+    //   [1, 2, 0], // Column 1
+    //   [0, 3, 4], // Column 2
+    //   [0, 0, 5] // Column 3
+    // ];
+    //
+    // This hurts my head, let's flip it.
+    //
+    // const clumpMatrix = [
+    //   #1 #2 #3   // Columns
+    //   [1, 0, 0], // Row 1 | When 1-non-link is added, nothing happens.
+    //   [2, 3, 0], // Row 2 | When 2-non-link is added, nothing happens.
+    //                       | When 3-linked is added, Rows < 2 will pad a 0 in Column 2.
+    //   [0, 4, 5]  // Row 3 | When 4-non-link is added, Row 3 will pad a 0 in Cols < 2.
+    //              //       | When 5-linked is added, Rows < 3 will pad a 0 in Column 3.
+    // ];
+    //
+    //  A more detailed example:
+    //
+    //  C1R1 |  0    |  0
+    //  C1R2 |  0    |  0
+    //  C1R3 |< C2R1 |  0
+    //  0    |  C2R2 |< C3R1
+    //  0    |  0    |  C3R2
+    //  0    |  C2R3 |  0
+    //  0    |  C2R4 |< C3R3
+    //  0    |  0    |  C3R4
+    //  0    |  0    |  C3R5
+    //  0    |  C2R5 |  0
+    //  C1R4 |< C2R6 |< C3R6
+    //  0    |  C2R7 |< C3R7
+    //  0    |  0    |  C3R8
+    //  C1R5 |  0    |  0
+    //
+    const clumpMatrix = [];
+
+    // DATA: [lastAddedCol] The last column that a clump was added to.
+    let lastAddedCol = 1;
+
+    // DATA: [lastAddedClumpId] Unlinked clumps are placed under the last clump that was added,
+    //                          unless a specific Col is selected from the 'linkTo' dropdown.
+    // Unsure that it matters, but for now, IDs are always incremented, and
+    // are never reused within the 'clumpMatrix' array. Ergo, IDs should
+    // always be in order, even when a hole is left from a deletion.
+    let lastAddedClumpId = 0;
+
+    // Initialize the 'clumpMatrix' with the clumps from local storage.
+    addClumpsToMatrix();
+
+    // Add clumps to the matrix
+    function addClumpsToMatrix() {
+      clumps.forEach(clump => {
+        lastAddedClumpId = clump.id;
+        addClumpToMatrix(clump);
+      });
+    }
+
+    function storeClumps() {
+      localStorage.setItem(localStorageClumps, JSON.stringify(clumps));
+    }
+
+    function updateLinkToDropdownOptions() {
+      linkTo.innerHTML = '<option value="">None</option>';
+
+      // This loop extrapolates in-use linkTo IDs so they are not
+      // shown in the dropdown (because they're already linked to).
+      const linkedClumpIDs = clumps.map(clump => clump.linkedClumpID);
+      clumps.forEach((clump, index) => {
+        if (!linkedClumpIDs.includes(clump.id)) {
+          const option = document.createElement('option');
+          option.value = clump.id;
+          option.textContent = clump.clumpName;
+          linkTo.appendChild(option);
+        }
+      });
+    }
+
+    function updateColumnSelectDropdownOptions() {
+      columnSelect.innerHTML = '<option value="last">Last Column</option>';
+
+      // Using 'clumpMatrix', this will yield a list of available columns
+      // (which the UI uses for the 'Column to Add To' dropdown).
+      const columns = clumpMatrix.length > 0
+        ? Array.from({ length: clumpMatrix[0].length }, (_, index) => index + 1)
+        : [1];
+      columns.forEach(column => {
+        const option = document.createElement('option');
+        option.value = column;
+        option.textContent = `Column ${column}`;
+        columnSelect.appendChild(option);
+      });
+    }
+
+    function updateDataInHtml() {
+      document.getElementById('lastAddedClumpIdTag').textContent = lastAddedClumpId.toString();
+      document.getElementById('lastAddedColTag').textContent = lastAddedCol.toString();
+    }
+
+    function loadForEdit(index, event) {
+      event.stopPropagation();
+
+      console.log('Editing clump:', clumps[index]);
+
+      const clump = clumps[index];
+      clumpName.value = clump.clumpName;
+      document.getElementById('clumpCode').value = clump.clumpCode;
+      linkTo.value = isNaN(clump.linkedClumpID) ? '' : clump.linkedClumpID;
+      columnSelect.value = clump.column === -1 ? 'last' : clump.column;
+
+      // If clump is linked, add the linked ID to the 'linkTo' dropdown so it can be
+      // selected in the list, because all existing linkTo IDs are filtered out.
+      if (clump.linkedClumpID !== -1) {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = clump.clumpName;
+        option.selected = true;
+        linkTo.appendChild(option);
+      }
+
+      editingIndex = index;
+    }
+
+    // Helper function to get the largest row number from the clumps array.
+    function getRowCount() {
+      return clumpMatrix.length;
+    }
+
+    // Helper function to get length of first row in clumpMatrix if clumpMatrix has a row.
+    function getColumnCount() {
+      return clumpMatrix.length > 0 ? clumpMatrix[0].length : 1;
+    }
+
+    // Helper to extend rows with empty columns as needed.
+    function addPaddedColumnToMatrix() {
+      clumpMatrix.forEach(row => row.push(0));
+    }
+
+    // Helper to add new row filled with zeros.
+    function addPaddedRowToMatrix() {
+      clumpMatrix.push(Array(getColumnCount()).fill(0));
+    }
+
+    // Helper to insert a new row filled with zeros at a specific index.
+    function insertPaddedRowToMatrix(index) {
+      // The splice will insert a new row at the specified index.
+      // The 2nd parameter (0) specifies that no rows will be removed.
+      clumpMatrix.splice(index, 0, Array(getColumnCount()).fill(0));
+    }
+
+    // Deleting individual cells is not easily possible due to linked clumps. For instance,
+    //   what happens when you delete a clump that has a clump linked to it from its right?
+    // And the shifting involved for cells below, left and right, will require some complexity.
+    // For now, we'll just provide the ability to remove the last clump added (an undo).
+    function deleteLastClump(event) {
+      event.stopPropagation();
+
+      if (confirm("Are you sure you want to delete this clump?")) {
+        //
+        //  C1R1 |  0    |  0
+        //  C1R2 |  0    |  0
+        //  C1R3 |< C2R1 |  0
+        //  0    |  C2R2 |< C3R1
+        //  0    |  0    |  C3R2
+        //  0    |  C2R3 |  0
+        //  0    |  C2R4 |< C3R3
+        //  0    |  0    |  C3R4
+        //  0    |  0    |  C3R5
+        //  0    |  C2R5 |  0
+        //  C1R4 |< C2R6 |  0
+        //  0    |  C2R7 |< C3R6
+        //  0    |  0    |  C3R7
+        //  C1R5 |  0    |  0
+
+        // Remove the clump from the clumps array.
+        // clumps.splice(index, 1);
+        clumps.pop();
+
+        // Clear matrix and re-add all clumps.
+        clumpMatrix.length = 0;
+        addClumpsToMatrix();
+
+        // Update global variables.
+        lastAddedClumpId = clumps.length > 0 ? clumps[clumps.length - 1].id : 0;
+
+        // Cycle through 'clumpMatrix' in reverse by rows, then columns,
+        // looking for the Column that the new last clump ID is in.
+        // This will be the new 'lastAddedCol'.
+        findLastAddedColLoop:
+        for (let c = getColumnCount() - 1; c >= 0; c--) {
+          for (let r = getRowCount() - 1; r >= 0; r--) {
+            if (clumpMatrix[r][c] === lastAddedClumpId) {
+              lastAddedCol = c + 1;
+              break findLastAddedColLoop;
+            }
+          }
+        }
+
+        storeClumps();
+        renderMatrix();
+      }
+    }
+
+    clumpForm.onsubmit = (event) => {
+      event.preventDefault();
+
+      // Clump cell placement has 3 options:
+      //
+      // [Linked]: 'Column to Add To' dropdown is irrelevant.
+      // 1. Add to the same row as the linked clump, in the next column.
+      //
+      // [Unlinked]: 'Link to Clump' dropdown should be set to 'None'.
+      // 2. When 'Last' is selected, add new clump to the last column that had a clump added to it.
+      // 3. Add to a specific column.
+      //
+      const newLinkTo = parseInt(linkTo.value, 10) || -1;
+      const isLinked = !isNaN(newLinkTo) && newLinkTo > 0;
+      let columnToAddTo;
+
+      const columnRawValue = columnSelect.options[columnSelect.selectedIndex].value;
+
+      if (editingIndex === null) {
+        //
+        // ADDING A NEW CLUMP
+        //
+        const newClumpID = lastAddedClumpId + 1;
+
+        const newClump = {
+          id: newClumpID,
+          clumpName: clumpName.value,
+          clumpCode: clumpCode.value,
+          column: -1,
+          linkedClumpID: -1,
+        };
+
+        // Populate either the 'linkedClumpId' (if linked), or the given 'Column' (if not linked).
+        //
+        if (isLinked) {
+          // [Linked]
+          columnToAddTo = lastAddedCol + 1;
+          newClump.linkedClumpID = newLinkTo;
+        } else {
+          // [Unlinked]
+          columnToAddTo = columnRawValue === 'last' ? lastAddedCol : parseInt(columnRawValue, 10);
+          newClump.column = columnToAddTo;
+        }
+
+        // Add the new clump to the end of the 'clumps' 1D array.
+        clumps.push(newClump);
+
+        // Inject the new clump to the 'clumpMatrix' 2D array.
+        addClumpToMatrix(newClump);
+
+        // Update global variables.
+        lastAddedClumpId = newClumpID;
+        //
+      } else {
+        //
+        // EDITING AN EXISTING CLUMP
+        //
+
+        const editedClump = clumps[editingIndex];
+
+        // newClump.id = newClump.id;
+        editedClump.clumpName = clumpName.value;
+        editedClump.clumpCode = clumpCode.value;
+
+        // If (the edited clump has a 'linkTo' ID, AND it is the same as the
+        // original 'linkedClumpID'), OR (if the edited clump is unlinked, AND the
+        // original clump had a 'linkedClumpID'), we need to remove the last 'Link to Clump'
+        // dropdown option that was added when the clump was loaded for editing.
+        if (
+          // (isLinked && editedClump.linkedClumpID === newLinkTo) ||
+          // (!isLinked && editedClump.linkedClumpID !== -1)
+          editedClump.linkedClumpID === linkTo.lastChild.value
+        ) {
+          linkTo.removeChild(linkTo.lastChild);
+        }
+
+        // Populate either the 'linkedClumpId' (if linked), or the given 'Column' (if not linked).
+        //
+        if (isLinked) {
+          // [Linked]
+          editedClump.linkedClumpID = newLinkTo;
+          editedClump.column = -1;
+        } else {
+          // [Unlinked]
+          editedClump.linkedClumpID = -1;
+          columnToAddTo = columnRawValue === 'last' ? Number(lastAddedCol) : parseInt(columnRawValue, 10);
+          editedClump.column = columnToAddTo;
+        }
+
+        editingIndex = null;
+      }
+
+      storeClumps();
+      renderMatrix();
+      clumpForm.reset();
+    };
+
+    // When canceling an edit, reset the 'editingIndex' to null, and remove the
+    // last 'Link to Clump' dropdown option if it is the same as the original 'linkedClumpID'.
+    clumpForm.onreset = (event) => {
+      event.preventDefault();
+
+      if (editingIndex !== null) {
+        const editedClump = clumps[editingIndex];
+        if (editedClump.linkedClumpID === linkTo.lastChild.value) {
+          linkTo.removeChild(linkTo.lastChild);
+        }
+        editingIndex = null;
+      }
+    };
+
+    // 'linkTo' = Existing clump ID to link to:
+    //            Its Col and Row can be found via the clumpMatrix.
+    // const linkTo = document.getElementById('linkTo');
+    //
+    // DATA: [clumps] A list of data clumps are stored in the browser's local storage. Clumps
+    //                contain the data for each clump, and an ID for placement and linking. The
+    //                clumpMatrix, below, is used to render the clumps in their correct positions.
+    // const clumps = [];
+    //
+    // DATA: [clumpMatrix] A 2D array to keep track of clump ID cell placement, empty
+    //                     cells, and matrix width (rows) and height (cols) detection.
+    // const clumpMatrix = [];
+    //
+    // const newClump = {
+    //     id: newClumpID,
+    //     clumpName: clumpName.value,
+    //     clumpCode: clumpCode.value,
+    //     column: -1, // >=1
+    //     linkedClumpID: -1, // >=1
+    //   };
+    //
+    //  C1R1 = Col 1, Row 1
+    //  ---- - ----- - -----
+    //  Col1 |  Col2 |  Col3
+    //  ---- - ----- - -----
+    //  C1R1 |    0  |    0  | Row 1
+    //  C1R2 |    0  |    0  | Row 2
+    //  C1R3 |< C2R1 |    0  | Row 3
+    //    0  |  C2R2 |< C3R1 | Row 4
+    //    0  |    0  |  C3R2 | Row 5
+    //    0  |  C2R3 |    0  | Row 6
+    //    0  |  C2R4 |< C3R3 | Row 7
+    //    0  |    0  |  C3R4 | Row 8
+    //    0  |    0  |  C3R5 | Row 9
+    //    0  |  C2R5 |    0  | Row 10
+    //  C1R4 |< C2R6 |    0  | Row 11
+    //    0  |  C2R7 |< C3R6 | Row 12
+    //    0  |    0  |  C3R7 | Row 13
+    //  C1R5 |    0  |    0  | Row 14
+    //
+    function addClumpToMatrix(newClump) {
+      const { id, linkedClumpID, column } = newClump;
+      const rowCount = getRowCount();
+      const colCount = getColumnCount();
+      //
+      // Check if LINKED: 'linkedClumpID' >= 1
+      //
+      // - LINKED (>= 1):
+      //
+      //   Check if the 'linkTo' clump's column is the last column.
+      //
+      // -- Yes:
+      //    ~ Push a new column (0) to the end of every row.
+      //    ~ Place new clump ID at end of 'linkTo' clump's row (look up in clumpMatrix).
+      //
+      // -- No:
+      //    Because all unlinked clumps (prior to becoming linked) should have empty cells
+      //      to their immediate right, and it's not the last column:
+      //    ~ Replace 0 in cell to right of the 'linkTo' clump's column (look up in clumpMatrix).
+      //
+      // - UNLINKED (=== -1):
+      //
+      //   Check if clumpMatrix last row has a '0' in the new clump's column.
+      //
+      // -- No:
+      //    New clump will be the last cell in the column:
+      //      ~ Push a new row to the matrix padded with 0s.
+      //      ~ Place the new clump's ID in the preselected column.
+      //
+      // -- Yes:
+      // --- Is the new clump's column the first column (Col 1)?
+      //     ~ Push a new 0-padded Row (same length as other rows) to the matrix.
+      //     ~ Place the clump's ID in the first cell/column.
+      // --- Is the new clump's column the last column?
+      //     ~ Find the last non-0 cell/row in the new clump's column and record that row.
+      //     ~ Insert a 0-padded row at the recorded row.
+      //     ~ Place the clump's ID in the last column.
+      // --- Is the new clump's column neither the first nor last (in the middle)?
+      //     ~ Find the lowest column to the right of the new clump's column (all cells to the right should not be affected).
+      //     ~ Record that 'to-the-right' bottommost row.
+      //     ~ Record the new clump's preselected column's bottommost "occupied" (non-0) row.
+      //     Is the new clump's bottommost recording greater than the bottommost 'to-the-right' recording?
+      // ---- Yes:
+      //      ~ Add +1 to the new clump's bottommost recording and record it as the 'rowToAddTo'.
+      // ---- No:
+      //      ~ Add +1 to the bottommost 'to-the-right' recording and record it as the 'rowToAddTo'.
+      //     ~ Insert a 0-padded row at 'rowToAddTo'.
+      //     ~ Insert the new clump's ID in the new clump's column.
+      //
+      if (linkedClumpID >= 1) {
+        //
+        // [ LINKED ] clump processing
+        //
+        let linkedCol = -1;
+        let linkedRowIndex = -1;
+
+        // Find the linked clump's position.
+        linkClumpLoop:
+        for (let r = 0; r < rowCount; r++) {
+          for (let c = 0; c < colCount; c++) {
+            if (clumpMatrix[r][c] === linkedClumpID) {
+              linkedRowIndex = r;
+              linkedCol = c + 1;
+              break linkClumpLoop;
+            }
+          }
+        }
+
+        if (linkedCol === -1 || linkedRowIndex === -1) {
+          console.error("Linked clump not found in matrix");
+          return;
+        }
+
+        // Check if the 'linkTo' clump's column is the last column.
+        // If so, we need a new column for the new clump.
+        // if (linkedCol === colCount - 1) {
+        if (linkedCol === colCount) {
+          // Case: linked clump is the last column
+          addPaddedColumnToMatrix();
+        } else {
+          // Case: linked clump is not the last column
+        }
+
+        clumpMatrix[linkedRowIndex][linkedCol] = id;
+        lastAddedCol = linkedCol + 1;
+
+      } else {
+        //
+        // [ UNLINKED ] clump processing
+        //
+        // Reality check: Can colCount ever be 0 if rowCount isn't?
+        // Answer: No, because the matrix is initialized with at least one row.
+        if (rowCount === 0 || colCount === 0) {
+          // Case: First clump, so add to first row in first column
+          if (rowCount === 0) {
+            clumpMatrix.push([id]);
+          } else {
+            // Reality check: is this else a valid condition?
+            // Answer: Yes, because rowCount is not 0, so there is at least one row.
+            // But even if colCount can never be 0 if rowCount isn't 0, and the 'if' already matched the rowCount logic?
+            // Answer: Yes, because the 'if' is checking if the rowCount is 0, and the 'else' is checking if the colCount is 0.
+            // But the outer 'if' is checking if rowCount is 0, so the 'else' will never be reached if rowCount is 0, correct?
+            // Answer: Yes, but the 'else' is also checking if colCount is 0, which is a separate condition from rowCount.
+            // But as confirmed, colCount can never be 0 if rowCount isn't 0, so the 'else' will never be reached if rowCount is 0, correct?
+            // Answer: Yes, but the 'else' is also checking if colCount is 0, which is a separate condition from rowCount.
+            // It is a separate condition, but it's a condition that can never be met because rowCount is not 0, ergo, colCount can never be 0, correct?
+            // Answer: Yes, but the 'else' is also checking if colCount is 0, which is a separate condition from rowCount.
+            // Please state the definition of insanity.
+            // Answer: Doing the same thing over and over again and expecting different results.
+            // So again, if colCount can never be 0 if rowCount isn't 0, and rowCount is not 0, then the 'else' will never be reached, correct?
+            // Answer: Yes, but the 'else' is also checking if colCount is 0, which is a separate condition from rowCount.
+            // Lol
+            // Answer: Yes, but the 'else' is also checking if colCount is 0, which is a separate condition from rowCount.
+            // Okay, you win
+            // Answer: Yes, but the 'else' is also checking if colCount is 0, which is a separate condition from rowCount.
+            clumpMatrix[0][0] = id;
+            lastAddedCol = 1;
+          }
+        } else {
+          //
+          // In this block we can assume there is at least one cell in the matrix.
+          //
+          if (column === 1) {
+            // X-- Is the new clump's column the first column (Col 1)?
+            //     ~ Push a new 0-padded Row (same length as other rows) to the matrix.
+            //     ~ Place the clump's ID in the first cell/column.
+            addPaddedRowToMatrix();
+            clumpMatrix[rowCount][0] = id;
+            lastAddedCol = 1;
+          } else if (column === colCount) {
+            // X-- Is the new clump's column the last column?
+            //     ~ Find the last non-0 cell/row in the new clump's column and record that row.
+            //     ~ Insert a 0-padded row at the recorded row.
+            //     ~ Place the clump's ID in the last column.
+            let lastRow = -1;
+            for (let r = rowCount; r > 0; r--) {
+              if (clumpMatrix[r - 1][colCount - 1] !== 0) {
+                lastRow = r;
+                break;
+              }
+            }
+            if (lastRow === -1) {
+              console.error("No clumps found in last column");
+              return;
+            }
+            insertPaddedRowToMatrix(lastRow);
+            clumpMatrix[lastRow][colCount - 1] = id;
+            lastAddedCol = colCount;
+          } else {
+            // --- Is the new clump's column neither the first nor last (in the middle)?
+            //     ~ Find the lowest column to the right of the new clump's column (all cells to the right should not be affected).
+            //     ~ Record that 'to-the-right' bottommost row.
+            //     ~ Record the new clump's column's bottommost "occupied" (non-0) row.
+            //     Is the new clump's bottommost recording greater than the bottommost 'to-the-right' recording?
+            // ---- Yes:
+            //      ~ Add +1 to the new clump's bottommost recording and record it as the 'rowToAddTo'.
+            // ---- No:
+            //      ~ Add +1 to the bottommost 'to-the-right' recording and record it as the 'rowToAddTo'.
+            // ---- Either/both:
+            //      ~ Insert a 0-padded row at 'rowToAddTo'.
+            //      ~ Insert the new clump's ID in the new clump's column.
+            //
+            let rightmostCol = -1;
+            let rightmostRow = -1;
+            let newClumpBottomRow = -1;
+
+            for (let r = rowCount; r > 0; r--) {
+              // Record the bottommost row of the new clump's column.
+              if (clumpMatrix[r - 1][column - 1] !== 0) {
+                newClumpBottomRow = r;
+                break;
+              }
+            }
+
+            rowColumnLoop:
+            for (let r = rowCount; r > 0; r--) {
+              // Record the lowest clump, that is lower than the new clump, in all the columns to the right.
+              for (let c = column; c < colCount; c++) {
+                // We're using [c] instead of [c - 1] because we're looking to the right of the new clump's column.
+                if (clumpMatrix[r - 1][c] !== 0) {
+                  rightmostCol = c;
+                  rightmostRow = r;
+                  break rowColumnLoop;
+                }
+              }
+            }
+
+            if (newClumpBottomRow === -1) {
+              console.error("No clumps found in new clump's column");
+              return;
+            }
+
+            if (rightmostRow === -1) {
+              console.error("No clumps found in rightmost column");
+              return;
+            }
+
+            // Record the row to add the new clump to (note: the row == index + 1).
+            const rowToAddTo = newClumpBottomRow > rightmostRow ? newClumpBottomRow : rightmostRow;
+            insertPaddedRowToMatrix(rowToAddTo);
+            clumpMatrix[rowToAddTo][column - 1] = id;
+            lastAddedCol = column;
+          }
+        }
+      }
+
+      if (debugging) {
+        // For debugging to see the matrix layout.
+        console.log('Clump Matrix:');
+        console.table(clumpMatrix);
+      }
+    }
+
+    function renderMatrix() {
+      clumpContainer.innerHTML = ''; // Clear container before rendering
+
+      // Set CSS property dynamically to control number of columns.
+      const columnCount = getColumnCount();
+      clumpContainer.style.gridTemplateColumns = `repeat(${columnCount}, 150px)`;
+
+      // Clump node placement.
+      //
+      // Note: only the last-added clump should have a 'delete' icon.
+      //
+      // const cell = document.createElement('div');
+      // cell.className = 'clump-node';
+      // cell.style.gridColumnStart = col + 1;
+      // cell.style.gridRowStart = row + 1;
+      // cell.innerHTML = `<strong>${clump.name}</strong><br>${clump.code}
+      //               <span class="edit-icon" onclick="loadForEdit(${clumps.indexOf(clump)}, event)">✏️</span>
+      //               <span class="delete-icon" onclick="deleteClump(${clumps.indexOf(clump)}, event)">❌</span>`;
+      // clumpContainer.appendChild(cell);
+      //
+      // lastAddedClumpId = clump.id;
+      //
+      //  C1R1 = Col 1, Row 1
+      //  ---- - ----- - -----
+      //  Col1 |  Col2 |  Col3
+      //  ---- - ----- - -----
+      //  C1R1 |    0  |    0  | Row 1
+      //  C1R2 |    0  |    0  | Row 2
+      //  C1R3 |< C2R1 |    0  | Row 3
+      //    0  |  C2R2 |< C3R1 | Row 4
+      //    0  |    0  |  C3R2 | Row 5
+      //    0  |  C2R3 |    0  | Row 6
+      //    0  |  C2R4 |< C3R3 | Row 7
+      //    0  |    0  |  C3R4 | Row 8
+      //    0  |    0  |  C3R5 | Row 9
+      //    0  |  C2R5 |    0  | Row 10
+      //  C1R4 |< C2R6 |    0  | Row 11
+      //    0  |  C2R7 |< C3R6 | Row 12
+      //    0  |    0  |  C3R7 | Row 13
+      //  C1R5 |    0  |    0  | Row 14
+      //
+      // Cycle through 'clumpMatrix' placing a clump cell or empty cell in HTML.
+      // - All the cells are on the right side of the screen.
+      // - The right side should be scrollable either vertically or horizontally when needed.
+      // - All cell heights and widths should be fixed.
+      // - All rows have the same number of cells, and all columns the same number of cells.
+      // - When a cell title is tapped, its contents expand into a small scrollable window.
+
+      // const newClump = {
+      //     id: newClumpID,
+      //     clumpName: clumpName.value,
+      //     clumpCode: clumpCode.value,
+      //     column: -1,
+      //     linkedClumpID: -1,
+      //   };
+
+      // Cycle through the clumpMatrix to render the clumps.
+      //
+      for (let r = 0; r < clumpMatrix.length; r++) {
+        for (let c = 0; c < clumpMatrix[r].length; c++) {
+          const clumpID = clumpMatrix[r][c];
+
+          if (clumpID === 0) {
+            const emptyCell = document.createElement('div');
+            emptyCell.className = 'clump-node empty';
+            clumpContainer.appendChild(emptyCell);
+            continue;
+          }
+
+          const clumpFound = clumps.find(clump => clump.id === clumpID);
+          const clumpCell = document.createElement('div');
+          clumpCell.className = 'clump-node collapsed';
+
+          // Create content span for clump name and code
+          const contentSpan = document.createElement('div');
+          contentSpan.className = 'content-span';
+          contentSpan.innerHTML = `<strong>${clumpFound.clumpName}</strong><br>${clumpFound.clumpCode.split('\n')[0]}`;
+          clumpCell.appendChild(contentSpan);
+
+          // Apply linked/unlinked class based on the condition
+          clumpCell.classList.add(clumpFound.linkedClumpID !== -1 ? 'linked' : 'unlinked');
+
+          const iconSpan = document.createElement('div');
+          iconSpan.className = 'icon-span';
+
+          // Create and append the edit icon
+          const editIcon = document.createElement('div');
+          editIcon.className = 'edit-icon';
+          editIcon.textContent = '✏️';
+          editIcon.onclick = (event) => {
+            event.stopPropagation(); // Prevent toggle when clicking edit
+            loadForEdit(clumps.indexOf(clumpFound), event);
+          };
+          iconSpan.appendChild(editIcon);
+
+          // Conditionally create and append the delete icon
+          if (clumps[clumps.length - 1].id === clumpFound.id) {
+            const deleteIcon = document.createElement('div');
+            deleteIcon.className = 'delete-icon';
+            deleteIcon.textContent = '❌';
+            deleteIcon.onclick = (event) => {
+              event.stopPropagation(); // Prevent toggle when clicking delete
+              deleteLastClump(event);
+            };
+            iconSpan.appendChild(deleteIcon);
+          }
+          clumpCell.appendChild(iconSpan);
+
+          // Toggle function to handle cell expansion/collapse
+          const toggleCell = () => {
+            clumpCell.classList.toggle('expanded');
+            clumpCell.classList.toggle('collapsed');
+            contentSpan.innerHTML = `<strong>${clumpFound.clumpName}</strong><br>${clumpCell.classList.contains('collapsed')
+              ? clumpFound.clumpCode.split('\n')[0]
+              : clumpFound.clumpCode
+              }`;
+          };
+
+          // Add the toggle click listener to contentSpan only
+          contentSpan.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent bubbling to avoid unintended behavior
+            toggleCell();
+          });
+
+          // Append cell to the container
+          clumpContainer.appendChild(clumpCell);
+        }
+      }
+
+      updateLinkToDropdownOptions();
+      updateColumnSelectDropdownOptions();
+      updateDataInHtml();
+    }
+
+    // Initial render call
+    renderMatrix();
+  </script>
+</body>
+
+</html>
