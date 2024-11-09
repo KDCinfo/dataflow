@@ -421,12 +421,22 @@
     clumpForm.onreset = (event) => {
       event.preventDefault();
 
-      if (editingIndex !== null) {
-        const editedClump = clumps[editingIndex];
-        editingIndex = null;
-        updateLinkToDropdownOptions(); // Updates list and toggles disabled.
-        updateColumnSelectDropdownOptions(); // Toggles disabled.
-      }
+      // This will reset the form fields, regardless of any nesting.
+      // clumpForm.reset();
+      // Manually clear each input, textarea, and select within the form
+      document.querySelectorAll("#clumpForm input, #clumpForm textarea, #clumpForm select").forEach((field) => {
+        if (field.type === "checkbox" || field.type === "radio") {
+          field.checked = field.defaultChecked;
+        } else {
+          field.value = field.defaultValue;
+        }
+      });
+
+      editingIndex = null;
+      updateLinkToDropdownOptions(); // Updates list and toggles disabled.
+      updateColumnSelectDropdownOptions(); // Toggles disabled.
+      // This will clear the 'edit border' from the selected clump node.
+      clearClumpNodes();
     };
 
     // 'linkTo' = Existing clump ID to link to:
