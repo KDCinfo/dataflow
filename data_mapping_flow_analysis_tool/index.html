@@ -180,13 +180,15 @@
       // shown in the dropdown (because they're already linked to).
       const linkedClumpIDs = clumps.map(clump => clump.linkedClumpID);
       clumps.forEach((clump, index) => {
-        if (!linkedClumpIDs.includes(clump.id)) {
+        // If the clump is not the one being edited, or it is not already linked.
+        if (editingIndex !== index || !linkedClumpIDs.includes(clump.id)) {
           const option = document.createElement('option');
           option.value = clump.id;
           option.textContent = clump.clumpName;
           linkTo.appendChild(option);
         }
       });
+      linkTo.disabled = editingIndex !== null;
     }
 
     function updateColumnSelectDropdownOptions() {
@@ -203,6 +205,7 @@
         option.textContent = `Column ${column}`;
         columnSelect.appendChild(option);
       });
+      columnSelect.disabled = editingIndex !== null;
     }
 
     function updateDataInHtml() {
@@ -215,23 +218,17 @@
 
       console.log('Editing clump:', clumps[index]);
 
+      editingIndex = index;
+      updateLinkToDropdownOptions(); // Updates list and toggles disabled.
+      updateColumnSelectDropdownOptions(); // Toggles disabled.
+
       const clump = clumps[index];
       clumpName.value = clump.clumpName;
       document.getElementById('clumpCode').value = clump.clumpCode;
+
+      // Update value and disable.
       linkTo.value = isNaN(clump.linkedClumpID) ? '' : clump.linkedClumpID;
       columnSelect.value = clump.column === -1 ? 'last' : clump.column;
-
-      // If clump is linked, add the linked ID to the 'linkTo' dropdown so it can be
-      // selected in the list, because all existing linkTo IDs are filtered out.
-      if (clump.linkedClumpID !== -1) {
-        const option = document.createElement('option');
-        option.value = index;
-        option.textContent = clump.clumpName;
-        option.selected = true;
-        linkTo.appendChild(option);
-      }
-
-      editingIndex = index;
     }
 
     // Helper function to get the largest row number from the clumps array.
@@ -378,18 +375,6 @@
         editedClump.clumpName = clumpName.value;
         editedClump.clumpCode = clumpCode.value;
 
-        // If (the edited clump has a 'linkTo' ID, AND it is the same as the
-        // original 'linkedClumpID'), OR (if the edited clump is unlinked, AND the
-        // original clump had a 'linkedClumpID'), we need to remove the last 'Link to Clump'
-        // dropdown option that was added when the clump was loaded for editing.
-        if (
-          // (isLinked && editedClump.linkedClumpID === newLinkTo) ||
-          // (!isLinked && editedClump.linkedClumpID !== -1)
-          editedClump.linkedClumpID === linkTo.lastChild.value
-        ) {
-          linkTo.removeChild(linkTo.lastChild);
-        }
-
         // Populate either the 'linkedClumpId' (if linked), or the given 'Column' (if not linked).
         //
         if (isLinked) {
@@ -404,6 +389,8 @@
         }
 
         editingIndex = null;
+        updateLinkToDropdownOptions(); // Updates list and toggles disabled.
+        updateColumnSelectDropdownOptions(); // Toggles disabled.
       }
 
       storeClumps();
@@ -418,10 +405,9 @@
 
       if (editingIndex !== null) {
         const editedClump = clumps[editingIndex];
-        if (editedClump.linkedClumpID === linkTo.lastChild.value) {
-          linkTo.removeChild(linkTo.lastChild);
-        }
         editingIndex = null;
+        updateLinkToDropdownOptions(); // Updates list and toggles disabled.
+        updateColumnSelectDropdownOptions(); // Toggles disabled.
       }
     };
 
@@ -809,8 +795,8 @@
         }
       }
 
-      updateLinkToDropdownOptions();
-      updateColumnSelectDropdownOptions();
+      updateLinkToDropdownOptions(); // Updates list and toggles disabled.
+      updateColumnSelectDropdownOptions(); // Toggles disabled.
       updateDataInHtml();
     }
 
