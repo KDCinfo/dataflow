@@ -2,11 +2,10 @@
 
 The "Data Mapping Flow Analysis Tool" was conceptualized when analyzing a variety of `Jenkinsfile`s from multiple sources, and the environments, stages, and flows within each.
 
-- The primary thought here was to try to keep the flow simple (a sticking point in previous flow-recording app attempts):
-  - a title, and 
-  - a data clump that can be expanded;
-  - a data node is either linked to, or simply follows other cells.
-
+- The primary thought was to try to keep the flow simple (a sticking point in previous flow-recording app attempts):
+  - Cell content: Title.
+  - Cell content: Data clump that can be expanded.
+- Data nodes are either linked to, or simply follow other cells.
 - Initialized: Nov 2024
 
 ```
@@ -62,8 +61,6 @@ Claude and I went back and forth through six draft variations. I finally gave up
 
 - Create a favicon
 - Finish meta tags
-
-- Remove `HR` tags (not necessary)
 - Test editing
   - Disable `linkTo` and `columnSelect` dropdowns when editing. There's far too much to account for when shifting cells.
 - Add localStorage switcher (switching will need to reload page; will be akin to a project switcher)
@@ -71,11 +68,12 @@ Claude and I went back and forth through six draft variations. I finally gave up
 
 ## @TODONE:
 
-- Finish delete function
-- Format entire layout
-  - Add visual arrows between cells
-- Commit to GitHub
-  - Add Readmes
-  - Add @TODO:
+- Finished delete function
+- Formatted entire layout
+  - Added visual arrows between cells
+- Committed to GitHub
+  - Added Readmes
+  - Added @TODO:
+- Removed `HR` tags (not necessary)
 
 _

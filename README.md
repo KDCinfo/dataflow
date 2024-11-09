@@ -12,11 +12,10 @@ The "Function Flow" code was when I was analyzing function flow within an app.
 
 The "Data Mapping Flow Analysis Tool" was conceptualized when analyzing a variety of `Jenkinsfile`s from multiple sources, and the environments, stages, and flows within each.
 
-- The primary thought here was to try to keep the flow simple (a sticking point in previous flow-recording app attempts):
-  - a title, and 
-  - a data clump that can be expanded;
-  - a data node is either linked to, or simply follows other cells.
-
+- The primary thought was to try to keep the flow simple (a sticking point in previous flow-recording app attempts):
+  - Cell content: Title.
+  - Cell content: Data clump that can be expanded.
+- Data nodes are either linked to, or simply follow other cells.
 - Initialized: Nov 2024
 
 _
