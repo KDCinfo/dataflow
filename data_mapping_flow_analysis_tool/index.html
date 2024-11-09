@@ -69,8 +69,20 @@
 
       <!-- Show fields for 'lastAddedLumpID', and 'lastAddedCol' -->
       <div class="info-panel info-panel-sub script-vars">
-        <p>Last Clump ID: <span id="lastAddedClumpIdTag">0</span></p>
-        <p>Last Column: <span id="lastAddedColTag">1</span></p>
+        <p>
+          <span class="label">Last added <span class="no-wrap">Clump ID:</span></span>
+          <span class="value" id="lastAddedClumpIdTag">0</span>
+        </p>
+        <p>
+          <span class="label">Last column:</span>
+          <span class="value" id="lastAddedColTag">1</span>
+        </p>
+        <p>
+          <span class="label">Editing <span class="no-wrap">Index | ID:</span></span>
+          <span class="value">
+            <span id="editingIndexTag">_</span> | <span id="editingIdTag">_</span>
+          </span>
+        </p>
       </div>
     </div>
     <div class="output-container">
@@ -216,6 +228,12 @@
     function updateDataInHtml() {
       document.getElementById('lastAddedClumpIdTag').textContent = lastAddedClumpId.toString();
       document.getElementById('lastAddedColTag').textContent = lastAddedCol.toString();
+      document.getElementById('editingIndexTag').textContent = editingIndex === null
+        ? '_'
+        : editingIndex.toString();
+      document.getElementById('editingIdTag').textContent = editingIndex === null
+        ? '_'
+        : clumps[editingIndex].id.toString();
     }
 
     // Clear the 'clump-node-selected' class from all clump nodes.
@@ -238,6 +256,7 @@
       editingIndex = index;
       updateLinkToDropdownOptions(); // Updates list and toggles disabled.
       updateColumnSelectDropdownOptions(); // Toggles disabled.
+      updateDataInHtml();
       selectClumpNode(event.target);
 
       const clump = clumps[index];
@@ -409,6 +428,8 @@
         editingIndex = null;
         updateLinkToDropdownOptions(); // Updates list and toggles disabled.
         updateColumnSelectDropdownOptions(); // Toggles disabled.
+        updateDataInHtml();
+        clearClumpNodes();
       }
 
       storeClumps();
@@ -435,6 +456,7 @@
       editingIndex = null;
       updateLinkToDropdownOptions(); // Updates list and toggles disabled.
       updateColumnSelectDropdownOptions(); // Toggles disabled.
+      updateDataInHtml();
       // This will clear the 'edit border' from the selected clump node.
       clearClumpNodes();
     };

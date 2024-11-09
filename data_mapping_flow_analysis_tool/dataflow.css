@@ -168,6 +168,8 @@ body {
   border-radius: 5px;
   margin: 20px auto 40px;
   padding: 30px 5px;
+  color: #fff;
+  max-width: 400px;
 }
 
 /* Clump Form */
@@ -258,7 +260,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-evenly;
-  width: 80%;
+  width: 90%;
 }
 
 @media (max-width: 950px) {
@@ -271,4 +273,32 @@ body {
 .script-vars {
   flex-direction: column;
   margin-bottom: 20px;
+}
+
+.info-panel.info-panel-sub.script-vars p {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  justify-content: space-between;
+  line-height: 1.6;
+  margin: 5px 0;
+  width: 90%;
+}
+
+.label {
+  text-align: left;
+  flex: 1;
+  white-space: normal;
+  /* Allows labels to wrap if necessary */
+}
+
+.value {
+  text-align: right;
+  font-weight: bold;
+  flex-shrink: 0;
+  /* Prevents value from shrinking, keeping it aligned right */
+}
+
+.no-wrap {
+  white-space: nowrap;
 }
