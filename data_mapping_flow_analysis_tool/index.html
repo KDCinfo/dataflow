@@ -24,22 +24,30 @@
   <div class="container">
     <div class="form-container">
       <h2>Add/Edit Code Clump</h2>
-      <form id="clumpForm" class="info-panel">
-        <label for="clumpName">Clump Name:</label>
-        <input type="text" id="clumpName" required><br><br>
+      <form id="clumpForm" class="clump-form info-panel">
+        <div class="clump-form-div">
+          <label for="clumpName">Clump Name:</label>
+          <input type="text" id="clumpName" required>
+        </div>
 
-        <label for="clumpCode">Clump Code:</label>
-        <textarea id="clumpCode" required></textarea><br><br>
+        <div class="clump-form-div">
+          <label for="clumpCode">Clump Code:</label>
+          <textarea id="clumpCode" required></textarea>
+        </div>
 
-        <label for="linkTo">Link to Clump:</label>
-        <select id="linkTo">
-          <option value="">None</option>
-        </select><br><br>
+        <div class="clump-form-div">
+          <label for="linkTo">Link to Clump:</label>
+          <select id="linkTo">
+            <option value="">None</option>
+          </select>
+        </div>
 
-        <label for="columnSelect">Column to Add To:</label>
-        <select id="columnSelect">
-          <option value="last">Last Column</option>
-        </select><br><br>
+        <div class="clump-form-div">
+          <label for="columnSelect">Column to Add To:</label>
+          <select id="columnSelect">
+            <option value="last">Last Column</option>
+          </select>
+        </div>
 
         <div class="form-buttons">
           <button type="submit">Save Clump</button>
@@ -69,6 +77,8 @@
     // Keeping the JavaScript in the same file, at least
     // for now, to alleviate the potential for caching issues.
 
+    // When 'debug === true':
+    // - Console log prints the clump matrix.
     const debugging = true;
 
     // Local storage key used to store clumps.
@@ -673,7 +683,9 @@
 
       // Set CSS property dynamically to control number of columns.
       const columnCount = getColumnCount();
-      clumpContainer.style.gridTemplateColumns = `repeat(${columnCount}, 150px)`;
+
+      const cellWidth = '300px';
+      clumpContainer.style.gridTemplateColumns = `repeat(${columnCount}, ${cellWidth})`;
 
       // Clump node placement.
       //

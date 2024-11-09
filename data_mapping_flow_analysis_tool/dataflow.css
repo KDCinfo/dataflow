@@ -36,6 +36,7 @@ body {
   grid-auto-rows: 40px;
   grid-auto-rows: minmax(40px, auto);
   gap: 5px;
+  overflow: auto;
 }
 
 .empty {
@@ -51,18 +52,18 @@ body {
 .clump-node {
   background-color: #f9f9f9;
   border: 1px solid #333;
-  box-sizing: border-box;
-  width: 150px;
-  height: 40px;
-  padding: 5px;
-  margin-bottom: 10px;
   border-radius: 5px;
-  position: relative;
-  text-align: center;
+  box-sizing: border-box;
   font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 40px;
+  min-width: 150px;
+  margin-bottom: 10px;
+  padding: 5px;
+  position: relative;
+  text-align: center;
 }
 
 .content-span,
@@ -75,6 +76,8 @@ body {
   padding-left: 10px;
   padding-right: 32px;
   width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .icon-span {
@@ -139,15 +142,6 @@ body {
   pointer-events: none;
 }
 
-.info-panel label {
-  display: inline-block;
-  font-size: 14px;
-  margin-right: 5px;
-  text-align: right;
-  vertical-align: top;
-  width: 125px;
-}
-
 .info-panel {
   background-color: #031800;
   box-shadow: 6px 4px 8px 0 rgba(250, 250, 250, 0.2);
@@ -156,6 +150,88 @@ body {
   margin: 20px auto 40px;
   padding: 30px 5px;
 }
+
+/* Clump Form */
+
+.clump-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px;
+  max-width: 600px;
+  /* Centering the form content */
+  margin: auto;
+}
+
+.clump-form-div {
+  display: flex;
+  align-items: center;
+}
+
+.clump-form-div label {
+  display: inline-block;
+  font-size: 14px;
+  margin-right: 10px;
+  text-align: right;
+  width: 125px;
+}
+
+.clump-form-div input,
+.clump-form-div textarea,
+.clump-form-div select {
+  flex: 1;
+  padding: 5px;
+  font-size: 14px;
+}
+
+.clump-form-div input,
+.clump-form-div textarea {
+  min-width: 120px;
+  width: 100%;
+}
+
+.clump-form-div select {
+  min-width: 120px;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: space-evenly;
+  margin: 15px auto 5px;
+}
+
+/* Responsive layout: stack labels and inputs vertically */
+@media (max-width: 900px) {
+  .clump-form {
+    padding: 15px;
+  }
+
+  .clump-form-div {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .clump-form-div label {
+    text-align: left;
+    margin-right: 0;
+    margin-bottom: 5px;
+    width: auto;
+  }
+
+  .clump-form-div input,
+  .clump-form-div textarea {
+    width: 90%;
+  }
+
+  .form-buttons {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+  }
+}
+
+/* Lower Panels */
 
 .info-panel-sub {
   background-color: #021200;
@@ -167,12 +243,13 @@ body {
   width: 80%;
 }
 
-.script-vars {
-  flex-direction: column;
+@media (max-width: 950px) {
+  .export-import {
+    flex-direction: column;
+    gap: 25px;
+  }
 }
 
-.form-buttons {
-  display: flex;
-  justify-content: space-evenly;
-  margin: 15px auto 5px;
+.script-vars {
+  flex-direction: column;
 }

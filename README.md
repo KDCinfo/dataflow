@@ -2,7 +2,7 @@
 
 ## Function Flow
 
-The "Function Flow" code was when I was analyzing function flow within an app.
+The "Function Flow" code was conceptualized when I was analyzing various function flows within an app.
 
 - This flow attempted to capture multiple functional flows throughout an app.
 - It focused on attempting to link functions based on relevant flow points.
