@@ -36,7 +36,7 @@
         </div>
 
         <div class="clump-form-div">
-          <label for="clumpCode">Clump Code:</label>
+          <label for="clumpCode">Code Clump:</label>
           <textarea id="clumpCode" required></textarea>
         </div>
 
@@ -218,6 +218,18 @@
       document.getElementById('lastAddedColTag').textContent = lastAddedCol.toString();
     }
 
+    // Clear the 'clump-node-selected' class from all clump nodes.
+    function clearClumpNodes() {
+      const clumpNodes = document.querySelectorAll('.clump-node');
+      clumpNodes.forEach(node => node.classList.remove('clump-node-selected'));
+    }
+
+    function selectClumpNode(eventTarget) {
+      clearClumpNodes();
+      // Add class to selected clump node.
+      eventTarget.parentElement.parentElement.classList.add('clump-node-selected');
+    }
+
     function loadForEdit(index, event) {
       event.stopPropagation();
 
@@ -226,6 +238,7 @@
       editingIndex = index;
       updateLinkToDropdownOptions(); // Updates list and toggles disabled.
       updateColumnSelectDropdownOptions(); // Toggles disabled.
+      selectClumpNode(event.target);
 
       const clump = clumps[index];
       clumpName.value = clump.clumpName;
@@ -731,16 +744,16 @@
       //
       for (let r = 0; r < clumpMatrix.length; r++) {
         for (let c = 0; c < clumpMatrix[r].length; c++) {
-          const clumpID = clumpMatrix[r][c];
+          const curClumpId = clumpMatrix[r][c];
 
-          if (clumpID === 0) {
+          if (curClumpId === 0) {
             const emptyCell = document.createElement('div');
             emptyCell.className = 'clump-node empty';
             clumpContainer.appendChild(emptyCell);
             continue;
           }
 
-          const clumpFound = clumps.find(clump => clump.id === clumpID);
+          const clumpFound = clumps.find(clump => clump.id === curClumpId);
           const clumpCell = document.createElement('div');
           clumpCell.className = 'clump-node collapsed';
 

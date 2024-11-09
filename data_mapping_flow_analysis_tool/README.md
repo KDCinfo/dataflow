@@ -1,5 +1,7 @@
 # Data Mapping Flow Analysis Tool
 
+<img src="./images/icon128.png" align="right" width="128" height="128">
+
 The "Data Mapping Flow Analysis Tool" was conceptualized when analyzing a variety of `Jenkinsfile`s from multiple sources, and the environments, stages, and flows within each.
 
 > Live Demo: [kdcinfo.com/app/dataflow/](https://kdcinfo.com/app/dataflow/)
@@ -63,7 +65,6 @@ Claude and I went back and forth through six draft variations. I finally gave up
 
 - Add 'editingId' in info panel.
 - Allow the UI to set the width of the clump cells. | Default: `const cellWidth = '300px';`
-- When editing a cell, highlight the cell being edited.
 - Add localStorage switcher (switching will need to reload page; will be akin to a project switcher)
 - Longer term: Add ability to add cells under any bottommost group in a column. It currently adds cells to the last cell for the selected column, even if a previously added cell was linked/placed above existing sequenced cells.
 
@@ -82,5 +83,6 @@ Claude and I went back and forth through six draft variations. I finally gave up
 - Finish meta tags
 - Add icon/image to website.
 - Add link to 'readme' and website (website icon links to readme; readme links to website).
+- When editing a cell, highlight the cell being edited.
 
 _

@@ -10,7 +10,11 @@ The "Function Flow" code was conceptualized when I was analyzing various functio
 
 ## Data Mapping Flow Analysis Tool
 
+<img src="./data_mapping_flow_analysis_tool/images/icon128.png" align="right" width="64" height="64">
+
 The "Data Mapping Flow Analysis Tool" was conceptualized when analyzing a variety of `Jenkinsfile`s from multiple sources, and the environments, stages, and flows within each.
+
+> Live Demo: [kdcinfo.com/app/dataflow/](https://kdcinfo.com/app/dataflow/)
 
 - The primary thought was to try to keep the flow simple (a sticking point in previous flow-recording app attempts):
   - Cell content: Title.

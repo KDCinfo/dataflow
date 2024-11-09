@@ -1,6 +1,6 @@
 body {
   background-color: #030c00;
-  color: #a0d000;
+  color: #b0e000;
   display: flex;
   font-family: Arial, sans-serif;
   margin: 0;
@@ -78,6 +78,11 @@ body {
   padding: 5px;
   position: relative;
   text-align: center;
+}
+
+.clump-node-selected {
+  outline: 6px dotted #b0e000;
+  box-shadow: 0 0 20px yellow;
 }
 
 .content-span,
