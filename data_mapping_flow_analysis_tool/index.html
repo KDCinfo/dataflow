@@ -927,6 +927,45 @@
       updateDataInHtml();
     }
 
+    function exportData() {
+      const dataStr = JSON.stringify(clumps, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'dataclumps.json';
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData() {
+      document.getElementById('importFile').click();
+    }
+
+    function handleImport(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const importedClumps = JSON.parse(e.target.result);
+          if (Array.isArray(importedClumps)) {
+            clumps.length = 0;
+            clumps.push(...importedClumps);
+            initializeGrid();
+            saveClumps();
+            renderClumps();
+          } else {
+            alert('Invalid data format');
+          }
+        } catch {
+          alert('Failed to import data');
+        }
+      };
+      reader.readAsText(file);
+    }
+
     // Initial render call
     renderMatrix();
   </script>
