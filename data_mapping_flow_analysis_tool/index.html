@@ -70,14 +70,15 @@
 
         <!--
           HTML Slider with options that will update the grid repeat:
-          > `['auto', '1fr', '150px', '200px', '250px', '300px']`
+          > ['auto', '1fr', '150px', '200px', '250px', '300px']
         -->
         <div class="export-import-block export-import-slider">
           <label for="gridRepeat" class="slider-label">
             Grid Repeat: <span class="no-wrap" id="gridRepeatHTMLValue">6</span>
           </label>
-          <input type="range" id="gridRepeat" min="1" max="6" value="2"
-            oninput="updateGridRepeat(event)">
+          <input type="range" id="gridRepeat" name="gridRepeat" min="1" max="6" value="2"
+            oninput="updateGridRepeat(event)" list="gridRepeatSliderMarkers" />
+          <datalist id="gridRepeatSliderMarkers"></datalist>
         </div>
       </div>
 
@@ -111,19 +112,22 @@
     // When 'debug === true':
     // - Console log prints the clump matrix.
     const debugPrintClumpMatrix = false;
+    const debugConsoleLogs = false;
 
     // Local storage key used to store clumps.
     const localStorageClumps = 'clumps50';
     const localStorageSettings = 'settings50';
 
     const clumpContainer = document.getElementById('clumpContainer');
-
     const clumpName = document.getElementById('clumpName');
     const clumpCode = document.getElementById('clumpCode');
     const linkTo = document.getElementById('linkTo');
     const columnSelect = document.getElementById('columnSelect');
 
-    const defaultSettings = {
+    // 'gridRepeatValue: 2' => '1fr'
+    const gridRepeatOptions = ['auto', '1fr', '150px', '200px', '250px', '300px'];
+
+    const defaultAppSettings = {
       gridRepeatValue: 2,
     };
 
@@ -134,7 +138,7 @@
     // Clumps contain the data for each clump, and an ID for placement and linking.
     // The clumpMatrix, below, is used to render the clumps in their correct positions.
     let clumps = JSON.parse(localStorage.getItem(localStorageClumps) || '[]');
-    let settings = JSON.parse(localStorage.getItem(localStorageSettings) || JSON.stringify(defaultSettings));
+    let settings = JSON.parse(localStorage.getItem(localStorageSettings) || JSON.stringify(defaultAppSettings));
 
     // DATA: [clumpMatrix] A 2D array to keep track of clump ID cell placement, empty
     //                     cells, and matrix width (rows) and height (cols) detection.
@@ -215,7 +219,7 @@
     }
 
     // HTML Slider with options that will update the grid repeat:
-    // > `['auto', '1fr', '150px', '200px', '250px', '300px']`
+    // > ['auto', '1fr', '150px', '200px', '250px', '300px']
     //
     function updateGridRepeat(event) {
       const newGridRepeat = event.target.value;
@@ -293,7 +297,7 @@
     function loadForEdit(index, event) {
       event.stopPropagation();
 
-      console.log('Editing clump:', clumps[index]);
+      debugConsoleLogs && console.log('Editing clump:', clumps[index]);
 
       editingIndex = index;
       updateLinkToDropdownOptions(); // Updates list and toggles disabled.
@@ -757,14 +761,14 @@
     }
 
     function convertGridRepeatSettingValueToCellWidth(curGridRepeat = settings.gridRepeatValue) {
-      console.log('curGridRepeat:', curGridRepeat);
+      debugConsoleLogs && console.log('curGridRepeat:', curGridRepeat);
 
-      const curGridRepeatValue = curGridRepeat === "1"
-        ? 'auto'
-        : curGridRepeat === "2"
-          ? '1fr'
-          : `${50 * curGridRepeat}px`;
-      console.log('curGridRepeatValue:', curGridRepeatValue);
+      // const gridRepeatOptions = ['auto', '1fr', '150px', '200px', '250px', '300px'];
+      const curGridRepeatValue = gridRepeatOptions[parseInt(curGridRepeat, 10) - 1];
+      // const curGridRepeatValue = curGridRepeat === "1"
+      //   ? gridRepeatOptions[0] : curGridRepeat === "2"
+      //     ? gridRepeatOptions[1] : `${50 * curGridRepeat}px`; // This was cool.
+      debugConsoleLogs && console.log('curGridRepeatValue:', curGridRepeatValue);
 
       return curGridRepeatValue;
     }
@@ -775,16 +779,28 @@
       // Set CSS property dynamically to control number of columns.
       const columnCount = getColumnCount();
 
-      // Use value from: settings.gridRepeatValue
+      // [ GRID REPEAT SLIDER ]
+
+      // [1] Add ticks to the slider.
+      const gridRepeatSliderMarkers = document.getElementById('gridRepeatSliderMarkers');
+      gridRepeatOptions.forEach((option, index) => {
+        const marker = document.createElement('option');
+        marker.value = index + 1;
+        marker.label = option;
+        gridRepeatSliderMarkers.appendChild(marker);
+      });
+
+      // [2] Use value from: settings.gridRepeatValue
       const cellWidth = convertGridRepeatSettingValueToCellWidth();
       clumpContainer.style.gridTemplateColumns = `repeat(${columnCount}, ${cellWidth})`;
 
-      // Update the grid repeat slider.
+      // [3] Update the grid repeat slider.
       document.getElementById('gridRepeat').value = settings.gridRepeatValue;
-      // Update the grid repeat slider label.
+
+      // [4] Update the grid repeat slider label.
       document.getElementById('gridRepeatHTMLValue').textContent = `[${settings.gridRepeatValue}] ${cellWidth}`;
 
-      // Clump node placement.
+      // [ CLUMP NODE PLACEMENT ]
       //
       // Note: only the last-added clump should have a 'delete' icon.
       //

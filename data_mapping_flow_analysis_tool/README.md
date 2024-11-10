@@ -63,7 +63,6 @@ Claude and I went back and forth through six draft variations. I finally gave up
 
 ## @TODO:
 
-- Add ticks to HTML slider.
 - Add localStorage switcher (switching will need to reload page; will be akin to a project switcher)
 - Longer term: Add ability to add cells under any bottommost group in a column. It currently adds cells to the last cell for the selected column, even if a previously added cell was linked/placed above existing sequenced cells.
 
@@ -85,5 +84,7 @@ Claude and I went back and forth through six draft variations. I finally gave up
 - When editing a cell, highlighted the cell being edited.
 - Added 'editingId' to info panel.
 - Allow the UI to set the width of the clump cells. | Default: `settings.gridRepeatValue: 2`
+- Added ticks to HTML slider.
+- Disabled console.logs.
 
 _
