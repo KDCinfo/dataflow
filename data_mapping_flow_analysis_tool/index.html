@@ -774,15 +774,35 @@
     }
 
     function renderMatrix() {
-      clumpContainer.innerHTML = ''; // Clear container before rendering
-
       // Set CSS property dynamically to control number of columns.
       const columnCount = getColumnCount();
+
+      // Clear container before rendering
+      if (clumps.length === 0) {
+        let clumpContainerContent = '<div class="empty-notes">Notes <small>(referenced in Readme @TODO:)</small>:';
+        clumpContainerContent += '<ul>';
+        clumpContainerContent += '  <li>Only the last clump can be deleted (more of an undo).</li>';
+        clumpContainerContent += "  <li>When editing clumps, only 'clump names' and 'data clumps' can be updated.";
+        clumpContainerContent += "    <ul>";
+        clumpContainerContent += '      <li>Clump links cannot be changed.</li>';
+        clumpContainerContent += '      <li>Clumps cannot be moved.</li>';
+        clumpContainerContent += '    </ul>';
+        clumpContainerContent += '  </li>';
+        clumpContainerContent += '</ul>';
+        clumpContainerContent += '</div>';
+        clumpContainer.innerHTML = clumpContainerContent;
+        clumpContainer.style.color = '#ffffff';
+      } else {
+        clumpContainer.innerHTML = '';
+        // Set color to same as '.output-container'.
+        clumpContainer.style.color = '#000000';
+      }
 
       // [ GRID REPEAT SLIDER ]
 
       // [1] Add ticks to the slider.
       const gridRepeatSliderMarkers = document.getElementById('gridRepeatSliderMarkers');
+      gridRepeatSliderMarkers.innerHTML = '';
       gridRepeatOptions.forEach((option, index) => {
         const marker = document.createElement('option');
         marker.value = index + 1;

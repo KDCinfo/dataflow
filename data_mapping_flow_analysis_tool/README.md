@@ -63,8 +63,15 @@ Claude and I went back and forth through six draft variations. I finally gave up
 
 ## @TODO:
 
-- Add localStorage switcher (switching will need to reload page; will be akin to a project switcher)
-- Longer term: Add ability to add cells under any bottommost group in a column. It currently adds cells to the last cell for the selected column, even if a previously added cell was linked/placed above existing sequenced cells.
+- Add localStorage switcher
+  - Switching will need to reload page; will be akin to a project switcher.
+- Add ability to delete any unlinked cell.
+- Add ability to delete any linked cell.
+- Add ability to change links.
+- Add ability to unlink.
+- Add ability to add cells under any bottommost group in a column.
+  - It currently adds cells to the last cell for the selected column, even if a previously added cell was linked/placed above existing sequenced cells.
+- Add ability to move cells, perhaps make it a drag-and-drop feature.
 
 ## @TODONE:
 
@@ -86,5 +93,7 @@ Claude and I went back and forth through six draft variations. I finally gave up
 - Allow the UI to set the width of the clump cells. | Default: `settings.gridRepeatValue: 2`
 - Added ticks to HTML slider.
 - Disabled console.logs.
+- Added 'empty page' message.
+- Fixed ticks repeating.
 
 _
