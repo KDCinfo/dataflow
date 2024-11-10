@@ -21,6 +21,11 @@ body {
   width: 30%;
 }
 
+h2 {
+  margin: 10px 0;
+  width: calc(100% - 55px);
+}
+
 .floating-icon {
   position: absolute;
   right: 10px;
@@ -263,10 +268,78 @@ body {
   width: 90%;
 }
 
+/* div.export-import */
+/* div.export-import div { */
+/* div.export-import-buttons */
+/* div.export-import-buttons button */
+/* div.export-import-slider */
+/* div.export-import-slider label */
+/* div.export-import-slider input[type="range"] */
+/* div.export-import-slider #gridRepeat */
+
+/* General Panel Styling */
+.info-panel-sub.export-import {
+  background-color: #031800;
+  box-shadow: 6px 4px 8px 0 rgba(250, 250, 250, 0.2);
+  border: 1px solid #373;
+  border-radius: 5px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  margin: 5px auto;
+  width: 90%;
+}
+
+/* Layout for Export/Import Buttons Block */
+.export-import-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.export-import-buttons button {
+  border: 1px solid #777;
+  border-radius: 4px;
+  flex: 1;
+  font-size: 14px;
+  padding: 8px 15px;
+  white-space: nowrap;
+}
+
+/* Layout for Slider Block */
+.export-import-slider {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.slider-label {
+  flex: 1;
+  font-size: 14px;
+  text-align: center;
+  /* Allows label text to wrap if needed */
+  white-space: normal;
+  width: 100%;
+}
+
+#gridRepeat {
+  flex-shrink: 0;
+  margin: 10px 0 0;
+  width: 70%;
+  max-width: 150px;
+}
+
 @media (max-width: 950px) {
-  .export-import {
+  .export-import-buttons {
     flex-direction: column;
-    gap: 25px;
+    gap: 15px;
+  }
+
+  #gridRepeatHTMLValue {
+    display: block;
   }
 }
 

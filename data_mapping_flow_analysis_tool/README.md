@@ -63,7 +63,7 @@ Claude and I went back and forth through six draft variations. I finally gave up
 
 ## @TODO:
 
-- Allow the UI to set the width of the clump cells. | Default: `const cellWidth = '300px';`
+- Add ticks to HTML slider.
 - Add localStorage switcher (switching will need to reload page; will be akin to a project switcher)
 - Longer term: Add ability to add cells under any bottommost group in a column. It currently adds cells to the last cell for the selected column, even if a previously added cell was linked/placed above existing sequenced cells.
 
@@ -76,13 +76,14 @@ Claude and I went back and forth through six draft variations. I finally gave up
   - Added Readmes
   - Added @TODO:
 - Removed `HR` tags (not necessary)
-- Test editing
-  - Disable `linkTo` and `columnSelect` dropdowns when editing. There is far too much to account for when shifting cells.
-- Create a favicon
-- Finish meta tags
-- Add icon/image to website.
-- Add link to 'readme' and website (website icon links to readme; readme links to website).
-- When editing a cell, highlight the cell being edited.
-- Add 'editingId' in info panel.
+- Tested editing
+  - Disabled `linkTo` and `columnSelect` dropdowns when editing. There is far too much to account for when shifting cells.
+- Created a favicon
+- Finished meta tags
+- Added icon/image to website.
+- Added link to 'readme' and website (website icon links to readme; readme links to website).
+- When editing a cell, highlighted the cell being edited.
+- Added 'editingId' to info panel.
+- Allow the UI to set the width of the clump cells. | Default: `settings.gridRepeatValue: 2`
 
 _
