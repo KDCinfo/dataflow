@@ -60,8 +60,12 @@
         </div>
       </form>
 
-      <!-- Export/Import buttons; App Settings -->
-      <div class="info-panel info-panel-sub export-import">
+      <!-- Click to collapse -->
+      <div class="panel-from-hotspot" onclick="togglePanel(event)">
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <!-- App Settings; Export/Import buttons -->
+      <div class="info-panel info-panel-sub export-import panel-from-collapsed-to-expanded">
         <div class="export-import-block export-import-buttons">
           <button onclick="exportData()">Export Data</button>
           <button onclick="importData()">Import Data</button>
@@ -984,6 +988,39 @@
         }
       };
       reader.readAsText(file);
+    }
+
+    function togglePanel(event) {
+      event.stopPropagation();
+
+      console.log('togglePanel');
+      console.log(event.target.parentElement.parentElement);
+
+      const panelToExpand = document.querySelector('.info-panel.export-import');
+      const panelHotspot = document.querySelector('.panel-from-hotspot');
+
+      if (panelToExpand.classList.contains('panel-from-expanded-to-collapsed')) {
+        panelToExpand.classList.remove('panel-from-expanded-to-collapsed');
+        panelToExpand.classList.add('panel-from-collapsed-to-expanded');
+      } else {
+        panelToExpand.classList.remove('panel-from-collapsed-to-expanded');
+        panelToExpand.classList.add('panel-from-expanded-to-collapsed');
+      }
+
+      // ? panelHotspot.children[0].textContent = '▶' // right arrow
+      panelToExpand.classList.contains('panel-from-expanded-to-collapsed')
+        ? panelHotspot.children[0].textContent = '◀'
+        : panelHotspot.children[0].textContent = '▼';
+    }
+
+    // Many thanks to: https://stackoverflow.com/a/29143197/638153 | user663031
+    function classListChain(htmlElement) {
+      var elementClassList = htmlElement.classList;
+      return {
+        toggle: function (c) { elementClassList.toggle(c); return this; },
+        add: function (c) { elementClassList.add(c); return this; },
+        remove: function (c) { elementClassList.remove(c); return this; }
+      };
     }
 
     // Initial render call

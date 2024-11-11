@@ -95,5 +95,6 @@ Claude and I went back and forth through six draft variations. I finally gave up
 - Disabled console.logs.
 - Added 'empty page' message.
 - Fixed ticks repeating.
+- Added collapsible toggle to settings panel.
 
 _

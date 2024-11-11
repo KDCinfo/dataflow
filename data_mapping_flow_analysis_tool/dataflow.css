@@ -25,6 +25,10 @@ button {
   cursor: pointer;
 }
 
+button[type="submit"] {
+  padding: 10px 25px;
+}
+
 h2 {
   margin: 10px 0;
   width: calc(100% - 55px);
@@ -155,6 +159,51 @@ h2 {
   /* grid-row-end: span 2; */
 }
 
+.panel-from-expanded-to-collapsed,
+.panel-from-collapsed-to-expanded {
+  overflow: hidden;
+  /* Ensure overflow content is clipped */
+}
+
+/* Collapsed to expanded animation */
+.panel-from-collapsed-to-expanded {
+  animation: smooth-collapse-slide-down 0.5s forwards;
+}
+
+@keyframes smooth-collapse-slide-down {
+  0% {
+    max-height: 40px;
+    opacity: 0;
+    padding: 0;
+    margin: 0;
+  }
+
+  100% {
+    /* Arbitrary height to give plenty of room for animation growth. */
+    max-height: 1000px;
+    opacity: 1;
+  }
+}
+
+/* Expanded to collapsed animation */
+.panel-from-expanded-to-collapsed {
+  animation: smooth-collapse-slide-up 0.5s forwards;
+}
+
+@keyframes smooth-collapse-slide-up {
+  0% {
+    max-height: 1000px;
+    opacity: 1;
+  }
+
+  100% {
+    max-height: 20px;
+    opacity: 0;
+    padding: 0;
+    margin: 0;
+  }
+}
+
 .linked::after {
   content: "\2B9A";
   color: #337733;
@@ -184,7 +233,7 @@ h2 {
   border: 1px solid #373;
   border-radius: 5px;
   margin: 20px auto 0;
-  padding: 30px 5px;
+  padding: 20px 5px;
   color: #fff;
   max-width: 400px;
 }
@@ -196,7 +245,7 @@ h2 {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  margin-top: 30px;
+  margin-top: 25px;
   padding: 20px;
   max-width: 600px;
 }
@@ -281,18 +330,28 @@ h2 {
   width: 90%;
 }
 
-/* div.export-import */
-/* div.export-import div { */
-/* div.export-import-buttons */
-/* div.export-import-buttons button */
-/* div.export-import-slider */
-/* div.export-import-slider label */
-/* div.export-import-slider input[type="range"] */
-/* div.export-import-slider #gridRepeat */
+/* .export-import */
+.panel-from-hotspot {
+  background-color: #003300;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px auto 0;
+  padding: 1px 10px 1px 0;
+  position: relative;
+  top: 20px;
+  text-align: right;
+  width: 95%;
+  z-index: 1;
+}
 
 /* General Panel Styling */
 .info-panel-sub.export-import {
+  align-items: center;
   flex-direction: column;
+  margin-top: 0px;
+  padding-top: 40px;
+  position: relative;
+  width: 95%;
 }
 
 /* Layout for Export/Import Buttons Block */
