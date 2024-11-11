@@ -84,6 +84,33 @@
             oninput="updateGridRepeat(event)" list="gridRepeatSliderMarkers" />
           <datalist id="gridRepeatSliderMarkers"></datalist>
         </div>
+
+        <div class="export-import-block export-import-storage-name">
+          <!-- Storage name selector wrapper -->
+          <div class="storage-name-wrapper">
+            <label for="storageName" class="storage-name-label">Select Storage:</label>
+            <select id="storageName">
+              <option value="0">Default</option>
+            </select>
+          </div>
+
+          <!-- Two-button wrapper -->
+          <div class="storage-buttons form-buttons">
+            <!-- Storage: Delete Selected -->
+            <button onclick="deleteSelectedStorage()">Delete Selected</button>
+
+            <!-- Storage: Use Selected; force wrap text -->
+            <button onclick="useSelectedStorage()"
+              style="white-space: wrap;">Use<br>Selected</button>
+          </div>
+
+          <!-- Create name wrapper -->
+          <div class="storage-create-name storage-buttons form-buttons">
+            <!-- Storage: Create New -->
+            <input type="text" id="newStorageName" placeholder="newSorageName">
+            <button onclick="createNewStorage()">New Storage</button>
+          </div>
+        </div>
       </div>
 
       <!-- Show fields for 'lastAddedLumpID', and 'lastAddedCol' -->
@@ -118,31 +145,40 @@
     const debugPrintClumpMatrix = false;
     const debugConsoleLogs = false;
 
-    // Local storage key used to store clumps.
-    const localStorageClumps = 'clumps50';
-    const localStorageSettings = 'settings50';
-
     const clumpContainer = document.getElementById('clumpContainer');
     const clumpName = document.getElementById('clumpName');
     const clumpCode = document.getElementById('clumpCode');
     const linkTo = document.getElementById('linkTo');
     const columnSelect = document.getElementById('columnSelect');
 
-    // 'gridRepeatValue: 2' => '1fr'
-    const gridRepeatOptions = ['auto', '1fr', '150px', '200px', '250px', '300px'];
-
-    const defaultAppSettings = {
-      gridRepeatValue: 2,
-    };
+    const storageName = document.getElementById("storageName");
+    const newStorageName = document.getElementById("newStorageName");
 
     // DATA: [editingIndex] Updated when edited a clump, and reset when clump is saved.
     let editingIndex = null;  // Track if we’re editing an existing clump
+
+    // Grid Cells: 'gridRepeatValue: 2' => '1fr'
+    const gridRepeatOptions = ['auto', '1fr', '150px', '200px', '250px', '300px'];
+
+    // Local Storage.
+    const localStorageSettings = 'dataMappingFlowSettings';
+    const defaultAppSettings = {
+      gridRepeatValue: 2,
+      storageNames: ['default'], // camelCase with underscores.
+      storageIndex: 0,
+    };
+    let settings = JSON.parse(localStorage.getItem(localStorageSettings) || JSON.stringify(defaultAppSettings));
+
+    const selectedStorageIndex = settings.storageIndex;
+    const storageNames = settings.storageNames;
+
+    // Local storage key used to store clumps.
+    let localStorageClumps = storageNames[selectedStorageIndex] || 'dataMappingFlowClumps';
 
     // DATA: [clumps] A list of data clumps are stored in the browser's local storage.
     // Clumps contain the data for each clump, and an ID for placement and linking.
     // The clumpMatrix, below, is used to render the clumps in their correct positions.
     let clumps = JSON.parse(localStorage.getItem(localStorageClumps) || '[]');
-    let settings = JSON.parse(localStorage.getItem(localStorageSettings) || JSON.stringify(defaultAppSettings));
 
     // DATA: [clumpMatrix] A 2D array to keep track of clump ID cell placement, empty
     //                     cells, and matrix width (rows) and height (cols) detection.
@@ -777,6 +813,46 @@
       return curGridRepeatValue;
     }
 
+    function isValidKeyName(keyName) {
+      const keyNamePattern = /^[a-zA-Z][a-zA-Z0-9_]*$/;
+      return keyNamePattern.test(keyName);
+    }
+
+    // const newStorageName = document.getElementById("newStorageName");
+    function createNewStorage() {
+      console.log('Create new storage:', newStorageName.value);
+      // if (isValidKeyName(newStorageName.value)) {
+      //   // const storageNames = settings.storageNames;
+      //   storageNames.push(newStorageName.value);
+      //   storeSettings();
+      //   renderMatrix();
+      // } else {
+      //   alert("Invalid storage name. Use letters, numbers, and underscores only, starting with a letter.");
+      // }
+    }
+
+    // const storageName = document.getElementById("storageName");
+    function useSelectedStorage() {
+      console.log('Use selected storage:', storageName.value);
+      // if (storageName.value !== settings.storageIndex) {
+      //   settings.storageIndex = parseInt(storageName.value, 10);
+      //   storeSettings();
+      //   renderMatrix();
+      // }
+    }
+
+    function deleteSelectedStorage() {
+      console.log('Delete selected storage:', storageName.value);
+      // if (storageNames.length > 1) {
+      //   const selectedStorageIndex = parseInt(storageName.value, 10);
+      //   storageNames.splice(selectedStorageIndex, 1);
+      //   storeSettings();
+      //   renderMatrix();
+      // } else {
+      //   alert("Cannot delete the last storage.");
+      // }
+    }
+
     function renderMatrix() {
       // Set CSS property dynamically to control number of columns.
       const columnCount = getColumnCount();
@@ -823,6 +899,23 @@
 
       // [4] Update the grid repeat slider label.
       document.getElementById('gridRepeatHTMLValue').textContent = `[${settings.gridRepeatValue}] ${cellWidth}`;
+
+      // [5] Update the 'storageName' dropdown from settings.storage
+      //
+      // document.getElementById('storageName')
+      //
+      // const selectedStorageIndex = settings.storageIndex;
+      // const storageNames = settings.storageNames;
+      storageName.innerHTML = '';
+      for (let i = 0; i < storageNames.length; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = storageNames[i];
+        if (i === selectedStorageIndex) {
+          option.selected = true;
+        }
+        storageName.appendChild(option);
+      }
 
       // [ CLUMP NODE PLACEMENT ]
       //

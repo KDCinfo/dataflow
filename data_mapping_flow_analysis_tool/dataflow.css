@@ -408,6 +408,60 @@ datalist {
   max-width: 150px;
 }
 
+/* Storage Names */
+
+.export-import-storage-name {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  margin-top: 25px;
+}
+
+.export-import-storage-name label {
+  display: inline-block;
+  font-size: 14px;
+  margin-right: 10px;
+  text-align: right;
+  /* width: 125px; */
+}
+
+.export-import-storage-name select {
+  flex: 1;
+  padding: 5px;
+  font-size: 14px;
+}
+
+.export-import-storage-name select {
+  min-width: 120px;
+}
+
+.storage-buttons button {
+  padding: 5px 10px;
+}
+
+/* .export-import-storage-name -> all first level divs -> 2nd html element -> width: 40% */
+.export-import-storage-name>div> :nth-child(1),
+.export-import-storage-name>div> :nth-child(2) {
+  width: 49%;
+}
+
+.export-import-storage-name>div {
+  align-items: center;
+  display: flex;
+  margin: 8px auto;
+}
+
+.storage-create-name input {
+  margin: 0 0 0 10px;
+  padding: 5px;
+}
+
+.storage-create-name button {
+  margin: 0 10px 0 0;
+  padding: 5px;
+}
+
+/* Responsive layout: stack labels and inputs vertically */
 @media (max-width: 950px) {
   .export-import-buttons {
     flex-direction: column;
@@ -416,6 +470,32 @@ datalist {
 
   #gridRepeatHTMLValue {
     display: block;
+  }
+
+  .export-import-storage-name {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .export-import-storage-name label {
+    text-align: left;
+    margin-right: 0;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    width: auto;
+  }
+
+  .storage-buttons,
+  .storage-name-wrapper {
+    flex-direction: column;
+  }
+
+  .export-import-storage-name>div> :nth-child(1),
+  .export-import-storage-name>div> :nth-child(2) {
+    align-items: center;
+    display: flex;
+    margin: 0 auto;
+    width: 90%;
   }
 }
 
