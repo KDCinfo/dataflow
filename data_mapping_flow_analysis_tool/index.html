@@ -740,9 +740,9 @@
           // Case: First clump, so add to first row in first column
           if (rowCount === 0) {
             // clumpMatrix.push([id]);
-            // const newMatrix = clumpMatrix.toSpliced(0, 0, [id]);
-            // clumpMatrix = [...newMatrix];
-            clumpMatrix = updateClumpMatrix(clumpMatrix, 0, 0, id);
+            const newMatrix = clumpMatrix.toSpliced(0, 0, [id]);
+            clumpMatrix = [...newMatrix];
+            // clumpMatrix = updateClumpMatrix(clumpMatrix, 0, 0, id);
           } else {
             // Reality check: is this else a valid condition?
             // Answer: Yes, because rowCount is not 0, so there is at least one row.
