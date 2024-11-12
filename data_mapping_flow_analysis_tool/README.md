@@ -65,6 +65,7 @@ Claude and I went back and forth through six draft variations. I finally gave up
 - Add localStorage switcher.
   - Delete storage names
   - Switch to using different storage names
+- Put all 'DATA:' in an Object.
 - Refactor and extract JavaScript into classes:
   - AppSettings (primary controller, orchestrator)
   - AppData
