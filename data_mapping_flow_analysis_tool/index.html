@@ -159,10 +159,14 @@
     const newStorageName = document.getElementById('newStorageName');
     const storageNamingError = document.querySelector('.storage-naming-error')
     const storageNameLabelCurrent = document.querySelector('.storage-name-label-current');
+    const storageCreateNameButton = document.querySelector('.storage-create-name button');
 
     // DATA: [editingIndex] Updated when edited a clump, and reset when clump is saved.
     let editingIndex = null;  // Track if we’re editing an existing clump
 
+    // [Q] ChatGPT Prompt: Can a JavaScript regex pattern check for either "camelCase" or
+    //                    "snake_case" (both initial lowercase) without them being mixed?
+    // [A] Yes: Here is a pattern for either camelCase OR snake_case, but not mixed.
     const keyNamePattern = /^(?:[a-z][a-zA-Z0-9]*|[a-z][a-z0-9_]*[a-z0-9])$/;
     // const keyNamePattern = /^[a-z][a-zA-Z0-9_]*$/;
 
@@ -341,7 +345,7 @@
     // Function to bold 'New Storage' button text if the 'newStorageName' input is valid.
     function checkNewStorageButton() {
       const newStorageNameValue = newStorageName.value.trim();
-      const isValid = keyNamePattern.test(newStorageNameValue);
+      const isValid = keyNamePattern.test(newStorageNameValue) && !checkStorageNameExists(newStorageNameValue);
       // Make button text bold.
       document.querySelector('.storage-create-name button').style.fontWeight = isValid ? 'bold' : 'normal';
       // Change button's cursor.
@@ -854,11 +858,16 @@
     }
 
     // Regular expression (regex) to validate storage names.
+    // Also checks if the name is already in the list.
     function isValidKeyName(keyName) {
-      // [Q] ChatGPT Prompt: Can a JavaScript regex pattern check for either "camelCase" or
-      //                    "snake_case" (both initial lowercase) without them being mixed?
-      // [A] Yes: Here is a pattern for either camelCase OR snake_case, but not mixed.
-      return keyNamePattern.test(keyName);
+      // Validate the new storage name, and check new name isn't already in the list.
+      return keyNamePattern.test(keyName) && !checkIfStorageNameExists(keyName);
+    }
+
+    function checkIfStorageNameExists(keyName) {
+      // return storageNames.includes(keyName);
+      // 'includes' is case-sensitive, so we need to lowercase all the names.
+      return storageNames.map(name => name.toLowerCase()).includes(keyName.toLowerCase());
     }
 
     function hideStorageError() {
@@ -884,12 +893,21 @@
 
     // const newStorageName = document.getElementById("newStorageName");
     function createNewStorage() {
+      // Temporarily disable the new storage button to prevent double-clicks.
+      storageCreateNameButton.disabled = true;
+
       debugConsoleLogs && console.log('Create new storage:', newStorageName.value);
+
       if (isValidKeyName(newStorageName.value)) {
         hideStorageError();
         setTimeout(() => {
+          // Reset input field.
+          newStorageName.value = '';
+          // Reset error message.
           storageNamingError.innerHTML = '';
-        }, 500);
+          // Reenable new storage button.
+          storageCreateNameButton.disabled = false;
+        }, 250);
         // From initialization above:
         //   const storageNames = settings.storageNames;
         // JavaScript is a pass-by-reference language for
@@ -899,6 +917,8 @@
         renderMatrix();
       } else {
         showStorageError(storageNameErrText);
+        // Reenable new storage button.
+        storageCreateNameButton.disabled = false;
       }
     }
 
