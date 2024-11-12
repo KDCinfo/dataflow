@@ -96,5 +96,6 @@ Claude and I went back and forth through six draft variations. I finally gave up
 - Added 'empty page' message.
 - Fixed ticks repeating.
 - Added collapsible toggle to settings panel.
+- Added error message for storage name validation.
 
 _

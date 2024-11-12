@@ -25,6 +25,10 @@ button {
   cursor: pointer;
 }
 
+button:hover {
+  box-shadow: 0 0 7px #ccff00
+}
+
 button[type="submit"] {
   padding: 10px 25px;
 }
@@ -32,6 +36,61 @@ button[type="submit"] {
 h2 {
   margin: 10px 0;
   width: calc(100% - 55px);
+}
+
+.hidden {
+  display: none;
+}
+
+.error {
+  background-color: #fff;
+  color: #f00;
+  font-size: 12px;
+  padding: 10px;
+  /* margin: 10px 0; */
+  max-width: 250px;
+  overflow: hidden;
+}
+
+/* Fade in/out error message */
+.error-hidden {
+  animation: fade-out 1s forwards;
+}
+
+.error-visible {
+  animation: fade-in 1s forwards;
+}
+
+.storage-naming-error {
+  background-color: #336600;
+  border-radius: 4px;
+  color: #fff;
+  width: 70%;
+  min-width: 135px;
+}
+
+@keyframes fade-in {
+  0% {
+    max-height: 0;
+    opacity: 0;
+  }
+
+  100% {
+    max-height: 150px;
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  0% {
+    max-height: 150px;
+    opacity: 1;
+  }
+
+  100% {
+    max-height: 0;
+    opacity: 0;
+  }
 }
 
 .floating-icon {
@@ -341,6 +400,7 @@ h2 {
   top: 20px;
   text-align: right;
   width: 95%;
+  max-width: 400px;
   z-index: 1;
 }
 
@@ -349,6 +409,7 @@ h2 {
   align-items: center;
   flex-direction: column;
   margin-top: 0px;
+  padding-bottom: 15px;
   padding-top: 40px;
   position: relative;
   width: 95%;
@@ -412,9 +473,11 @@ datalist {
 
 .export-import-storage-name {
   align-items: center;
+  border-top: 1px solid #003300;
   display: flex;
   flex-direction: column;
-  margin-top: 25px;
+  margin-top: 15px;
+  padding-top: 10px;
 }
 
 .export-import-storage-name label {

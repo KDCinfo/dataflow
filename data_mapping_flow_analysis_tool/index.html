@@ -110,6 +110,7 @@
             <input type="text" id="newStorageName" placeholder="newSorageName">
             <button onclick="createNewStorage()">New Storage</button>
           </div>
+          <span class="error storage-naming-error error-visible hidden"></span>
         </div>
       </div>
 
@@ -153,6 +154,7 @@
 
     const storageName = document.getElementById("storageName");
     const newStorageName = document.getElementById("newStorageName");
+    const storageNamingError = document.querySelector('.storage-naming-error')
 
     // DATA: [editingIndex] Updated when edited a clump, and reset when clump is saved.
     let editingIndex = null;  // Track if we’re editing an existing clump
@@ -167,6 +169,8 @@
       storageNames: ['default'], // camelCase with underscores.
       storageIndex: 0,
     };
+    const storageNameErrText = 'For function names, use camel case, starting with a lowercase character.';
+
     let settings = JSON.parse(localStorage.getItem(localStorageSettings) || JSON.stringify(defaultAppSettings));
 
     const selectedStorageIndex = settings.storageIndex;
@@ -813,14 +817,31 @@
       return curGridRepeatValue;
     }
 
+    // Regular expression to validate storage names.
     function isValidKeyName(keyName) {
-      const keyNamePattern = /^[a-zA-Z][a-zA-Z0-9_]*$/;
+      const keyNamePattern = /^[a-z][a-zA-Z0-9_]*$/;
       return keyNamePattern.test(keyName);
     }
 
     // const newStorageName = document.getElementById("newStorageName");
     function createNewStorage() {
       console.log('Create new storage:', newStorageName.value);
+      if (isValidKeyName(newStorageName.value)) {
+        classListChain(storageNamingError)
+          .remove('error-visible')
+          .add('error-hidden');
+        setTimeout(() => {
+          storageNamingError.textContent = '';
+        }, 500);
+      } else {
+        // alert("Naming convention: Use letters, numbers, and underscores, starting with a lowercase letter.");
+        // setTimeout fade collapse .storage-naming-error
+        classListChain(storageNamingError)
+          .remove('hidden')
+          .remove('error-hidden')
+          .add('error-visible');
+        storageNamingError.textContent = storageNameErrText;
+      }
       // if (isValidKeyName(newStorageName.value)) {
       //   // const storageNames = settings.storageNames;
       //   storageNames.push(newStorageName.value);
@@ -1093,11 +1114,13 @@
       const panelHotspot = document.querySelector('.panel-from-hotspot');
 
       if (panelToExpand.classList.contains('panel-from-expanded-to-collapsed')) {
-        panelToExpand.classList.remove('panel-from-expanded-to-collapsed');
-        panelToExpand.classList.add('panel-from-collapsed-to-expanded');
+        classListChain(panelToExpand)
+          .remove('panel-from-expanded-to-collapsed')
+          .add('panel-from-collapsed-to-expanded');
       } else {
-        panelToExpand.classList.remove('panel-from-collapsed-to-expanded');
-        panelToExpand.classList.add('panel-from-expanded-to-collapsed');
+        classListChain(panelToExpand)
+          .remove('panel-from-collapsed-to-expanded')
+          .add('panel-from-expanded-to-collapsed');
       }
 
       // ? panelHotspot.children[0].textContent = '▶' // right arrow
