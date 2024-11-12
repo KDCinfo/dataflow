@@ -251,7 +251,7 @@
     //  0    |  0    |  C3R8
     //  C1R5 |  0    |  0
     //
-    const clumpMatrix = [];
+    let clumpMatrix = [];
 
     // DATA: [lastAddedCol] The last column that a clump was added to.
     let lastAddedCol = 1;
@@ -414,19 +414,24 @@
 
     // Helper to extend rows with empty columns as needed.
     function addPaddedColumnToMatrix() {
-      clumpMatrix.forEach(row => row.push(0));
+      // clumpMatrix.forEach(row => row.push(0));
+      const newMatrix = clumpMatrix.map(row => [...row, 0]);
+      clumpMatrix = [...newMatrix];
     }
 
     // Helper to add new row filled with zeros.
     function addPaddedRowToMatrix() {
-      clumpMatrix.push(Array(getColumnCount()).fill(0));
+      // clumpMatrix.push(Array(getColumnCount()).fill(0));
+      const newMatrix = clumpMatrix.toSpliced(getRowCount(), 0, Array(getColumnCount()).fill(0));
+      clumpMatrix = [...newMatrix];
     }
 
     // Helper to insert a new row filled with zeros at a specific index.
     function insertPaddedRowToMatrix(index) {
       // The splice will insert a new row at the specified index.
       // The 2nd parameter (0) specifies that no rows will be removed.
-      clumpMatrix.splice(index, 0, Array(getColumnCount()).fill(0));
+      const newMatrix = clumpMatrix.toSpliced(index, 0, Array(getColumnCount()).fill(0));
+      clumpMatrix = [...newMatrix];
     }
 
     // Deleting individual cells is not easily possible due to linked clumps. For instance,
@@ -602,13 +607,13 @@
     //            Its Col and Row can be found via the clumpMatrix.
     // const linkTo = document.getElementById('linkTo');
     //
-    // DATA: [clumps] A list of data clumps are stored in the browser's local storage. Clumps
-    //                contain the data for each clump, and an ID for placement and linking. The
-    //                clumpMatrix, below, is used to render the clumps in their correct positions.
+    // [clumps] A list of data clumps are stored in the browser's local storage. Clumps
+    //          contain the data for each clump, and an ID for placement and linking. The
+    //          clumpMatrix, below, is used to render the clumps in their correct positions.
     // const clumps = [];
     //
-    // DATA: [clumpMatrix] A 2D array to keep track of clump ID cell placement, empty
-    //                     cells, and matrix width (rows) and height (cols) detection.
+    // [clumpMatrix] A 2D array to keep track of clump ID cell placement, empty
+    //               cells, and matrix width (rows) and height (cols) detection.
     // const clumpMatrix = [];
     //
     // const newClump = {
@@ -721,7 +726,8 @@
           // Case: linked clump is not the last column
         }
 
-        clumpMatrix[linkedRowIndex][linkedCol] = id;
+        // clumpMatrix[linkedRowIndex][linkedCol] = id;
+        clumpMatrix = updateClumpMatrix(clumpMatrix, linkedRowIndex, linkedCol, id);
         lastAddedCol = linkedCol + 1;
 
       } else {
@@ -733,7 +739,10 @@
         if (rowCount === 0 || colCount === 0) {
           // Case: First clump, so add to first row in first column
           if (rowCount === 0) {
-            clumpMatrix.push([id]);
+            // clumpMatrix.push([id]);
+            // const newMatrix = clumpMatrix.toSpliced(0, 0, [id]);
+            // clumpMatrix = [...newMatrix];
+            clumpMatrix = updateClumpMatrix(clumpMatrix, 0, 0, id);
           } else {
             // Reality check: is this else a valid condition?
             // Answer: Yes, because rowCount is not 0, so there is at least one row.
@@ -753,7 +762,9 @@
             // Answer: Yes, but the 'else' is also checking if colCount is 0, which is a separate condition from rowCount.
             // Okay, you win
             // Answer: Yes, but the 'else' is also checking if colCount is 0, which is a separate condition from rowCount.
-            clumpMatrix[0][0] = id;
+
+            // clumpMatrix[0][0] = id;
+            clumpMatrix = updateClumpMatrix(clumpMatrix, 0, 0, id);
             lastAddedCol = 1;
           }
         } else {
@@ -765,7 +776,8 @@
             //     ~ Push a new 0-padded Row (same length as other rows) to the matrix.
             //     ~ Place the clump's ID in the first cell/column.
             addPaddedRowToMatrix();
-            clumpMatrix[rowCount][0] = id;
+            // clumpMatrix[rowCount][0] = id;
+            clumpMatrix = updateClumpMatrix(clumpMatrix, rowCount, 0, id);
             lastAddedCol = 1;
           } else if (column === colCount) {
             // X-- Is the new clump's column the last column?
@@ -784,7 +796,8 @@
               return;
             }
             insertPaddedRowToMatrix(lastRow);
-            clumpMatrix[lastRow][colCount - 1] = id;
+            // clumpMatrix[lastRow][colCount - 1] = id;
+            clumpMatrix = updateClumpMatrix(clumpMatrix, lastRow, colCount - 1, id);
             lastAddedCol = colCount;
           } else {
             // --- Is the new clump's column neither the first nor last (in the middle)?
@@ -838,7 +851,8 @@
             // Record the row to add the new clump to (note: the row == index + 1).
             const rowToAddTo = newClumpBottomRow > rightmostRow ? newClumpBottomRow : rightmostRow;
             insertPaddedRowToMatrix(rowToAddTo);
-            clumpMatrix[rowToAddTo][column - 1] = id;
+            // clumpMatrix[rowToAddTo][column - 1] = id;
+            clumpMatrix = updateClumpMatrix(clumpMatrix, rowToAddTo, column - 1, id);
             lastAddedCol = column;
           }
         }
@@ -849,6 +863,15 @@
         console.log('Clump Matrix:');
         console.table(clumpMatrix);
       }
+    }
+
+    // Function to immutably update clumpMatrix.
+    function updateClumpMatrix(clumpMatrix, linkedRowIndex, linkedCol, id) {
+      return clumpMatrix.map((row, rowIndex) =>
+        rowIndex === linkedRowIndex
+          ? [...row.slice(0, linkedCol), id, ...row.slice(linkedCol + 1)]
+          : row
+      );
     }
 
     function convertGridRepeatSettingValueToCellWidth(curGridRepeat = settings.gridRepeatValue) {
