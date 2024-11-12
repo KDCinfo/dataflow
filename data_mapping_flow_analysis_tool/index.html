@@ -109,8 +109,8 @@
           <!-- Create name wrapper -->
           <div class="storage-create-name storage-buttons form-buttons">
             <!-- Storage: Create New -->
-            <input type="text" id="newStorageName" placeholder="newStorageName">
-            <button onclick="createNewStorage()">New Storage</button>
+            <input type="text" id="newStorageNameInput" placeholder="newStorageName">
+            <button id="newStorageNameButton" onclick="createNewStorage()">New Storage</button>
           </div>
           <span class="error storage-naming-error error-visible hidden"></span>
         </div>
@@ -156,10 +156,10 @@
     const saveClumpButton = document.querySelector('#clumpForm button[type="submit"]');
 
     const storageNameTag = document.getElementById('storageName');
-    const newStorageName = document.getElementById('newStorageName');
-    const storageNamingError = document.querySelector('.storage-naming-error')
     const storageNameLabelCurrent = document.querySelector('.storage-name-label-current');
-    const storageCreateNameButton = document.querySelector('.storage-create-name button');
+    const newStorageNameInput = document.getElementById('newStorageNameInput');
+    const newStorageNameButton = document.getElementById('newStorageNameButton');
+    const storageNamingError = document.querySelector('.storage-naming-error')
 
     // DATA: [editingIndex] Updated when edited a clump, and reset when clump is saved.
     let editingIndex = null;  // Track if we’re editing an existing clump
@@ -181,7 +181,10 @@
       storageIndex: 0,
     };
     // Regex checks for either 'camelCase' or 'snake_case'.
-    const storageNameErrText = `<ul>For consistent storage names:
+    let storageNameErrorText = ``;
+    const storageNameErrTextNameEmpty = `Please provide a storage name.`;
+    const storageNameErrTextNameExists = `This storage name already exists.`;
+    const storageNameErrTextInvalid = `<ul>For consistent storage names:
         <li>Start with a lowercase character.</li>
         <li>Use either 'camelCase' or 'snake_case'.</li>
       </ul>`;
@@ -342,14 +345,18 @@
       });
     }
 
-    // Function to bold 'New Storage' button text if the 'newStorageName' input is valid.
+    // Function to bold 'New Storage' button text if the 'newStorageNameInput' value is valid.
     function checkNewStorageButton() {
-      const newStorageNameValue = newStorageName.value.trim();
-      const isValid = keyNamePattern.test(newStorageNameValue) && !checkStorageNameExists(newStorageNameValue);
+      const newStorageNameValue = newStorageNameInput.value.trim();
+      const isValid = isValidKeyName(newStorageNameValue)
       // Make button text bold.
-      document.querySelector('.storage-create-name button').style.fontWeight = isValid ? 'bold' : 'normal';
+      newStorageNameButton.style.fontWeight = isValid ? 'bold' : 'normal';
       // Change button's cursor.
-      document.querySelector('.storage-create-name button').style.cursor = isValid ? 'pointer' : 'default';
+      newStorageNameButton.style.cursor = isValid ? 'pointer' : 'default';
+
+      if (isValid) {
+        hideStorageError();
+      }
     }
 
     function updateDataInHtml() {
@@ -861,7 +868,17 @@
     // Also checks if the name is already in the list.
     function isValidKeyName(keyName) {
       // Validate the new storage name, and check new name isn't already in the list.
-      return keyNamePattern.test(keyName) && !checkIfStorageNameExists(keyName);
+      if (keyName === '') {
+        storageNameErrorText = storageNameErrTextNameEmpty;
+      } else if (!keyNamePattern.test(keyName)) {
+        storageNameErrorText = storageNameErrTextInvalid;
+      } else if (checkIfStorageNameExists(keyName)) {
+        storageNameErrorText = storageNameErrTextNameExists;
+      } else {
+        storageNameErrorText = '';
+      }
+      // return keyName !== '' && keyNamePattern.test(keyName) && !checkIfStorageNameExists(keyName);
+      return storageNameErrorText === '';
     }
 
     function checkIfStorageNameExists(keyName) {
@@ -876,6 +893,9 @@
           .remove('error-visible')
           .add('error-hidden');
       }
+      setTimeout(() => {
+        storageNamingError.innerHTML = '';
+      }, 250);
     }
 
     function showStorageError(errText) {
@@ -891,35 +911,40 @@
       storageNamingError.innerHTML = errText;
     }
 
-    // const newStorageName = document.getElementById("newStorageName");
+    // const newStorageNameInput = document.getElementById("newStorageNameInput");
     function createNewStorage() {
       // Temporarily disable the new storage button to prevent double-clicks.
-      storageCreateNameButton.disabled = true;
+      newStorageNameButton.disabled = true;
 
-      debugConsoleLogs && console.log('Create new storage:', newStorageName.value);
+      debugConsoleLogs && console.log('Create new storage:', newStorageNameInput.value);
 
-      if (isValidKeyName(newStorageName.value)) {
+      if (isValidKeyName(newStorageNameInput.value)) {
         hideStorageError();
         setTimeout(() => {
           // Reset input field.
-          newStorageName.value = '';
+          newStorageNameInput.value = '';
           // Reset error message.
           storageNamingError.innerHTML = '';
-          // Reenable new storage button.
-          storageCreateNameButton.disabled = false;
+          // Remove temporary disablement of the new storage button.
+          newStorageNameButton.disabled = false;
+          // Reset CSS styling on the 'New Storage' button.
+          checkNewStorageButton();
         }, 250);
         // From initialization above:
         //   const storageNames = settings.storageNames;
         // JavaScript is a pass-by-reference language for
         // non-primitives, so we can modify the original array.
-        storageNames.push(newStorageName.value);
+        storageNames.push(newStorageNameInput.value);
         storeSettings();
         renderMatrix();
       } else {
-        showStorageError(storageNameErrText);
-        // Reenable new storage button.
-        storageCreateNameButton.disabled = false;
+        showStorageError(storageNameErrorText);
+        // Remove temporary disablement of the new storage button.
+        newStorageNameButton.disabled = false;
+        // Reset CSS styling on the 'New Storage' button.
+        checkNewStorageButton();
       }
+
     }
 
     function deleteSelectedStorage() {
@@ -1236,8 +1261,8 @@
       }
     });
 
-    // Listener on 'newStorageName' input field to check if the 'New Storage' button should be bold.
-    newStorageName.addEventListener('input', checkNewStorageButton);
+    // Listener on 'newStorageNameInput' field to check if the 'New Storage' button should be bold.
+    newStorageNameInput.addEventListener('input', checkNewStorageButton);
 
     // Initial render call
     renderMatrix();
