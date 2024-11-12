@@ -181,6 +181,8 @@
         <li>Start with a lowercase character.</li>
         <li>Use either 'camelCase' or 'snake_case'.</li>
       </ul>`;
+    const storageNameErrDelText = `Cannot delete the default or currently active storage names.`;
+    const storageNameErrUseText = `Cannot load an already active storage name.`;
 
     let settings = JSON.parse(localStorage.getItem(localStorageSettings) || JSON.stringify(defaultAppSettings));
 
@@ -896,13 +898,34 @@
         storeSettings();
         renderMatrix();
       } else {
-        if (
-          storageNamingError.classList.contains('hidden') ||
-          storageNamingError.classList.contains('error-hidden')
-        ) {
         showStorageError(storageNameErrText);
+      }
+    }
+
+    function deleteSelectedStorage() {
+      debugConsoleLogs && console.log('Delete selected storage:', storageNameTag.value);
+
+      if (storageNamingError.classList.contains('error-visible')) {
+        classListChain(storageNamingError)
+          .remove('error-visible')
+          .add('error-hidden');
+      }
+
+      if (
+        storageNames.length > 1 &&
+        storageNameTag.value !== '0' &&
+        storageNameTag.value !== settings.storageIndex
+      ) {
+        if (confirm("Are you sure you want to delete this storage?")) {
+          hideStorageError();
+          const selectedStorageIndex = parseInt(storageName.value, 10);
+          storageNames.splice(selectedStorageIndex, 1);
+          storeSettings();
+          renderMatrix();
         }
-        storageNamingError.innerHTML = storageNameErrText;
+      } else {
+        // This should never be hit because the button should be disabled when not allowed.
+        showStorageError(storageNameErrDelText);
       }
     }
 
@@ -914,18 +937,6 @@
       //   storeSettings();
       //   Update clumps and matrix;
       //   renderMatrix();
-      // }
-    }
-
-    function deleteSelectedStorage() {
-      debugConsoleLogs && console.log('Delete selected storage:', storageNameTag.value);
-      // if (storageNames.length > 1) {
-      //   const selectedStorageIndex = parseInt(storageName.value, 10);
-      //   storageNames.splice(selectedStorageIndex, 1);
-      //   storeSettings();
-      //   renderMatrix();
-      // } else {
-      //   alert("Cannot delete the last storage.");
       // }
       // Update 'storageNameLabelCurrent' with new value.
     }
