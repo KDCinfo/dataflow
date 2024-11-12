@@ -169,7 +169,11 @@
       storageNames: ['default'], // camelCase with underscores.
       storageIndex: 0,
     };
-    const storageNameErrText = 'For function names, use camel case, starting with a lowercase character.';
+    // Regex checks for either 'camelCase' or 'snake_case'.
+    const storageNameErrText = `<ul>For consistent storage names:
+        <li>Start with a lowercase character.</li>
+        <li>Use either 'camelCase' or 'snake_case'.</li>
+      </ul>`;
 
     let settings = JSON.parse(localStorage.getItem(localStorageSettings) || JSON.stringify(defaultAppSettings));
 
@@ -817,9 +821,13 @@
       return curGridRepeatValue;
     }
 
-    // Regular expression to validate storage names.
+    // Regular expression (regex) to validate storage names.
     function isValidKeyName(keyName) {
-      const keyNamePattern = /^[a-z][a-zA-Z0-9_]*$/;
+      // [Q] ChatGPT Prompt: Can a JavaScript regex pattern check for either "camelCase" or
+      //                    "snake_case" (both initial lowercase) without them being mixed?
+      // [A] Yes: Here is a pattern for either camelCase OR snake_case, but not mixed.
+      const keyNamePattern = /^(?:[a-z][a-zA-Z0-9]*|[a-z][a-z0-9_]*[a-z0-9])$/;
+      // const keyNamePattern = /^[a-z][a-zA-Z0-9_]*$/;
       return keyNamePattern.test(keyName);
     }
 
@@ -831,7 +839,7 @@
           .remove('error-visible')
           .add('error-hidden');
         setTimeout(() => {
-          storageNamingError.textContent = '';
+          storageNamingError.innerHTML = '';
         }, 500);
       } else {
         // alert("Naming convention: Use letters, numbers, and underscores, starting with a lowercase letter.");
@@ -840,7 +848,7 @@
           .remove('hidden')
           .remove('error-hidden')
           .add('error-visible');
-        storageNamingError.textContent = storageNameErrText;
+        storageNamingError.innerHTML = storageNameErrText;
       }
       // if (isValidKeyName(newStorageName.value)) {
       //   // const storageNames = settings.storageNames;
@@ -880,9 +888,9 @@
 
       // Clear container before rendering
       if (clumps.length === 0) {
-        let clumpContainerContent = '<div class="empty-notes">Notes <small>(referenced in Readme @TODO:)</small>:';
+        let clumpContainerContent = '<div class="empty-notes">Notes <small>(referenced in Readme <code>@TODO:</code>)</small>:';
         clumpContainerContent += '<ul>';
-        clumpContainerContent += '  <li>Only the last clump can be deleted (more of an undo).</li>';
+        clumpContainerContent += '  <li>Only the last clump can be deleted, then the next, and the next.</li>';
         clumpContainerContent += "  <li>When editing clumps, only 'clump names' and 'data clumps' can be updated.";
         clumpContainerContent += "    <ul>";
         clumpContainerContent += '      <li>Clump links cannot be changed.</li>';

@@ -97,5 +97,6 @@ Claude and I went back and forth through six draft variations. I finally gave up
 - Fixed ticks repeating.
 - Added collapsible toggle to settings panel.
 - Added error message for storage name validation.
+- Set storage name regex to be either 'camelCase' or 'snake_case'.
 
 _
