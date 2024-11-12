@@ -33,6 +33,22 @@ button[type="submit"] {
   padding: 10px 25px;
 }
 
+.clump-form button[type="submit"] {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.clump-form button[type="submit"]:disabled {
+  background-color: #666;
+  box-shadow: none;
+  color: #ccc;
+  cursor: default;
+}
+
+.storage-buttons button {
+  font-size: 12px;
+}
+
 h2 {
   margin: 10px 0;
   width: calc(100% - 55px);
@@ -143,7 +159,7 @@ h2 {
   line-height: 1.5;
   margin-top: 20px;
   padding: 20px;
-  width: 50vw;
+  /* width: 50vw; */
 }
 
 .empty {

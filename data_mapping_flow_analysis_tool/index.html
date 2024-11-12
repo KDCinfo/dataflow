@@ -163,6 +163,9 @@
     // DATA: [editingIndex] Updated when edited a clump, and reset when clump is saved.
     let editingIndex = null;  // Track if we’re editing an existing clump
 
+    const keyNamePattern = /^(?:[a-z][a-zA-Z0-9]*|[a-z][a-z0-9_]*[a-z0-9])$/;
+    // const keyNamePattern = /^[a-z][a-zA-Z0-9_]*$/;
+
     // Grid Cells: 'gridRepeatValue: 2' => '1fr'
     const gridRepeatOptions = ['auto', '1fr', '150px', '200px', '250px', '300px'];
 
@@ -331,6 +334,16 @@
         option.textContent = storageName;
         storageNameTag.appendChild(option);
       });
+    }
+
+    // Function to bold 'New Storage' button text if the 'newStorageName' input is valid.
+    function checkNewStorageButton() {
+      const newStorageNameValue = newStorageName.value.trim();
+      const isValid = keyNamePattern.test(newStorageNameValue);
+      // Make button text bold.
+      document.querySelector('.storage-create-name button').style.fontWeight = isValid ? 'bold' : 'normal';
+      // Change button's cursor.
+      document.querySelector('.storage-create-name button').style.cursor = isValid ? 'pointer' : 'default';
     }
 
     function updateDataInHtml() {
@@ -843,20 +856,35 @@
       // [Q] ChatGPT Prompt: Can a JavaScript regex pattern check for either "camelCase" or
       //                    "snake_case" (both initial lowercase) without them being mixed?
       // [A] Yes: Here is a pattern for either camelCase OR snake_case, but not mixed.
-      const keyNamePattern = /^(?:[a-z][a-zA-Z0-9]*|[a-z][a-z0-9_]*[a-z0-9])$/;
-      // const keyNamePattern = /^[a-z][a-zA-Z0-9_]*$/;
       return keyNamePattern.test(keyName);
+    }
+
+    function hideStorageError() {
+      if (storageNamingError.classList.contains('error-visible')) {
+        classListChain(storageNamingError)
+          .remove('error-visible')
+          .add('error-hidden');
+      }
+    }
+
+    function showStorageError(errText) {
+      if (
+        storageNamingError.classList.contains('hidden') ||
+        storageNamingError.classList.contains('error-hidden')
+      ) {
+        classListChain(storageNamingError)
+          .remove('hidden')
+          .remove('error-hidden')
+          .add('error-visible');
+      }
+      storageNamingError.innerHTML = errText;
     }
 
     // const newStorageName = document.getElementById("newStorageName");
     function createNewStorage() {
       debugConsoleLogs && console.log('Create new storage:', newStorageName.value);
       if (isValidKeyName(newStorageName.value)) {
-        if (storageNamingError.classList.contains('error-visible')) {
-          classListChain(storageNamingError)
-            .remove('error-visible')
-            .add('error-hidden');
-        }
+        hideStorageError();
         setTimeout(() => {
           storageNamingError.innerHTML = '';
         }, 500);
@@ -872,10 +900,7 @@
           storageNamingError.classList.contains('hidden') ||
           storageNamingError.classList.contains('error-hidden')
         ) {
-          classListChain(storageNamingError)
-            .remove('hidden')
-            .remove('error-hidden')
-            .add('error-visible');
+        showStorageError(storageNameErrText);
         }
         storageNamingError.innerHTML = storageNameErrText;
       }
@@ -1179,6 +1204,9 @@
         saveClumpButton.disabled = true;
       }
     });
+
+    // Listener on 'newStorageName' input field to check if the 'New Storage' button should be bold.
+    newStorageName.addEventListener('input', checkNewStorageButton);
 
     // Initial render call
     renderMatrix();
