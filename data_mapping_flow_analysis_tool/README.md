@@ -62,9 +62,13 @@ Claude and I went back and forth through six draft variations. I finally gave up
 > 10 days later... DMFAT was borne to GitHub.
 
 ## @TODO:
-
-- Add localStorage switcher
-  - Switching will need to reload page; will be akin to a project switcher.
+- Add localStorage switcher.
+  - Delete storage names
+  - Switch to using different storage names
+- Refactor and extract JavaScript into classes:
+  - AppSettings (primary controller, orchestrator)
+  - AppData
+  - AppHelpers
 - Add ability to delete any unlinked cell.
 - Add ability to delete any linked cell.
 - Add ability to change links.
@@ -75,17 +79,17 @@ Claude and I went back and forth through six draft variations. I finally gave up
 
 ## @TODONE:
 
-- Finished delete function
-- Formatted entire layout
+- Finished delete function.
+- Formatted entire layout.
   - Added visual arrows between cells
-- Committed to GitHub
+- Committed to GitHub:
   - Added Readmes
   - Added @TODO:
-- Removed `HR` tags (not necessary)
-- Tested editing
+- Removed `HR` tags (not necessary).
+- Tested editing.
   - Disabled `linkTo` and `columnSelect` dropdowns when editing. There is far too much to account for when shifting cells.
-- Created a favicon
-- Finished meta tags
+- Created a favicon.
+- Finished meta tags.
 - Added icon/image to website.
 - Added link to 'readme' and website (website icon links to readme; readme links to website).
 - When editing a cell, highlighted the cell being edited.
@@ -97,6 +101,8 @@ Claude and I went back and forth through six draft variations. I finally gave up
 - Fixed ticks repeating.
 - Added collapsible toggle to settings panel.
 - Added error message for storage name validation.
-- Set storage name regex to be either 'camelCase' or 'snake_case'.
+- Set storage name regex to accept either 'camelCase' or 'snake_case'.
+- Added localStorage switcher:
+  - Create new storage names
 
 _

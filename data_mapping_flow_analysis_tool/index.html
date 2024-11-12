@@ -144,7 +144,7 @@
     // When 'debug === true':
     // - Console log prints the clump matrix.
     const debugPrintClumpMatrix = false;
-    const debugConsoleLogs = false;
+    const debugConsoleLogs = true;
 
     const clumpContainer = document.getElementById('clumpContainer');
     const clumpName = document.getElementById('clumpName');
@@ -152,8 +152,8 @@
     const linkTo = document.getElementById('linkTo');
     const columnSelect = document.getElementById('columnSelect');
 
-    const storageName = document.getElementById("storageName");
-    const newStorageName = document.getElementById("newStorageName");
+    const storageNameTag = document.getElementById('storageName');
+    const newStorageName = document.getElementById('newStorageName');
     const storageNamingError = document.querySelector('.storage-naming-error')
 
     // DATA: [editingIndex] Updated when edited a clump, and reset when clump is saved.
@@ -317,6 +317,16 @@
         columnSelect.appendChild(option);
       });
       columnSelect.disabled = editingIndex !== null;
+    }
+
+    function updateStorageNameDropdownOptions() {
+      storageNameTag.innerHTML = '';
+      storageNames.forEach((storageName, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = storageName;
+        storageNameTag.appendChild(option);
+      });
     }
 
     function updateDataInHtml() {
@@ -833,36 +843,40 @@
 
     // const newStorageName = document.getElementById("newStorageName");
     function createNewStorage() {
-      console.log('Create new storage:', newStorageName.value);
+      debugConsoleLogs && console.log('Create new storage:', newStorageName.value);
       if (isValidKeyName(newStorageName.value)) {
-        classListChain(storageNamingError)
-          .remove('error-visible')
-          .add('error-hidden');
+        if (storageNamingError.classList.contains('error-visible')) {
+          classListChain(storageNamingError)
+            .remove('error-visible')
+            .add('error-hidden');
+        }
         setTimeout(() => {
           storageNamingError.innerHTML = '';
         }, 500);
+        // From initialization above:
+        //   const storageNames = settings.storageNames;
+        // JavaScript is a pass-by-reference language for
+        // non-primitives, so we can modify the original array.
+        storageNames.push(newStorageName.value);
+        storeSettings();
+        renderMatrix();
       } else {
-        // alert("Naming convention: Use letters, numbers, and underscores, starting with a lowercase letter.");
-        // setTimeout fade collapse .storage-naming-error
-        classListChain(storageNamingError)
-          .remove('hidden')
-          .remove('error-hidden')
-          .add('error-visible');
+        if (
+          storageNamingError.classList.contains('hidden') ||
+          storageNamingError.classList.contains('error-hidden')
+        ) {
+          classListChain(storageNamingError)
+            .remove('hidden')
+            .remove('error-hidden')
+            .add('error-visible');
+        }
         storageNamingError.innerHTML = storageNameErrText;
       }
-      // if (isValidKeyName(newStorageName.value)) {
-      //   // const storageNames = settings.storageNames;
-      //   storageNames.push(newStorageName.value);
-      //   storeSettings();
-      //   renderMatrix();
-      // } else {
-      //   alert("Invalid storage name. Use letters, numbers, and underscores only, starting with a letter.");
-      // }
     }
 
     // const storageName = document.getElementById("storageName");
     function useSelectedStorage() {
-      console.log('Use selected storage:', storageName.value);
+      debugConsoleLogs && console.log('Use selected storage:', storageNameTag.value);
       // if (storageName.value !== settings.storageIndex) {
       //   settings.storageIndex = parseInt(storageName.value, 10);
       //   storeSettings();
@@ -871,7 +885,7 @@
     }
 
     function deleteSelectedStorage() {
-      console.log('Delete selected storage:', storageName.value);
+      debugConsoleLogs && console.log('Delete selected storage:', storageNameTag.value);
       // if (storageNames.length > 1) {
       //   const selectedStorageIndex = parseInt(storageName.value, 10);
       //   storageNames.splice(selectedStorageIndex, 1);
@@ -935,7 +949,7 @@
       //
       // const selectedStorageIndex = settings.storageIndex;
       // const storageNames = settings.storageNames;
-      storageName.innerHTML = '';
+      storageNameTag.innerHTML = '';
       for (let i = 0; i < storageNames.length; i++) {
         const option = document.createElement('option');
         option.value = i;
@@ -943,7 +957,7 @@
         if (i === selectedStorageIndex) {
           option.selected = true;
         }
-        storageName.appendChild(option);
+        storageNameTag.appendChild(option);
       }
 
       // [ CLUMP NODE PLACEMENT ]
@@ -1070,6 +1084,7 @@
 
       updateLinkToDropdownOptions(); // Updates list and toggles disabled.
       updateColumnSelectDropdownOptions(); // Toggles disabled.
+      updateStorageNameDropdownOptions();
       updateDataInHtml();
     }
 
@@ -1115,8 +1130,8 @@
     function togglePanel(event) {
       event.stopPropagation();
 
-      console.log('togglePanel');
-      console.log(event.target.parentElement.parentElement);
+      debugConsoleLogs && console.log('togglePanel');
+      debugConsoleLogs && console.log(event.target.parentElement.parentElement);
 
       const panelToExpand = document.querySelector('.info-panel.export-import');
       const panelHotspot = document.querySelector('.panel-from-hotspot');
