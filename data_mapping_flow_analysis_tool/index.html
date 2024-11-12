@@ -88,7 +88,9 @@
         <div class="export-import-block export-import-storage-name">
           <!-- Storage name selector wrapper -->
           <div class="storage-name-wrapper">
-            <label for="storageName" class="storage-name-label">Select Storage:</label>
+            <label for="storageName" class="storage-name-label">Select Storage:<br>
+              <small class="storage-name-label-current">[default]</small>
+            </label>
             <select id="storageName">
               <option value="0">Default</option>
             </select>
@@ -107,7 +109,7 @@
           <!-- Create name wrapper -->
           <div class="storage-create-name storage-buttons form-buttons">
             <!-- Storage: Create New -->
-            <input type="text" id="newStorageName" placeholder="newSorageName">
+            <input type="text" id="newStorageName" placeholder="newStorageName">
             <button onclick="createNewStorage()">New Storage</button>
           </div>
           <span class="error storage-naming-error error-visible hidden"></span>
@@ -155,6 +157,7 @@
     const storageNameTag = document.getElementById('storageName');
     const newStorageName = document.getElementById('newStorageName');
     const storageNamingError = document.querySelector('.storage-naming-error')
+    const storageNameLabelCurrent = document.querySelector('.storage-name-label-current');
 
     // DATA: [editingIndex] Updated when edited a clump, and reset when clump is saved.
     let editingIndex = null;  // Track if we’re editing an existing clump
@@ -880,6 +883,7 @@
       // if (storageName.value !== settings.storageIndex) {
       //   settings.storageIndex = parseInt(storageName.value, 10);
       //   storeSettings();
+      //   Update clumps and matrix;
       //   renderMatrix();
       // }
     }
@@ -894,6 +898,7 @@
       // } else {
       //   alert("Cannot delete the last storage.");
       // }
+      // Update 'storageNameLabelCurrent' with new value.
     }
 
     function renderMatrix() {
