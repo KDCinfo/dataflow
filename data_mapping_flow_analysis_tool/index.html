@@ -202,7 +202,7 @@
     // DATA: [clumps] A list of data clumps are stored in the browser's local storage.
     // Clumps contain the data for each clump, and an ID for placement and linking.
     // The clumpMatrix, below, is used to render the clumps in their correct positions.
-    let clumps = JSON.parse(localStorage.getItem(localStorageKeyForClumps) || '[]');
+    let clumpList = JSON.parse(localStorage.getItem(localStorageKeyForClumps) || '[]');
 
     // DATA: [clumpMatrix] A 2D array to keep track of clump ID cell placement, empty
     //                     cells, and matrix width (rows) and height (cols) detection.
@@ -268,14 +268,14 @@
 
     // Add clumps to the matrix
     function addClumpsToMatrix() {
-      clumps.forEach(clump => {
+      clumpList.forEach(clump => {
         lastAddedClumpId = clump.id;
         addClumpToMatrix(clump);
       });
     }
 
     function storeClumps() {
-      localStorage.setItem(localStorageKeyForClumps, JSON.stringify(clumps));
+      localStorage.setItem(localStorageKeyForClumps, JSON.stringify(clumpList));
     }
 
     function storeSettings() {
@@ -305,8 +305,8 @@
 
       // This loop extrapolates in-use linkTo IDs so they are not
       // shown in the dropdown (because they're already linked to).
-      const linkedClumpIDs = clumps.map(clump => clump.linkedClumpID);
-      clumps.forEach((clump, index) => {
+      const linkedClumpIDs = clumpList.map(clump => clump.linkedClumpID);
+      clumpList.forEach((clump, index) => {
         // If the clump is not the one being edited, or it is not already linked.
         if (editingIndex !== index || !linkedClumpIDs.includes(clump.id)) {
           const option = document.createElement('option');
@@ -367,7 +367,7 @@
         : editingIndex.toString();
       document.getElementById('editingIdTag').textContent = editingIndex === null
         ? '_'
-        : clumps[editingIndex].id.toString();
+        : clumpList[editingIndex].id.toString();
     }
 
     // Clear the 'clump-node-selected' class from all clump nodes.
@@ -385,7 +385,7 @@
     function loadForEdit(index, event) {
       event.stopPropagation();
 
-      debugConsoleLogs && console.log('Editing clump:', clumps[index]);
+      debugConsoleLogs && console.log('Editing clump:', clumpList[index]);
 
       editingIndex = index;
       updateLinkToDropdownOptions(); // Updates list and toggles disabled.
@@ -393,7 +393,7 @@
       updateDataInHtml();
       selectClumpNode(event.target);
 
-      const clump = clumps[index];
+      const clump = clumpList[index];
       clumpName.value = clump.clumpName;
       document.getElementById('clumpCode').value = clump.clumpCode;
 
@@ -460,14 +460,14 @@
 
         // Remove the clump from the clumps array.
         // clumps.splice(index, 1);
-        clumps.pop();
+        clumpList.pop();
 
         // Clear matrix and re-add all clumps.
         clumpMatrix.length = 0;
         addClumpsToMatrix();
 
         // Update global variables.
-        lastAddedClumpId = clumps.length > 0 ? clumps[clumps.length - 1].id : 0;
+        lastAddedClumpId = clumpList.length > 0 ? clumpList[clumpList.length - 1].id : 0;
 
         // Cycle through 'clumpMatrix' in reverse by rows, then columns,
         // looking for the Column that the new last clump ID is in.
@@ -532,7 +532,7 @@
         }
 
         // Add the new clump to the end of the 'clumps' 1D array.
-        clumps.push(newClump);
+        clumpList.push(newClump);
 
         // Inject the new clump to the 'clumpMatrix' 2D array.
         addClumpToMatrix(newClump);
@@ -545,7 +545,7 @@
         // EDITING AN EXISTING CLUMP
         //
 
-        const editedClump = clumps[editingIndex];
+        const editedClump = clumpList[editingIndex];
 
         // newClump.id = newClump.id;
         editedClump.clumpName = clumpName.value;
@@ -1016,7 +1016,7 @@
       const columnCount = getColumnCount();
 
       // Clear container before rendering
-      if (clumps.length === 0) {
+      if (clumpList.length === 0) {
         let clumpContainerContent = '<div class="empty-notes">Notes <small>(referenced in Readme <code>@TODO:</code>)</small>:';
         clumpContainerContent += '<ul>';
         clumpContainerContent += '  <li>Only the last clump can be deleted, then the next, and the next.</li>';
@@ -1136,7 +1136,7 @@
             continue;
           }
 
-          const clumpFound = clumps.find(clump => clump.id === curClumpId);
+          const clumpFound = clumpList.find(clump => clump.id === curClumpId);
           const clumpCell = document.createElement('div');
           clumpCell.className = 'clump-node collapsed';
 
@@ -1158,12 +1158,12 @@
           editIcon.textContent = '✏️';
           editIcon.onclick = (event) => {
             event.stopPropagation(); // Prevent toggle when clicking edit
-            loadForEdit(clumps.indexOf(clumpFound), event);
+            loadForEdit(clumpList.indexOf(clumpFound), event);
           };
           iconSpan.appendChild(editIcon);
 
           // Conditionally create and append the delete icon
-          if (clumps[clumps.length - 1].id === clumpFound.id) {
+          if (clumpList[clumpList.length - 1].id === clumpFound.id) {
             const deleteIcon = document.createElement('div');
             deleteIcon.className = 'delete-icon';
             deleteIcon.textContent = '❌';
@@ -1203,7 +1203,7 @@
     }
 
     function exportData() {
-      const dataStr = JSON.stringify(clumps, null, 2);
+      const dataStr = JSON.stringify(clumpList, null, 2);
       const blob = new Blob([dataStr], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -1226,8 +1226,8 @@
         try {
           const importedClumps = JSON.parse(e.target.result);
           if (Array.isArray(importedClumps)) {
-            clumps.length = 0;
-            clumps.push(...importedClumps);
+            clumpList.length = 0;
+            clumpList.push(...importedClumps);
             initializeGrid();
             saveClumps();
             renderClumps();
