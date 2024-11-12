@@ -55,7 +55,7 @@
         </div>
 
         <div class="form-buttons">
-          <button type="submit">Save Clump</button>
+          <button type="submit" disabled>Save Clump</button>
           <button type="reset">Cancel</button>
         </div>
       </form>
@@ -153,6 +153,7 @@
     const clumpCode = document.getElementById('clumpCode');
     const linkTo = document.getElementById('linkTo');
     const columnSelect = document.getElementById('columnSelect');
+    const saveClumpButton = document.querySelector('#clumpForm button[type="submit"]');
 
     const storageNameTag = document.getElementById('storageName');
     const newStorageName = document.getElementById('newStorageName');
@@ -561,6 +562,9 @@
       });
 
       editingIndex = null;
+
+      saveClumpButton.disabled = clumpName.value.trim() === '';
+
       updateLinkToDropdownOptions(); // Updates list and toggles disabled.
       updateColumnSelectDropdownOptions(); // Toggles disabled.
       updateDataInHtml();
@@ -1166,6 +1170,15 @@
         remove: function (c) { elementClassList.remove(c); return this; }
       };
     }
+
+    // Add listener to enable 'Save Clump' button when clump name is not empty.
+    clumpName.addEventListener('input', () => {
+      if (clumpName.value.trim() !== '') {
+        saveClumpButton.disabled = false;
+      } else {
+        saveClumpButton.disabled = true;
+      }
+    });
 
     // Initial render call
     renderMatrix();
