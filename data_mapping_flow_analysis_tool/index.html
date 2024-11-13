@@ -199,16 +199,19 @@
 
     let settings = JSON.parse(localStorage.getItem(localStorageSettings) || JSON.stringify(defaultAppSettings));
 
-    // const settingsStorageNames = settings.storageNames;
+    // DATA: [clumpList] A 1D list of data clumps are stored in the browser's local storage.
+    // The clumpMatrix, below, is used to render the clumps in their correct 2D positions.
+    let clumpList;
+    setClumpListFromStorageUsingSettings();
 
-    // DATA: [localStorageKeyForClumps] Local storage key used to store and retrieve clumps.
-    // It is initially populated from 'settings' in local storage.
-    let localStorageKeyForClumps = settings.storageNames[settings.storageIndex] || 'dataMappingFlowClumps';
+    function setClumpListFromStorageUsingSettings() {
+      const clumpListKey = getStorageNameFromSettings();
+      clumpList = JSON.parse(localStorage.getItem(clumpListKey) || '[]');
+    }
 
-    // DATA: [clumps] A list of data clumps are stored in the browser's local storage.
-    // Clumps contain the data for each clump, and an ID for placement and linking.
-    // The clumpMatrix, below, is used to render the clumps in their correct positions.
-    let clumpList = JSON.parse(localStorage.getItem(localStorageKeyForClumps) || '[]');
+    function getStorageNameFromSettings() {
+      settings.storageNames[settings.storageIndex] || 'dataFlowFallbackKey';
+    }
 
     // DATA: [clumpMatrix] A 2D array to keep track of clump ID cell placement, empty
     //                     cells, and matrix width (rows) and height (cols) detection.
@@ -281,7 +284,8 @@
     }
 
     function storeClumps() {
-      localStorage.setItem(localStorageKeyForClumps, JSON.stringify(clumpList));
+      const clumpListStorageKey = getStorageNameFromSettings();
+      localStorage.setItem(clumpListStorageKey, JSON.stringify(clumpList));
     }
 
     function storeSettings() {
