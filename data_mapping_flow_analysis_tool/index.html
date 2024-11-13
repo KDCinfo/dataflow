@@ -210,7 +210,7 @@
     }
 
     function getStorageNameFromSettings() {
-      settings.storageNames[settings.storageIndex] || 'dataFlowFallbackKey';
+      return settings.storageNames[settings.storageIndex] || 'dataFlowFallbackKey';
     }
 
     // DATA: [clumpMatrix] A 2D array to keep track of clump ID cell placement, empty
@@ -347,10 +347,14 @@
 
     function updateStorageNameDropdownOptions() {
       storageNameTag.innerHTML = '';
+
       settings.storageNames.forEach((storageName, index) => {
         const option = document.createElement('option');
         option.value = index;
         option.textContent = storageName;
+        if (index === settings.storageIndex) {
+          option.selected = true;
+        }
         storageNameTag.appendChild(option);
       });
     }
@@ -1000,9 +1004,7 @@
       debugConsoleLogs && console.log('Delete selected storage:', storageNameTag.value);
 
       if (storageNamingError.classList.contains('error-visible')) {
-        classListChain(storageNamingError)
-          .remove('error-visible')
-          .add('error-hidden');
+        hideStorageError();
       }
 
       if (
@@ -1028,13 +1030,28 @@
     // const storageName = document.getElementById("storageName");
     function useSelectedStorage() {
       debugConsoleLogs && console.log('Use selected storage:', storageNameTag.value);
-      // if (storageName.value !== settings.storageIndex) {
-      //   settings.storageIndex = parseInt(storageName.value, 10);
-      //   storeSettings();
-      //   Update clumps and matrix;
-      //   renderMatrix();
-      // }
-      // Update 'storageNameLabelCurrent' with new value.
+
+      if (storageNamingError.classList.contains('error-visible')) {
+        hideStorageError();
+      }
+
+      if (storageNameTag.value !== settings.storageIndex) {
+        // Update Settings.
+        settings.storageIndex = parseInt(storageNameTag.value, 10);
+        storeSettings();
+
+        // Update data.
+        editingIndex = null;
+        setClumpListFromStorageUsingSettings();
+
+        // Clear matrix and re-add all clumps.
+        clumpMatrix.length = 0;
+        addClumpsToMatrix();
+
+        // Update UI.
+        storageNameLabelCurrent.textContent = settings.storageNames[settings.storageIndex];
+        renderMatrix();
+      }
     }
 
     function renderMatrix() {
@@ -1085,20 +1102,7 @@
       document.getElementById('gridRepeatHTMLValue').textContent = `[${settings.gridRepeatValue}] ${cellWidth}`;
 
       // [5] Update the 'storageName' dropdown from settings.storage
-      //
-      // document.getElementById('storageName')
-      //
-      // const storageNames = settings.storageNames;
-      storageNameTag.innerHTML = '';
-      for (let i = 0; i < settings.storageNames.length; i++) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.textContent = settings.storageNames[i];
-        if (i === settings.storageIndex) {
-          option.selected = true;
-        }
-        storageNameTag.appendChild(option);
-      }
+      updateStorageNameDropdownOptions();
 
       // [6] Enable/disable storage buttons.
       toggleStorageButtons();
@@ -1227,7 +1231,6 @@
 
       updateLinkToDropdownOptions(); // Updates list and toggles disabled.
       updateColumnSelectDropdownOptions(); // Toggles disabled.
-      updateStorageNameDropdownOptions();
       updateDataInHtml();
     }
 
