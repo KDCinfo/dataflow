@@ -62,14 +62,12 @@ Claude and I went back and forth through six draft variations. I finally gave up
 > 10 days later... DMFAT was borne to GitHub.
 
 ## @TODO:
-- Add localStorage switcher.
-  - Delete storage names
-  - Switch to using different storage names
-- Put all 'DATA:' in an Object.
+- Put all 'DATA:' in an Object: offload to an 'AppSettings' class.
 - Refactor and extract JavaScript into classes:
   - AppSettings (primary controller, orchestrator)
   - AppData
   - AppHelpers
+- Allow storage names to be descriptive; use a join table to track descriptive names with the actual storage key names.
 - Add ability to delete any unlinked cell.
 - Add ability to delete any linked cell.
 - Add ability to change links.
@@ -105,5 +103,7 @@ Claude and I went back and forth through six draft variations. I finally gave up
 - Set storage name regex to accept either 'camelCase' or 'snake_case'.
 - Added localStorage switcher:
   - Create new storage names
+  - Delete storage names
+  - Switch to using different storage names
 
 _
