@@ -34,15 +34,19 @@ button[type="submit"] {
 }
 
 .clump-form button[type="submit"] {
+  background-color: #004400;
+  border: 0;
+  box-shadow: inset -1px -1px 1px black, -1px -1px 0px #609000;
+  color: #b0e000;
   font-weight: bold;
   font-size: 15px;
 }
 
 .clump-form button[type="submit"]:disabled {
-  background-color: #666;
-  box-shadow: none;
-  color: #ccc;
+  box-shadow: inset -1px -1px 1px black, -1px -1px 0px #306000;
+  color: #a0c000;
   cursor: default;
+  opacity: 0.9;
 }
 
 .storage-buttons button {
