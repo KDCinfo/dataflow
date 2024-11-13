@@ -49,6 +49,11 @@ button[type="submit"] {
   opacity: 0.9;
 }
 
+.storage-buttons button:disabled {
+  background-color: rgba(239, 239, 239, 0.7);
+  color: #444444;
+}
+
 .storage-buttons button {
   font-size: 12px;
 }

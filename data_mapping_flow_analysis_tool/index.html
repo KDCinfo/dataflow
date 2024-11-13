@@ -99,11 +99,14 @@
           <!-- Two-button wrapper -->
           <div class="storage-buttons form-buttons">
             <!-- Storage: Delete Selected -->
-            <button onclick="deleteSelectedStorage()">Delete Selected</button>
+            <button class="storage-button-delete" onclick="deleteSelectedStorage()">
+              Delete Selected
+            </button>
 
             <!-- Storage: Use Selected; force wrap text -->
-            <button onclick="useSelectedStorage()"
-              style="white-space: wrap;">Use<br>Selected</button>
+            <button class="storage-button-use" onclick="useSelectedStorage()">
+              Use<br>Selected
+            </button>
           </div>
 
           <!-- Create name wrapper -->
@@ -160,6 +163,9 @@
     const newStorageNameInput = document.getElementById('newStorageNameInput');
     const newStorageNameButton = document.getElementById('newStorageNameButton');
     const storageNamingError = document.querySelector('.storage-naming-error')
+
+    const storageButtonDelete = document.querySelector('.storage-button-delete');
+    const storageButtonUse = document.querySelector('.storage-button-use');
 
     // DATA: [editingIndex] Updated when edited a clump, and reset when clump is saved.
     let editingIndex = null;  // Track if we’re editing an existing clump
@@ -357,6 +363,22 @@
       if (isValid) {
         hideStorageError();
       }
+    }
+
+    // - If the selected storage name is:
+    // - 'default':
+    //   - Disable 'Delete Selected'.
+    // - the currently active storage name:
+    //   - Disable both buttons.
+    function toggleStorageButtons() {
+      const selectedIndex = storageNameTag.selectedIndex;
+      const selectedStorageName = settings.storageNames[selectedIndex];
+
+      const isDefault = selectedStorageName === 'default';
+      const isActive = selectedIndex === settings.storageIndex;
+
+      storageButtonDelete.disabled = isDefault || isActive;
+      storageButtonUse.disabled = isActive;
     }
 
     function updateDataInHtml() {
@@ -1074,6 +1096,9 @@
         storageNameTag.appendChild(option);
       }
 
+      // [6] Enable/disable storage buttons.
+      toggleStorageButtons();
+
       // [ CLUMP NODE PLACEMENT ]
       //
       // Note: only the last-added clump should have a 'delete' icon.
@@ -1276,6 +1301,10 @@
       };
     }
 
+    //
+    // EVENT LISTENERS
+    //
+
     // Add listener to enable 'Save Clump' button when clump name is not empty.
     clumpName.addEventListener('input', () => {
       if (clumpName.value.trim() !== '') {
@@ -1287,6 +1316,9 @@
 
     // Listener on 'newStorageNameInput' field to check if the 'New Storage' button should be bold.
     newStorageNameInput.addEventListener('input', checkNewStorageButton);
+
+    storageNameTag.addEventListener('change', toggleStorageButtons);
+
 
     // Initial render call
     renderMatrix();
