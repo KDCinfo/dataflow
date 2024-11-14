@@ -521,6 +521,7 @@
         }
 
         storeClumps();
+        updateDataInHtml();
         renderMatrix();
 
         const howManyExpanded = clumpContainer.querySelectorAll('.clump-node.expanded').length;
@@ -588,29 +589,12 @@
         //
         // EDITING AN EXISTING CLUMP
         //
-
         const editedClump = clumpList[editingIndex];
 
-        // newClump.id = newClump.id;
         editedClump.clumpName = clumpNameInput.value;
         editedClump.clumpCode = clumpCodeInput.value;
 
-        // Populate either the 'linkedClumpId' (if linked), or the given 'Column' (if not linked).
-        //
-        if (isLinked) {
-          // [Linked]
-          editedClump.linkedClumpID = newLinkTo;
-          editedClump.column = -1;
-        } else {
-          // [Unlinked]
-          editedClump.linkedClumpID = -1;
-          columnToAddTo = columnRawValue === 'last' ? Number(lastAddedCol) : parseInt(columnRawValue, 10);
-          editedClump.column = columnToAddTo;
-        }
-
         editingIndex = null;
-        updateLinkToDropdownOptions(); // Updates list and toggles disabled.
-        updateColumnSelectDropdownOptions(); // Toggles disabled.
         updateDataInHtml();
         clearSelectedClumpNode();
       }
@@ -1084,6 +1068,7 @@
         outputContainer.style.marginBottom = '0';
         outputContainer.style.height = 'calc(100vh - 42px)';
         storageNameLabelCurrent.textContent = settings.storageNames[settings.storageIndex];
+        updateDataInHtml();
         renderMatrix();
       }
     }
@@ -1370,6 +1355,7 @@
               clumpForm.reset();
               outputContainer.style.marginBottom = '0';
               outputContainer.style.height = 'calc(100vh - 42px)';
+              updateDataInHtml();
               renderMatrix();
 
               //
