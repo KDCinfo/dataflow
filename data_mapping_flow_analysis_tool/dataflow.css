@@ -67,6 +67,32 @@ h2 {
   display: none;
 }
 
+ol {
+  list-style-type: none;
+  counter-reset: item;
+  margin: 0;
+  padding: 0 0 0 22px;
+}
+
+ol>li {
+  display: table;
+  counter-increment: item;
+}
+
+ol>li:before {
+  content: counters(item, ".") ". ";
+  display: table-cell;
+  padding-right: 0.6em;
+}
+
+li ol>li {
+  margin: 0;
+}
+
+li ol>li:before {
+  content: counters(item, ".") " ";
+}
+
 .error {
   background-color: #ffffff;
   color: #f00;
@@ -167,8 +193,7 @@ h2 {
   box-shadow: -2px -2px 9px #00c000 inset;
   line-height: 1.5;
   margin-top: 20px;
-  padding: 20px;
-  /* width: 50vw; */
+  padding: 10px 20px 20px;
 }
 
 .empty {
@@ -374,6 +399,10 @@ h2 {
 
 .clump-form-div select {
   min-width: 120px;
+}
+
+#clumpForm .form-buttons {
+  flex-direction: row-reverse;
 }
 
 .form-buttons {
