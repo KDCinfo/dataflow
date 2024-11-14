@@ -36,8 +36,8 @@
         </div>
 
         <div class="clump-form-div">
-          <label for="clumpCode">Code Clump:</label>
-          <textarea id="clumpCode"></textarea>
+          <label for="clumpCodeInput">Code Clump:</label>
+          <textarea id="clumpCodeInput"></textarea>
         </div>
 
         <div class="clump-form-div">
@@ -152,7 +152,7 @@
 
     const clumpContainer = document.getElementById('clumpContainer');
     const clumpNameInput = document.getElementById('clumpNameInput');
-    const clumpCode = document.getElementById('clumpCode');
+    const clumpCodeInput = document.getElementById('clumpCodeInput');
     const linkTo = document.getElementById('linkTo');
     const columnSelect = document.getElementById('columnSelect');
     const saveClumpButton = document.querySelector('#clumpForm button[type="submit"]');
@@ -428,7 +428,7 @@
 
       const clump = clumpList[index];
       clumpNameInput.value = clump.clumpName;
-      document.getElementById('clumpCode').value = clump.clumpCode;
+      clumpCodeInput.value = clump.clumpCode;
 
       // Update value and disable.
       linkTo.value = isNaN(clump.linkedClumpID) ? '' : clump.linkedClumpID;
@@ -547,7 +547,7 @@
         const newClump = {
           id: newClumpID,
           clumpName: clumpNameInput.value,
-          clumpCode: clumpCode.value,
+          clumpCode: clumpCodeInput.value,
           column: -1,
           linkedClumpID: -1,
         };
@@ -582,7 +582,7 @@
 
         // newClump.id = newClump.id;
         editedClump.clumpName = clumpNameInput.value;
-        editedClump.clumpCode = clumpCode.value;
+        editedClump.clumpCode = clumpCodeInput.value;
 
         // Populate either the 'linkedClumpId' (if linked), or the given 'Column' (if not linked).
         //
@@ -652,7 +652,7 @@
     // const newClump = {
     //     id: newClumpID,
     //     clumpName: clumpNameInput.value,
-    //     clumpCode: clumpCode.value,
+    //     clumpCode: clumpCodeInput.value,
     //     column: -1, // >=1
     //     linkedClumpID: -1, // >=1
     //   };
@@ -1156,7 +1156,7 @@
       // const newClump = {
       //     id: newClumpID,
       //     clumpName: clumpNameInput.value,
-      //     clumpCode: clumpCode.value,
+      //     clumpCode: clumpCodeInput.value,
       //     column: -1,
       //     linkedClumpID: -1,
       //   };
