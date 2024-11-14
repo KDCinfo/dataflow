@@ -1411,9 +1411,24 @@
       }
     });
 
+    linkTo.addEventListener('change', () => {
+      if (clumpNameInput.value.trim() !== '') {
+        columnSelect.disabled = false;
+      } else {
+        columnSelect.disabled = true;
+      }
+    });
+
+    columnSelect.addEventListener('change', () => {
+      if (clumpNameInput.value.trim() !== '') {
+        saveClumpButton.disabled = false;
+      } else {
+        saveClumpButton.disabled = true;
+      }
+    });
+
     // Listener on 'newStorageNameInput' field to check if the 'New Storage' button should be bold.
     newStorageNameInput.addEventListener('input', checkNewStorageButton);
-
     storageNameTag.addEventListener('change', toggleStorageButtons);
 
     exportDataButton.addEventListener('click', handleExportData);
