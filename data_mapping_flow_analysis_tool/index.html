@@ -263,14 +263,16 @@
     let clumpMatrix = [];
 
     // DATA: [lastAddedCol] The last column that a clump was added to.
-    let lastAddedCol = 1;
+    const lastAddedColDefault = 1;
+    let lastAddedCol = lastAddedColDefault;
 
     // DATA: [lastAddedClumpId] Unlinked clumps are placed under the last clump that was added,
     //                          unless a specific Col is selected from the 'linkTo' dropdown.
     // Unsure that it matters, but for now, IDs are always incremented, and
     // are never reused within the 'clumpMatrix' array. Ergo, IDs should
     // always be in order, even when a hole is left from a deletion.
-    let lastAddedClumpId = 0;
+    const lastAddedClumpIdDefault = 0;
+    let lastAddedClumpId = lastAddedClumpIdDefault;
 
     // Initialize the 'clumpMatrix' with the clumps from local storage.
     addClumpsToMatrix();
@@ -1042,6 +1044,8 @@
 
         // Update data.
         editingIndex = null;
+        lastAddedCol = lastAddedColDefault;
+        lastAddedClumpId = lastAddedClumpIdDefault;
         setClumpListFromStorageUsingSettings();
 
         // Clear matrix and re-add all clumps.
