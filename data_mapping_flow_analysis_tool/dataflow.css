@@ -237,7 +237,7 @@ li ol>li:before {
   overflow: auto;
   padding: 20px;
   position: fixed;
-  top: 10px;
+  bottom: 10px;
   left: calc(30% + 10px);
   width: calc(70% - 75px);
   height: 200px;

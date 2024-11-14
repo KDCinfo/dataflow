@@ -524,7 +524,7 @@
         renderMatrix();
 
         const howManyExpanded = clumpContainer.querySelectorAll('.clump-node.expanded').length;
-        outputContainer.style.marginTop = howManyExpanded > 0 ? '260px' : '0';
+        outputContainer.style.marginBottom = howManyExpanded > 0 ? '260px' : '0';
         outputContainer.style.height = howManyExpanded > 0
           ? 'calc(100vh - 42px - 260px)'
           : 'calc(100vh - 42px)';
@@ -620,7 +620,7 @@
       clumpForm.reset();
 
       const howManyExpanded = clumpContainer.querySelectorAll('.clump-node.expanded').length;
-      outputContainer.style.marginTop = howManyExpanded > 0 ? '260px' : '0';
+      outputContainer.style.marginBottom = howManyExpanded > 0 ? '260px' : '0';
       outputContainer.style.height = howManyExpanded > 0
         ? 'calc(100vh - 42px - 260px)'
         : 'calc(100vh - 42px)';
@@ -1081,7 +1081,7 @@
 
         // Update UI.
         clumpForm.reset();
-        outputContainer.style.marginTop = '0';
+        outputContainer.style.marginBottom = '0';
         outputContainer.style.height = 'calc(100vh - 42px)';
         storageNameLabelCurrent.textContent = settings.storageNames[settings.storageIndex];
         renderMatrix();
@@ -1280,7 +1280,7 @@
             const isCellCollapsed = clumpCell.classList.contains('collapsed');
             const howManyExpanded = clumpContainer.querySelectorAll('.clump-node.expanded').length;
 
-            outputContainer.style.marginTop = howManyExpanded > 0 ? '260px' : '0';
+            outputContainer.style.marginBottom = howManyExpanded > 0 ? '260px' : '0';
             outputContainer.style.height = howManyExpanded > 0
               ? 'calc(100vh - 42px - 260px)'
               : 'calc(100vh - 42px)';
@@ -1368,7 +1368,7 @@
 
               // Update UI.
               clumpForm.reset();
-              outputContainer.style.marginTop = '0';
+              outputContainer.style.marginBottom = '0';
               outputContainer.style.height = 'calc(100vh - 42px)';
               renderMatrix();
 
