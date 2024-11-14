@@ -62,6 +62,9 @@ Claude and I went back and forth through six draft variations. I finally gave up
 > 10 days later... DMFAT was borne to GitHub.
 
 ## @TODO:
+- Bug: Sometimes 'Import Data' will fail silently*.
+  - *An error is shown in the dev tools console.
+  - Workaround: Try it again. Subequent attempts usually work.
 - Put all 'DATA:' in an Object: offload to an 'AppSettings' class.
 - Refactor and extract JavaScript into classes:
   - AppSettings (primary controller, orchestrator)

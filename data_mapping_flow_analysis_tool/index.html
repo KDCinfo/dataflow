@@ -405,13 +405,13 @@
     }
 
     // Clear the 'clump-node-selected' class from all clump nodes.
-    function clearClumpNodes() {
+    function clearSelectedClumpNode() {
       const clumpNodes = document.querySelectorAll('.clump-node');
       clumpNodes.forEach(node => node.classList.remove('clump-node-selected'));
     }
 
     function selectClumpNode(eventTarget) {
-      clearClumpNodes();
+      clearSelectedClumpNode();
       // Add class to selected clump node.
       eventTarget.parentElement.parentElement.classList.add('clump-node-selected');
     }
@@ -602,7 +602,7 @@
         updateLinkToDropdownOptions(); // Updates list and toggles disabled.
         updateColumnSelectDropdownOptions(); // Toggles disabled.
         updateDataInHtml();
-        clearClumpNodes();
+        clearSelectedClumpNode();
       }
 
       storeClumps();
@@ -634,7 +634,7 @@
       updateColumnSelectDropdownOptions(); // Toggles disabled.
       updateDataInHtml();
       // This will clear the 'edit border' from the selected clump node.
-      clearClumpNodes();
+      clearSelectedClumpNode();
     };
 
     // 'linkTo' = Existing clump ID to link to:
