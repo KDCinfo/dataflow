@@ -227,6 +227,19 @@ li ol>li:before {
   box-shadow: 0 0 20px yellow;
 }
 
+.content-span pre {
+  background-color: #eec;
+  margin: 0 15px;
+  overflow: auto;
+  padding: 20px;
+  position: fixed;
+  top: 10px;
+  left: calc(30% + 10px);
+  width: calc(70% - 75px);
+  height: 200px;
+  z-index: 2;
+}
+
 .content-span,
 .icon-span {
   cursor: pointer;

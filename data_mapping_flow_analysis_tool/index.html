@@ -136,7 +136,7 @@
         </p>
       </div>
     </div>
-    <div class="output-container">
+    <div id="outputContainer" class="output-container">
       <div class="grid" id="clumpContainer"></div>
     </div>
   </div>
@@ -150,6 +150,7 @@
     const debugPrintClumpMatrix = false;
     const debugConsoleLogs = true;
 
+    const outputContainer = document.getElementById('outputContainer');
     const clumpContainer = document.getElementById('clumpContainer');
     const clumpNameInput = document.getElementById('clumpNameInput');
     const clumpCodeInput = document.getElementById('clumpCodeInput');
@@ -1054,6 +1055,9 @@
         addClumpsToMatrix();
 
         // Update UI.
+        clumpForm.reset();
+        outputContainer.style.marginTop = '0';
+        outputContainer.style.height = 'calc(100vh - 42px)';
         storageNameLabelCurrent.textContent = settings.storageNames[settings.storageIndex];
         renderMatrix();
       }
@@ -1199,7 +1203,8 @@
           // Create content span for clump name and code
           const contentSpan = document.createElement('div');
           contentSpan.className = 'content-span';
-          contentSpan.innerHTML = `<strong>${clumpFound.clumpName}</strong><br>${clumpFound.clumpCode.split('\n')[0]}`;
+          contentSpan.innerHTML = `<strong>${clumpFound.clumpName}</strong>
+            <br>${clumpFound.clumpCode.split('\n')[0]}`;
           clumpCell.appendChild(contentSpan);
 
           // Apply linked/unlinked class based on the condition
@@ -1235,15 +1240,31 @@
           const toggleCell = () => {
             clumpCell.classList.toggle('expanded');
             clumpCell.classList.toggle('collapsed');
-            contentSpan.innerHTML = `<strong>${clumpFound.clumpName}</strong><br>${clumpCell.classList.contains('collapsed')
-              ? clumpFound.clumpCode.split('\n')[0]
-              : clumpFound.clumpCode
+
+            const isCellCollapsed = clumpCell.classList.contains('collapsed');
+            const howManyExpanded = clumpContainer.querySelectorAll('.clump-node.expanded').length;
+
+            outputContainer.style.marginTop = howManyExpanded > 0 ? '260px' : '0';
+            outputContainer.style.height = howManyExpanded > 0
+              ? 'calc(100vh - 42px - 260px)'
+              : 'calc(100vh - 42px)';
+
+            contentSpan.innerHTML = `<strong>${clumpFound.clumpName}</strong>
+              <br>${isCellCollapsed
+                ? clumpFound.clumpCode.split('\n')[0]
+                : '<pre>' + clumpFound.clumpCode + '</pre>'
               }`;
+            contentSpan.querySelector('pre').style.zIndex = howManyExpanded + 10;
           };
 
-          // Add the toggle click listener to contentSpan only
+          // Add toggle click listener to contentSpan but without any inner <pre> tags.
           contentSpan.addEventListener('click', (event) => {
-            event.stopPropagation(); // Prevent bubbling to avoid unintended behavior
+            // event.stopPropagation(); // Prevent bubbling to avoid unintended behavior.
+            if (window.getSelection().toString()) {
+              // Prevent toggle if there's a selection.
+              event.stopPropagation();
+              return;
+            }
             toggleCell();
           });
 
@@ -1307,6 +1328,9 @@
               addClumpsToMatrix();
 
               // Update UI.
+              clumpForm.reset();
+              outputContainer.style.marginTop = '0';
+              outputContainer.style.height = 'calc(100vh - 42px)';
               renderMatrix();
 
               //
@@ -1360,8 +1384,16 @@
     // EVENT LISTENERS
     //
 
-    // Add listener to enable 'Save Clump' button when clump name is not empty.
+    // Add listeners to enable 'Save Clump' button when 'clump name' and 'code clump' are not empty.
     clumpNameInput.addEventListener('input', () => {
+      if (clumpNameInput.value.trim() !== '') {
+        saveClumpButton.disabled = false;
+      } else {
+        saveClumpButton.disabled = true;
+      }
+    });
+
+    clumpCodeInput.addEventListener('input', () => {
       if (clumpNameInput.value.trim() !== '') {
         saveClumpButton.disabled = false;
       } else {
