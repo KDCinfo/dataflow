@@ -1208,7 +1208,7 @@
 
           const clumpFound = clumpList.find(clump => clump.id === curClumpId);
           const clumpCell = document.createElement('div');
-          clumpCell.className = 'clump-node collapsed';
+          clumpCell.className = `clump-node collapsed clump-row-col-id-${r}-${c}-${curClumpId}`;
 
           // Create content span for clump name and code
           const contentSpan = document.createElement('div');
