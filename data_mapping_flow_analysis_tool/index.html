@@ -1204,6 +1204,8 @@
       //     linkedClumpID: -1,
       //   };
 
+      let clumpListIndex = -1;
+
       // Cycle through the clumpMatrix to render the clumps.
       //
       for (let r = 0; r < clumpMatrix.length; r++) {
@@ -1219,7 +1221,9 @@
 
           const clumpFound = clumpList.find(clump => clump.id === curClumpId);
           const clumpCell = document.createElement('div');
-          clumpCell.className = `clump-node collapsed clump-row-col-id-${r}-${c}-${curClumpId}`;
+          clumpListIndex = clumpList.indexOf(clumpFound);
+
+          clumpCell.className = `clump-node collapsed clump-list-index-${clumpListIndex}`;
 
           // Create content span for clump name and code
           const contentSpan = document.createElement('div');
@@ -1300,6 +1304,12 @@
       updateLinkToDropdownOptions(); // Updates list and toggles disabled.
       updateColumnSelectDropdownOptions(); // Toggles disabled.
       updateDataInHtml();
+
+      // Re-highlight edited cell, if any.
+      if (editingIndex !== null) {
+        const indexCell = document.querySelector(`.clump-list-index-${editingIndex}`);
+        indexCell && indexCell.classList.add('clump-node-selected');
+      }
     }
 
     function handleExportData() {
