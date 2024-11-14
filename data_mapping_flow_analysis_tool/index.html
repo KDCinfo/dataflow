@@ -31,8 +31,8 @@
 
       <form id="clumpForm" class="clump-form info-panel">
         <div class="clump-form-div">
-          <label for="clumpName">Clump Name:</label>
-          <input type="text" id="clumpName" required>
+          <label for="clumpNameInput">Clump Name:</label>
+          <input type="text" id="clumpNameInput" required>
         </div>
 
         <div class="clump-form-div">
@@ -151,7 +151,7 @@
     const debugConsoleLogs = true;
 
     const clumpContainer = document.getElementById('clumpContainer');
-    const clumpName = document.getElementById('clumpName');
+    const clumpNameInput = document.getElementById('clumpNameInput');
     const clumpCode = document.getElementById('clumpCode');
     const linkTo = document.getElementById('linkTo');
     const columnSelect = document.getElementById('columnSelect');
@@ -427,7 +427,7 @@
       selectClumpNode(event.target);
 
       const clump = clumpList[index];
-      clumpName.value = clump.clumpName;
+      clumpNameInput.value = clump.clumpName;
       document.getElementById('clumpCode').value = clump.clumpCode;
 
       // Update value and disable.
@@ -546,7 +546,7 @@
 
         const newClump = {
           id: newClumpID,
-          clumpName: clumpName.value,
+          clumpName: clumpNameInput.value,
           clumpCode: clumpCode.value,
           column: -1,
           linkedClumpID: -1,
@@ -581,7 +581,7 @@
         const editedClump = clumpList[editingIndex];
 
         // newClump.id = newClump.id;
-        editedClump.clumpName = clumpName.value;
+        editedClump.clumpName = clumpNameInput.value;
         editedClump.clumpCode = clumpCode.value;
 
         // Populate either the 'linkedClumpId' (if linked), or the given 'Column' (if not linked).
@@ -627,7 +627,7 @@
 
       editingIndex = null;
 
-      saveClumpButton.disabled = clumpName.value.trim() === '';
+      saveClumpButton.disabled = clumpNameInput.value.trim() === '';
 
       updateLinkToDropdownOptions(); // Updates list and toggles disabled.
       updateColumnSelectDropdownOptions(); // Toggles disabled.
@@ -651,7 +651,7 @@
     //
     // const newClump = {
     //     id: newClumpID,
-    //     clumpName: clumpName.value,
+    //     clumpName: clumpNameInput.value,
     //     clumpCode: clumpCode.value,
     //     column: -1, // >=1
     //     linkedClumpID: -1, // >=1
@@ -1155,7 +1155,7 @@
 
       // const newClump = {
       //     id: newClumpID,
-      //     clumpName: clumpName.value,
+      //     clumpName: clumpNameInput.value,
       //     clumpCode: clumpCode.value,
       //     column: -1,
       //     linkedClumpID: -1,
@@ -1343,8 +1343,8 @@
     //
 
     // Add listener to enable 'Save Clump' button when clump name is not empty.
-    clumpName.addEventListener('input', () => {
-      if (clumpName.value.trim() !== '') {
+    clumpNameInput.addEventListener('input', () => {
+      if (clumpNameInput.value.trim() !== '') {
         saveClumpButton.disabled = false;
       } else {
         saveClumpButton.disabled = true;
