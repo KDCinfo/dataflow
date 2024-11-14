@@ -67,9 +67,8 @@
       <!-- App Settings; Export/Import buttons -->
       <div class="info-panel info-panel-sub export-import panel-from-collapsed-to-expanded">
         <div class="export-import-block export-import-buttons">
-          <button onclick="exportData()">Export Data</button>
-          <button onclick="importData()">Import Data</button>
-          <input type="file" id="importFile" style="display: none;" onchange="handleImport(event)">
+          <button id="exportDataButton">Export Data</button>
+          <button id="importDataButton">Import Data</button>
         </div>
 
         <!--
@@ -157,6 +156,8 @@
     const linkTo = document.getElementById('linkTo');
     const columnSelect = document.getElementById('columnSelect');
     const saveClumpButton = document.querySelector('#clumpForm button[type="submit"]');
+    const exportDataButton = document.getElementById('exportDataButton');
+    const importDataButton = document.getElementById('importDataButton');
 
     const storageNameTag = document.getElementById('storageName');
     const storageNameLabelCurrent = document.querySelector('.storage-name-label-current');
@@ -1238,7 +1239,7 @@
       updateDataInHtml();
     }
 
-    function exportData() {
+    function handleExportData() {
       const dataStr = JSON.stringify(clumpList, null, 2);
       const blob = new Blob([dataStr], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -1249,32 +1250,57 @@
       URL.revokeObjectURL(url);
     }
 
-    function importData() {
-      document.getElementById('importFile').click();
-    }
+    function handleImportData() {
+      if (confirm(`\nWarning:\n
+        Importing data will overwrite the current data.\n
+        Are you sure you want to continue?\n`)) {
+        //
+        // document.getElementById('importFile').click();
 
-    function handleImport(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const importedClumps = JSON.parse(e.target.result);
-          if (Array.isArray(importedClumps)) {
-            clumpList.length = 0;
-            clumpList.push(...importedClumps);
-            initializeGrid();
-            saveClumps();
-            renderClumps();
-          } else {
-            alert('Invalid data format');
-          }
-        } catch {
-          alert('Failed to import data');
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.onchange = e => {
+          const file = e.target.files[0];
+          if (!file) return;
+          handleImportFile(file);
         }
-      };
-      reader.readAsText(file);
+        fileInput.click();
+      }
+
+      function handleImportFile(file) {
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const importedClumps = JSON.parse(e.target.result);
+            if (Array.isArray(importedClumps)) {
+              clumpList.length = 0;
+              // clumpList.push(...importedClumps);
+              clumpList = [...importedClumps];
+              storeClumps();
+
+              // Update data.
+              editingIndex = null;
+              lastAddedCol = lastAddedColDefault;
+              lastAddedClumpId = lastAddedClumpIdDefault;
+
+              // Clear matrix and re-add all clumps.
+              clumpMatrix.length = 0;
+              addClumpsToMatrix();
+
+              // Update UI.
+              renderMatrix();
+
+              //
+            } else {
+              alert('Invalid data format');
+            }
+          } catch {
+            alert('Failed to import data');
+          }
+        };
+        reader.readAsText(file);
+      }
     }
 
     function togglePanel(event) {
@@ -1330,6 +1356,8 @@
 
     storageNameTag.addEventListener('change', toggleStorageButtons);
 
+    exportDataButton.addEventListener('click', handleExportData);
+    importDataButton.addEventListener('click', handleImportData);
 
     // Initial render call
     renderMatrix();
