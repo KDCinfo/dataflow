@@ -492,6 +492,10 @@
         //  0    |  0    |  C3R7
         //  C1R5 |  0    |  0
 
+        if (editingIndex === clumpList.length - 1) {
+          editingIndex = null;
+        }
+
         // Remove the clump from the clumps array.
         // clumps.splice(index, 1);
         clumpList.pop();
@@ -518,6 +522,12 @@
 
         storeClumps();
         renderMatrix();
+
+        const howManyExpanded = clumpContainer.querySelectorAll('.clump-node.expanded').length;
+        outputContainer.style.marginTop = howManyExpanded > 0 ? '260px' : '0';
+        outputContainer.style.height = howManyExpanded > 0
+          ? 'calc(100vh - 42px - 260px)'
+          : 'calc(100vh - 42px)';
       }
     }
 
@@ -608,6 +618,12 @@
       storeClumps();
       renderMatrix();
       clumpForm.reset();
+
+      const howManyExpanded = clumpContainer.querySelectorAll('.clump-node.expanded').length;
+      outputContainer.style.marginTop = howManyExpanded > 0 ? '260px' : '0';
+      outputContainer.style.height = howManyExpanded > 0
+        ? 'calc(100vh - 42px - 260px)'
+        : 'calc(100vh - 42px)';
     };
 
     // When canceling an edit, reset the 'editingIndex' to null, and remove the
@@ -1140,6 +1156,7 @@
 
       // [5] Update the 'storageName' dropdown from settings.storage
       updateStorageNameDropdownOptions();
+      storageNameLabelCurrent.textContent = settings.storageNames[settings.storageIndex];
 
       // [6] Enable/disable storage buttons.
       toggleStorageButtons();
@@ -1264,7 +1281,10 @@
                 ? clumpFound.clumpCode.split('\n')[0]
                 : '<pre>' + clumpFound.clumpCode + '</pre>'
               }`;
-            contentSpan.querySelector('pre').style.zIndex = howManyExpanded + 10;
+
+            if (!isCellCollapsed) {
+              contentSpan.querySelector('pre').style.zIndex = howManyExpanded + 10;
+            }
           };
 
           // Add toggle click listener to contentSpan but without any inner <pre> tags.
