@@ -193,7 +193,11 @@ li ol>li:before {
   box-shadow: -2px -2px 9px #00c000 inset;
   line-height: 1.5;
   margin-top: 20px;
-  padding: 10px 20px 20px;
+  padding: 10px 20px 35px;
+}
+
+.empty-notes a {
+  color: #b0e000;
 }
 
 .empty {
