@@ -63,6 +63,7 @@ Claude and I went back and forth through six draft variations. I finally gave up
 
 ## @TODO:
 
+- Add pop-up link for empty page message (so it is available after data is added).
 - Allow storage names to be descriptive; use a join table to track descriptive names with the actual storage key names.
 - Add ability to delete any unlinked cell.
 - Add ability to delete any linked cell.
