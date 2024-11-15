@@ -62,14 +62,7 @@ Claude and I went back and forth through six draft variations. I finally gave up
 > 10 days later... DMFAT was borne to GitHub.
 
 ## @TODO:
-- Bug: Sometimes 'Import Data' will fail silently*.
-  - *An error is shown in the dev tools console.
-  - Workaround: Try it again. Subequent attempts usually work.
-- Put all 'DATA:' in an Object: offload to an 'AppSettings' class.
-- Refactor and extract JavaScript into classes:
-  - AppSettings (primary controller, orchestrator)
-  - AppData
-  - AppHelpers
+
 - Allow storage names to be descriptive; use a join table to track descriptive names with the actual storage key names.
 - Add ability to delete any unlinked cell.
 - Add ability to delete any linked cell.
@@ -78,6 +71,16 @@ Claude and I went back and forth through six draft variations. I finally gave up
 - Add ability to add cells under any bottommost group in a column.
   - It currently adds cells to the last cell for the selected column, even if a previously added cell was linked/placed above existing sequenced cells.
 - Add ability to move cells, perhaps make it a drag-and-drop feature.
+- Bug: Sometimes 'Import Data' will fail silently*.
+  - *An error is shown in the dev tools console.
+  - Workaround: Try it again. Subequent attempts usually work.
+
+## @TODOING:
+
+- Refactor and extract JavaScript into classes:
+  - AppSettings (primary controller, orchestrator)
+  - AppData
+  - AppHelpers
 
 ## @TODONE:
 

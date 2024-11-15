@@ -1080,6 +1080,7 @@
       // Clear container before rendering
       if (clumpList.length === 0) {
         let clumpContainerContent = '<div class="empty-notes">';
+        clumpContainerContent += '<h2>Data Clump Flow App</h2>';
         clumpContainerContent += '<p>Tips:</p>';
         clumpContainerContent += '<ul>';
         clumpContainerContent += '  <li>Cell clumps flow from top down by default, and left to right when linked.</li>';
@@ -1087,7 +1088,7 @@
         clumpContainerContent += '</ul>';
 
         clumpContainerContent += '<ul>';
-        clumpContainerContent += '  <li>Clicking cells will show clump contents in a window at the top of the screen.</li>';
+        clumpContainerContent += '  <li>Clicking cells will show clump contents in a window at the bottom of the screen.</li>';
         clumpContainerContent += '  <li>Multiple cell contents can be expanded, each will be layered on top of the previous.</li>';
         clumpContainerContent += '  <li>Closing the last, or topmost content window will reveal the content window below it.</li>';
         clumpContainerContent += '  <li>Any expanded cell content window can be collapsed, even those beneath the last opened.</li>';
