@@ -79,9 +79,13 @@ Claude and I went back and forth through six draft variations. I finally gave up
 ## @TODOING:
 
 - Refactor and extract JavaScript into classes:
-  - AppSettings (primary controller, orchestrator)
-  - AppData
-  - AppHelpers
+  - Created new branch for refactoring: [`refactor-js-to-classes`](https://github.com/KDCinfo/dataflow/tree/refactor-js-to-classes/data_mapping_flow_analysis_tool)
+  - Created a temporary `dataflow.js` to hold all JavaScript while it is being refactored.
+  - Created placeholder classes:
+    - AppSettings (primary controller, orchestrator)
+    - AppData
+    - AppHelpers
+  - Normalized all JS references to point to HTML elements by their IDs.
 
 ## @TODONE:
 
