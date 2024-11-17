@@ -2,7 +2,7 @@ import AppData from './AppData.js';
 import AppHelpers from './AppHelpers.js';
 
 export default class AppSettings {
-  constructor(uiElements, initialData = {}, uiConfig) {
+  constructor(uiSelectors, initialData = {}, uiConfig) {
     // // this.label = uiElements.label;
     // this.button = uiElements.button;
     // this.button.addEventListener('click', this.handleButtonClick.bind(this));
@@ -10,7 +10,9 @@ export default class AppSettings {
 
     // this.clumpContainer = document.querySelector(uiConfig.clumpContainer);
     // this.clumpName = document.querySelector(uiConfig.clumpName);
-    this.uiElements = uiElements;
+    // // and so on...
+    // this.uiElements = uiElements;
+    this.uiElements = this.resolveSelectors(uiSelectors);
 
     this.dataManager = new AppData(initialData); // Dependency injection
     this.initEventListeners();
@@ -18,6 +20,14 @@ export default class AppSettings {
 
   initEventListeners() {
     this.uiElements.button.addEventListener('click', () => this.handleButtonClick());
+  }
+
+  resolveSelectors(selectors) {
+    const resolved = {};
+    for (const [key, value] of Object.entries(selectors)) {
+      resolved[key] = typeof value === 'string' ? document.querySelector(value) : this.resolveSelectors(value);
+    }
+    return resolved;
   }
 
   handleButtonClick() {
