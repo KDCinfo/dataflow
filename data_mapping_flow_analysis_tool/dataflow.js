@@ -1114,7 +1114,7 @@ function renderMatrix() {
         contentSpan.innerHTML = `<strong>${clumpFound.clumpName}</strong>
               <br>${isCellCollapsed
             ? clumpFound.clumpCode.split('\n')[0]
-            : '<pre>' + clumpFound.clumpCode + '</pre>'
+            : '<pre>' + unescapeHTML(clumpFound.clumpCode) + '</pre>'
           }`;
 
         if (!isCellCollapsed) {
@@ -1147,6 +1147,10 @@ function renderMatrix() {
     const indexCell = document.querySelector(`.clump-list-index-${editingIndex}`);
     indexCell && indexCell.classList.add('clump-node-selected');
   }
+}
+
+function unescapeHTML(code) {
+  return code.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 function handleExportData() {
