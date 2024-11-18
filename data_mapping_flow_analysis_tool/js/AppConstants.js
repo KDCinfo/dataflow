@@ -19,4 +19,20 @@ export default class AppConstants {
         </ul>`;
   static storageNameErrDelText = `Cannot delete the default or currently active storage names.`;
   static storageNameErrUseText = `Cannot load an already active storage name.`;
+
+  static defaultClumpValues = {
+    id: -1,
+    clumpName: '',
+    clumpCode: '',
+    column: -1,
+    linkedClumpID: -1
+  };
+  static defaultClumpErrorValues = {
+    id: -2,
+    clumpName: 'ErrName',
+    clumpCode: 'ErrCode',
+    column: -2,
+    linkedClumpID: -2
+  };
+
 };

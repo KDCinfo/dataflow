@@ -1,7 +1,5 @@
 // This is a temporary file to house the JavaScript while it's being refactored.
 
-import { dataDefault } from "./js/dataDefault";
-
 // DATA: [clumpList] A 1D list of data clumps are stored in the browser's local storage.
 // The clumpMatrix, below, is used to render the clumps in their correct 2D positions.
 let clumpList;
@@ -357,7 +355,7 @@ clumpFormId.onsubmit = (event) => {
     //
     const newClumpID = lastAddedClumpId + 1;
 
-    const addNewClump = dataDefault.newClump;
+    const addNewClump = new ClumpInfo();
     addNewClump.id = newClumpID;
     addNewClump.clumpName = clumpNameInput.value;
     addNewClump.clumpCode = clumpCodeInput.value;

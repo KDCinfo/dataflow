@@ -1,5 +1,5 @@
-import dataDefault from './dataDefault.js';
-import dataError from './dataError.js';
+import dataDefaultApp from './dataDefaultApp.js';
+import dataDefaultError from './dataDefaultError.js';
 
 export default class AppData {
   // Default settings for the app.
@@ -24,20 +24,18 @@ export default class AppData {
   // DATA: [lastAddedClumpId] Unlinked clumps are placed under the last clump that was added,
   lastAddedClumpId; // = 0;
 
-  constructor(
-    initialData = dataDefault,
-    settings = appSettings
-  ) {
+  constructor(settings = dataDefaultApp.defaultAppSettings) {
+
     this.storageNameErrorText = ``;
 
-    this.editingIndex = initialData.editingIndex; // null;
-    this.lastAddedCol = initialData.lastAddedCol; // 1;
-    this.lastAddedClumpId = initialData.lastAddedClumpId; // 0;
+    this.editingIndex = dataDefaultApp.editingIndex; // null;
+    this.lastAddedCol = dataDefaultApp.lastAddedCol; // 1;
+    this.lastAddedClumpId = dataDefaultApp.lastAddedClumpId; // 0;
 
     this.localStorageKeyForClumps = settings.settingsStorageNames[settings.storageIndex] || 'dataMappingFlowClumps';
 
     this.clumpList = this.parseClumpListFromStorage();
-    this.clumpMatrix = initialData.clumpMatrix; // [];
+    this.clumpMatrix = dataDefaultApp.clumpMatrix; // [];
   }
 
   parseClumpListFromStorage() {
@@ -48,7 +46,7 @@ export default class AppData {
     if (key in this) {
       return this[key];
     }
-    return dataError[key];
+    return dataDefaultError[key];
   }
 
   setData(key, value) {

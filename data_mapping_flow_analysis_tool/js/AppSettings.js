@@ -1,6 +1,6 @@
 import AppConstants from './appConstants.js';
 import AppData from './AppData.js';
-import { dataDefault } from './dataDefault.js';
+import { dataDefaultApp } from './dataDefaultApp.js';
 
 export default class AppSettings {
   constructor(uiSelectors) {
@@ -15,19 +15,21 @@ export default class AppSettings {
     // this.uiElements = uiElements;
     this.uiElements = this.resolveSelectors(uiSelectors);
 
-    let settings = this.parseSettingsFromStorage();
+    let appSettings = this.getJsonSettingsFromStorage();
 
-    this.dataManager = new AppData(settings);
+    this.dataManager = new AppData(appSettings);
     this.initEventListeners();
   }
 
-  parseSettingsFromStorage() {
-    return JSON.parse(localStorage.getItem(AppConstants.localStorageSettings)
-      || JSON.stringify(dataDefault.defaultAppSettings));
+  getJsonSettingsFromStorage() {
+    return JSON.parse(
+      localStorage.getItem(AppConstants.localStorageSettings) ||
+      JSON.stringify(dataDefaultApp.defaultAppSettings)
+    );
   }
 
   initEventListeners() {
-    this.uiElements.button.addEventListener('click', () => this.handleButtonClick());
+    // this.uiElements.button.addEventListener('click', () => this.handleButtonClick());
   }
 
   resolveSelectors(selectors) {
