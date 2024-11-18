@@ -1,5 +1,4 @@
-import dataDefaultApp from './dataDefaultApp.js';
-import dataDefaultError from './dataDefaultError.js';
+import { dataDefaultApp, dataDefaultError } from './dataDefaultApp.js';
 
 export default class AppData {
   // Default settings for the app.

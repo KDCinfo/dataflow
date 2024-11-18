@@ -1,3 +1,25 @@
+import ClumpInfo from './ClumpInfo.js';
+
+// These error property keys should match
+// the App's default property keys below.
+export const dataDefaultError = {
+  editingIndex: -2,
+  localStorageKeyForClumps: 'dataFlowFallbackKey',
+  clumpList: [
+    ClumpInfo.createErrorInfoData()
+  ],
+  clumpMatrix: [
+    [-1]
+  ],
+  lastAddedCol: -1,
+  lastAddedClumpId: -1,
+  defaultAppSettings: {
+    gridRepeatRangeValue: 0,
+    storageNames: ['error'], // camelCase or snake_case.
+    storageIndex: 0
+  }
+};
+
 export const dataDefaultApp = {
   // gridRepeatValue: 2,
   // storageNames: ['default'],
