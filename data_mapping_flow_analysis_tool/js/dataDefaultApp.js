@@ -1,4 +1,4 @@
-export const dataDefault = {
+export const dataDefaultApp = {
   // gridRepeatValue: 2,
   // storageNames: ['default'],
   // storageIndex: 0
@@ -32,20 +32,5 @@ export const dataDefault = {
     gridRepeatRangeValue: 2,
     storageNames: ['default'], // camelCase or snake_case.
     storageIndex: 0
-  },
-  newClump: {
-    id: -1,
-    clumpName: '',
-    clumpCode: '',
-    column: -1,
-    linkedClumpID: -1,
-  },
-  errorClump: {
-    id: -2,
-    clumpName: 'ErrName',
-    clumpCode: 'ErrCode',
-    column: -2,
-    linkedClumpID: -2,
   }
-
 };

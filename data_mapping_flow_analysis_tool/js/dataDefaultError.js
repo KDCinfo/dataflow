@@ -1,10 +1,10 @@
-import { errorClump } from './dataDefault.js';
+import ClumpInfo from './ClumpInfo.js';
 
-export const dataDefault = {
+export const dataDefaultError = {
   editingIndex: -2,
   localStorageKeyForClumps: 'dataFlowFallbackKey',
   clumpList: [
-    errorClump
+    ClumpInfo.createErrorInfoData()
   ],
   clumpMatrix: [
     [-1]
