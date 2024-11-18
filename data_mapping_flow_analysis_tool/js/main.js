@@ -3,5 +3,5 @@ import { uiConfig } from './uiConfig.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const appSettings = new AppSettings(uiConfig);
-  appSettings.loadData('/api/settings');
+  // await appSettings.loadData('/api/settings');
 });

@@ -1,41 +1,6 @@
 // This is a temporary file to house the JavaScript while it's being refactored.
 
-// When 'debug === true':
-// - Console log prints the clump matrix.
-const debugPrintClumpMatrix = false;
-const debugConsoleLogs = true;
-
-// DATA: [editingIndex] Updated when edited a clump, and reset when clump is saved.
-let editingIndex = null;  // Track if we’re editing an existing clump
-
-// [Q] ChatGPT Prompt: Can a JavaScript regex pattern check for either "camelCase" or
-//                    "snake_case" (both initial lowercase) without them being mixed?
-// [A] Yes: Here is a pattern for either camelCase OR snake_case, but not mixed.
-const keyNamePattern = /^(?:[a-z][a-zA-Z0-9]*|[a-z][a-z0-9_]*[a-z0-9])$/;
-// const keyNamePattern = /^[a-z][a-zA-Z0-9_]*$/;
-
-// Grid Cells: 'gridRepeatRangeValue: 2' => '1fr'
-const gridRepeatOptions = ['auto', '1fr', '150px', '200px', '250px', '300px'];
-
-// Local Storage.
-const localStorageSettings = 'dataMappingFlowSettings';
-const defaultAppSettings = {
-  gridRepeatRangeValue: 2,
-  storageNames: ['default'], // camelCase with underscores.
-  storageIndex: 0,
-};
-// Regex checks for either 'camelCase' or 'snake_case'.
-let storageNameErrorText = ``;
-const storageNameErrTextNameEmpty = `Please provide a storage name.`;
-const storageNameErrTextNameExists = `This storage name already exists.`;
-const storageNameErrTextInvalid = `<ul>For consistent storage names:
-        <li>Start with a lowercase character.</li>
-        <li>Use either 'camelCase' or 'snake_case'.</li>
-      </ul>`;
-const storageNameErrDelText = `Cannot delete the default or currently active storage names.`;
-const storageNameErrUseText = `Cannot load an already active storage name.`;
-
-let settings = JSON.parse(localStorage.getItem(localStorageSettings) || JSON.stringify(defaultAppSettings));
+import { dataDefault } from "./js/dataDefault";
 
 // DATA: [clumpList] A 1D list of data clumps are stored in the browser's local storage.
 // The clumpMatrix, below, is used to render the clumps in their correct 2D positions.
@@ -392,31 +357,28 @@ clumpFormId.onsubmit = (event) => {
     //
     const newClumpID = lastAddedClumpId + 1;
 
-    const newClump = {
-      id: newClumpID,
-      clumpName: clumpNameInput.value,
-      clumpCode: clumpCodeInput.value,
-      column: -1,
-      linkedClumpID: -1,
-    };
+    const addNewClump = dataDefault.newClump;
+    addNewClump.id = newClumpID;
+    addNewClump.clumpName = clumpNameInput.value;
+    addNewClump.clumpCode = clumpCodeInput.value;
 
     // Populate either the 'linkedClumpId' (if linked), or the given 'Column' (if not linked).
     //
     if (isLinked) {
       // [Linked]
       columnToAddTo = lastAddedCol + 1;
-      newClump.linkedClumpID = newLinkTo;
+      addNewClump.linkedClumpID = newLinkTo;
     } else {
       // [Unlinked]
       columnToAddTo = columnRawValue === 'last' ? lastAddedCol : parseInt(columnRawValue, 10);
-      newClump.column = columnToAddTo;
+      addNewClump.column = columnToAddTo;
     }
 
     // Add the new clump to the end of the 'clumps' 1D array.
-    clumpList.push(newClump);
+    clumpList.push(addNewClump);
 
     // Inject the new clump to the 'clumpMatrix' 2D array.
-    addClumpToMatrix(newClump);
+    addClumpToMatrix(addNewClump);
 
     // Update global variables.
     lastAddedClumpId = newClumpID;
