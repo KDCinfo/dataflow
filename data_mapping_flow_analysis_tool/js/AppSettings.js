@@ -19,12 +19,12 @@ export default class AppSettings {
   //   storageIndex: 0
   // }
   //
-  appSettings;
+  appSettingsInfo;
 
   // The 'dataManager' maintains intrinsic properties based on which 'clumpList' is loaded.
   //
   // export default class AppData {
-  //   #appSettings;
+  //   #appSettingsInfo;
   //   editingIndex; // = null;  // Track if we’re editing an existing clump
   //   lastAddedCol; // = 1;
   //   lastAddedClumpId; // = 0;
@@ -36,9 +36,10 @@ export default class AppSettings {
 
   constructor(uiSelectors) {
     this.uiElements = this.resolveSelectors(uiSelectors);
-    this.appSettings = this.getJsonSettingsFromStorageOrDefaults();
-    this.dataManager = new AppData(this.appSettings);
-    // this.dataManager = 'A string';
+    this.appSettingsInfo = this.getJsonSettingsFromStorageOrDefaults();
+    this.dataManager = new AppData(
+      this.appSettingsInfo
+    );
 
     // Initialize event listeners.
     //
@@ -105,7 +106,6 @@ export default class AppSettings {
     this.uiElements.importDataButton.addEventListener('click', this.handleImportData.bind(this));
   }
 
-
   // Function to bold 'New Storage' button text if the 'newStorageNameInput' value is valid.
   checkNewStorageButton() {
     const newStorageNameValue = this.uiElements.newStorageNameInput.value.trim();
@@ -127,10 +127,10 @@ export default class AppSettings {
   //   - Disable both buttons.
   toggleStorageButtons() {
     const selectedIndex = this.uiElements.storageNameTag.selectedIndex;
-    const selectedStorageName = this.appSettings.storageNames[selectedIndex];
+    const selectedStorageName = this.appSettingsInfo.storageNames[selectedIndex];
 
     const isDefault = selectedStorageName === 'default';
-    const isActive = selectedIndex === this.appSettings.storageIndex;
+    const isActive = selectedIndex === this.appSettingsInfo.storageIndex;
 
     this.uiElements.storageButtonDelete.disabled = isDefault || isActive;
     this.uiElements.storageButtonUse.disabled = isActive;
@@ -160,7 +160,7 @@ export default class AppSettings {
   checkIfStorageNameExists(keyName) {
     // return storageNames.includes(keyName);
     // 'includes' is case-sensitive, so we need to lowercase all the names.
-    return this.appSettings.storageNames.map(name => name.toLowerCase()).includes(keyName.toLowerCase());
+    return this.appSettingsInfo.storageNames.map(name => name.toLowerCase()).includes(keyName.toLowerCase());
   }
 
   hideStorageError() {
@@ -182,6 +182,90 @@ export default class AppSettings {
       add: function (c) { elementClassList.add(c); return this; },
       remove: function (c) { elementClassList.remove(c); return this; }
     };
+  }
+
+  updateDataInHtml() {
+    // Last added Clump ID.
+    this.uiElements.lastAddedClumpIdTag.textContent = this.dataManager.lastAddedClumpId.toString();
+
+    // Last column a clump was added to.
+    this.uiElements.lastAddedColTag.textContent = this.dataManager.lastAddedCol.toString();
+
+    // Currently edited clump index and ID.
+    const currentEditingIndex = this.dataManager.editingIndex;
+    this.uiElements.editingIndexTag.textContent = currentEditingIndex === null
+      ? '_'
+      : currentEditingIndex.toString();
+    this.uiElements.editingIdTag.textContent = currentEditingIndex === null
+      ? '_'
+      : clumpList[currentEditingIndex].id.toString();
+  }
+
+  handleExportData() {
+    // Data to export.
+    const clumpListToExport = this.dataManager.getData('clumpList');
+
+    const dataStr = JSON.stringify(clumpListToExport, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'dataclumps.json';
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  handleImportData() {
+    if (confirm(`\nWarning:\n
+          Importing data will overwrite the current data.\n
+          Are you sure you want to continue?\n`)) {
+      //
+      // document.getElementById('importFile').click();
+
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        handleImportFile(file).bind(this);
+      }
+      fileInput.click();
+    }
+
+    function handleImportFile(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const importedClumps = JSON.parse(e.target.result);
+          if (Array.isArray(importedClumps)) {
+            //
+            // Update data.
+
+            this.dataManager.importAppData(
+              importedClumps,
+              null,
+              lastAddedColDefault,
+              lastAddedClumpIdDefault
+            );
+
+            // Update UI.
+
+            this.uiElements.clumpFormId.reset();
+            this.uiElements.outputContainer.style.marginBottom = '0';
+            this.uiElements.outputContainer.style.height = 'calc(100vh - 42px)';
+            this.updateDataInHtml();
+            this.renderMatrix();
+
+            //
+          } else {
+            alert('Invalid data format');
+          }
+        } catch {
+          alert('Failed to import data');
+        }
+      };
+      reader.readAsText(file);
+    }
   }
 
   // handleButtonClick() {

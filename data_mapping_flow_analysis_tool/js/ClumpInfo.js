@@ -1,4 +1,5 @@
 import AppConstants from './appConstants.js';
+import AppHelpers from './AppHelper.js';
 
 export default class ClumpInfo {
   constructor(
@@ -15,17 +16,6 @@ export default class ClumpInfo {
     this.linkedClumpID = linkedClumpID;
   }
 
-  // Array of int properties.
-  get clumpPropertiesInt() {
-    let intProps = [];
-    for (const key in this) {
-      if (typeof this[key] === 'number') {
-        intProps.push(key);
-      }
-    }
-    return intProps;
-  }
-
   getData(key) {
     if (key in this) {
       return this[key];
@@ -33,14 +23,15 @@ export default class ClumpInfo {
     throw new Error(`Invalid key: ${key}`);
   }
 
-  setData(key, value) {
-    if (!(key in this)) {
-      throw new Error(`[ClumpInfo] Invalid key: ${key}`);
+  setData(keyToSet, newValue) {
+    if (!(keyToSet in this)) {
+      throw new Error(`[ClumpInfo] Invalid key: ${keyToSet}`);
     }
-    if (key in this.clumpPropertiesInt && typeof value !== 'number') {
-      throw new Error(`[ClumpInfo] This clump key [${key}] must be a number.`);
+    const arrayOfIntKeys = AppHelpers.listOfKeysWithInts().bind(this);
+    if (keyToSet in arrayOfIntKeys && typeof newValue !== 'number') {
+      throw new Error(`[ClumpInfo] This clump key [${keyToSet}] must be a number.`);
     }
-    this[key] = value;
+    this[keyToSet] = newValue;
     return true;
   }
 
