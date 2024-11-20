@@ -8,7 +8,7 @@ export default class AppConstants {
   static gridRepeatOptions = ['auto', '1fr', '150px', '200px', '250px', '300px'];
 
   // Local Storage.
-  static localStorageSettings = 'dataMappingFlowSettings';
+  static localStorageSettingsKey = 'dataClumpFlowAppSettings';
   // Regex checks for either 'camelCase' or 'snake_case'.
   // let storageNameErrorText = ``;
   static storageNameErrTextNameEmpty = `Please provide a storage name.`;
@@ -34,5 +34,4 @@ export default class AppConstants {
     column: -2,
     linkedClumpID: -2
   };
-
 };

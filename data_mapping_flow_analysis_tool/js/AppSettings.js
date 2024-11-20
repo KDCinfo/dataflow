@@ -23,7 +23,7 @@ export default class AppSettings {
 
   getJsonSettingsFromStorage() {
     return JSON.parse(
-      localStorage.getItem(AppConstants.localStorageSettings) ||
+      localStorage.getItem(AppConstants.localStorageSettingsKey) ||
       JSON.stringify(dataDefaultApp.defaultAppSettings)
     );
   }
