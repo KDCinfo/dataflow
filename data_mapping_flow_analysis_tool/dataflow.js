@@ -1,28 +1,6 @@
 // Initialize the 'clumpMatrix' with the clumps from local storage.
 addClumpsToMatrix();
 
-function storeSettings() {
-  localStorage.setItem(localStorageSettings, JSON.stringify(settings));
-}
-
-// HTML Slider with options that will update the grid repeat:
-// > ['auto', '1fr', '150px', '200px', '250px', '300px']
-//
-function updateGridRepeat(event) {
-  const newGridRepeat = event.target.value;
-  const cellWidth = convertGridRepeatSettingValueToCellWidth(newGridRepeat);
-
-  // Make changes to the UI.
-  clumpContainer.style.gridTemplateColumns = `repeat(${getColumnCount()}, ${cellWidth})`;
-
-  // Update the grid repeat slider label.
-  gridRepeatHTMLSpan.textContent = `[${newGridRepeat}] ${cellWidth}`;
-
-  // Store the new setting.
-  settings.gridRepeatRangeValue = newGridRepeat;
-  storeSettings();
-}
-
 function updateLinkToDropdownOptions() {
   linkTo.innerHTML = '<option value="">None</option>';
 
@@ -269,19 +247,6 @@ clumpFormId.onreset = (event) => {
   // This will clear the 'edit border' from the selected clump node.
   clearSelectedClumpNode();
 };
-
-function convertGridRepeatSettingValueToCellWidth(curGridRepeat = settings.gridRepeatRangeValue) {
-  AppConfig.debugConsoleLogs && console.log('curGridRepeat:', curGridRepeat);
-
-  // const gridRepeatOptions = ['auto', '1fr', '150px', '200px', '250px', '300px'];
-  const curGridRepeatRangeValue = gridRepeatOptions[parseInt(curGridRepeat, 10) - 1];
-  // const curGridRepeatRangeValue = curGridRepeat === "1"
-  //   ? gridRepeatOptions[0] : curGridRepeat === "2"
-  //     ? gridRepeatOptions[1] : `${50 * curGridRepeat}px`; // This was cool.
-  AppConfig.debugConsoleLogs && console.log('curGridRepeatRangeValue:', curGridRepeatRangeValue);
-
-  return curGridRepeatRangeValue;
-}
 
 function showStorageError(errText) {
   if (

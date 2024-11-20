@@ -1,3 +1,4 @@
+import AppConfig from './AppConfig.js';
 import AppConstants from './appConstants.js';
 import AppData from './AppData.js';
 import { dataDefaultApp } from './dataDefaultApp.js';
@@ -184,6 +185,45 @@ export default class AppSettings {
     };
   }
 
+  storeSettings() {
+    localStorage.setItem(
+      AppConstants.localStorageSettingsKey,
+      JSON.stringify(this.appSettingsInfo)
+    );
+  }
+
+  convertGridRepeatSettingValueToCellWidth(curGridRepeat = settings.gridRepeatRangeValue) {
+    AppConfig.debugConsoleLogs && console.log('curGridRepeat:', curGridRepeat);
+
+    // const gridRepeatOptions = ['auto', '1fr', '150px', '200px', '250px', '300px'];
+    const curGridRepeatRangeValue = AppConstants.gridRepeatOptions[parseInt(curGridRepeat, 10) - 1];
+    // const curGridRepeatRangeValue = curGridRepeat === "1"
+    //   ? gridRepeatOptions[0] : curGridRepeat === "2"
+    //     ? gridRepeatOptions[1] : `${50 * curGridRepeat}px`; // This was cool.
+    AppConfig.debugConsoleLogs && console.log('curGridRepeatRangeValue:', curGridRepeatRangeValue);
+
+    return curGridRepeatRangeValue;
+  }
+
+  // HTML Slider with options that will update the grid repeat:
+  // > ['auto', '1fr', '150px', '200px', '250px', '300px']
+  //
+  updateGridRepeat(event) {
+    const newGridRepeat = event.target.value;
+    const cellWidth = this.convertGridRepeatSettingValueToCellWidth(newGridRepeat);
+    const columnCount = this.dataManager.getColumnCount();
+
+    // Make changes to the UI.
+    this.uiElements.clumpContainer.style.gridTemplateColumns = `repeat(${columnCount}, ${cellWidth})`;
+
+    // Update the grid repeat slider label.
+    this.uiElements.gridRepeatHTMLSpan.textContent = `[${newGridRepeat}] ${cellWidth}`;
+
+    // Store the new setting.
+    this.appSettingsInfo.gridRepeatRangeValue = newGridRepeat;
+    this.storeSettings();
+  }
+
   updateDataInHtml() {
     // Last added Clump ID.
     this.uiElements.lastAddedClumpIdTag.textContent = this.dataManager.lastAddedClumpId.toString();
@@ -200,6 +240,10 @@ export default class AppSettings {
       ? '_'
       : clumpList[currentEditingIndex].id.toString();
   }
+
+  //
+  // @TODO: Extract these to a 'FileHandler' class.
+  //
 
   handleExportData() {
     // Data to export.
@@ -278,7 +322,7 @@ export default class AppSettings {
   //   this.updateUIWithData();
   // }
   // updateUIWithData() {
-  //   // Assume we have data in `dataManager` to display in the UI
+  //   // Assume we have data in 'dataManager' to display in the UI
   //   this.uiElements.label.textContent = this.dataManager.getData('labelContent') || 'Default content';
   // }
   // updateSetting(newSetting) {
