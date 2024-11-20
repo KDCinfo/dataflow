@@ -1,5 +1,3 @@
-// This is a temporary file to house the JavaScript while it's being refactored.
-
 // Initialize the 'clumpMatrix' with the clumps from local storage.
 addClumpsToMatrix();
 
@@ -85,36 +83,6 @@ function updateStorageNameDropdownOptions() {
     }
     storageNameTag.appendChild(option);
   });
-}
-
-// Function to bold 'New Storage' button text if the 'newStorageNameInput' value is valid.
-function checkNewStorageButton() {
-  const newStorageNameValue = newStorageNameInput.value.trim();
-  const isValid = isValidKeyName(newStorageNameValue)
-  // Make button text bold.
-  newStorageNameButton.style.fontWeight = isValid ? 'bold' : 'normal';
-  // Change button's cursor.
-  newStorageNameButton.style.cursor = isValid ? 'pointer' : 'default';
-
-  if (isValid) {
-    hideStorageError();
-  }
-}
-
-// - If the selected storage name is:
-// - 'default':
-//   - Disable 'Delete Selected'.
-// - the currently active storage name:
-//   - Disable both buttons.
-function toggleStorageButtons() {
-  const selectedIndex = storageNameTag.selectedIndex;
-  const selectedStorageName = settings.storageNames[selectedIndex];
-
-  const isDefault = selectedStorageName === 'default';
-  const isActive = selectedIndex === settings.storageIndex;
-
-  storageButtonDelete.disabled = isDefault || isActive;
-  storageButtonUse.disabled = isActive;
 }
 
 function updateDataInHtml() {
@@ -642,40 +610,6 @@ function convertGridRepeatSettingValueToCellWidth(curGridRepeat = settings.gridR
   return curGridRepeatRangeValue;
 }
 
-// Regular expression (regex) to validate storage names.
-// Also checks if the name is already in the list.
-function isValidKeyName(keyName) {
-  // Validate the new storage name, and check new name isn't already in the list.
-  if (keyName === '') {
-    storageNameErrorText = storageNameErrTextNameEmpty;
-  } else if (!keyNamePattern.test(keyName)) {
-    storageNameErrorText = storageNameErrTextInvalid;
-  } else if (checkIfStorageNameExists(keyName)) {
-    storageNameErrorText = storageNameErrTextNameExists;
-  } else {
-    storageNameErrorText = '';
-  }
-  // return keyName !== '' && keyNamePattern.test(keyName) && !checkIfStorageNameExists(keyName);
-  return storageNameErrorText === '';
-}
-
-function checkIfStorageNameExists(keyName) {
-  // return storageNames.includes(keyName);
-  // 'includes' is case-sensitive, so we need to lowercase all the names.
-  return settings.storageNames.map(name => name.toLowerCase()).includes(keyName.toLowerCase());
-}
-
-function hideStorageError() {
-  if (storageNamingError.classList.contains('error-visible')) {
-    classListChain(storageNamingError)
-      .remove('error-visible')
-      .add('error-hidden');
-  }
-  setTimeout(() => {
-    storageNamingError.innerHTML = '';
-  }, 250);
-}
-
 function showStorageError(errText) {
   if (
     storageNamingError.classList.contains('hidden') ||
@@ -1130,60 +1064,6 @@ function togglePanel(event) {
     ? panelHotspot.children[0].textContent = '◀'
     : panelHotspot.children[0].textContent = '▼';
 }
-
-// Many thanks to: https://stackoverflow.com/a/29143197/638153 | user663031
-function classListChain(htmlElement) {
-  var elementClassList = htmlElement.classList;
-  return {
-    toggle: function (c) { elementClassList.toggle(c); return this; },
-    add: function (c) { elementClassList.add(c); return this; },
-    remove: function (c) { elementClassList.remove(c); return this; }
-  };
-}
-
-//
-// EVENT LISTENERS
-//
-
-// Add listeners to enable 'Save Clump' button when 'clump name' and 'code clump' are not empty.
-clumpNameInput.addEventListener('input', () => {
-  if (clumpNameInput.value.trim() !== '') {
-    saveClumpButton.disabled = false;
-  } else {
-    saveClumpButton.disabled = true;
-  }
-});
-
-clumpCodeInput.addEventListener('input', () => {
-  if (clumpNameInput.value.trim() !== '') {
-    saveClumpButton.disabled = false;
-  } else {
-    saveClumpButton.disabled = true;
-  }
-});
-
-linkTo.addEventListener('change', () => {
-  if (clumpNameInput.value.trim() !== '') {
-    columnSelect.disabled = false;
-  } else {
-    columnSelect.disabled = true;
-  }
-});
-
-columnSelect.addEventListener('change', () => {
-  if (clumpNameInput.value.trim() !== '') {
-    saveClumpButton.disabled = false;
-  } else {
-    saveClumpButton.disabled = true;
-  }
-});
-
-// Listener on 'newStorageNameInput' field to check if the 'New Storage' button should be bold.
-newStorageNameInput.addEventListener('input', checkNewStorageButton);
-storageNameTag.addEventListener('change', toggleStorageButtons);
-
-exportDataButton.addEventListener('click', handleExportData);
-importDataButton.addEventListener('click', handleImportData);
 
 // Initial render call
 renderMatrix();
