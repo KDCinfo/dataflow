@@ -210,15 +210,15 @@ li ol>li:before {
 }
 
 .clump-node {
+  align-items: center;
   background-color: #f9f9f9;
   border: 1px dotted #003300;
   border-radius: 5px;
   box-sizing: border-box;
-  font-size: 14px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  font-size: 14px;
   height: 40px;
+  justify-content: space-between;
   margin-bottom: 10px;
   padding: 5px;
   position: relative;
@@ -226,20 +226,21 @@ li ol>li:before {
 }
 
 .clump-node-selected {
-  outline: 6px dotted #b0e000;
   box-shadow: 0 0 20px yellow;
+  outline: 6px dotted #b0e000;
 }
 
 .content-span pre {
   background-color: #eeeecc;
+  bottom: 10px;
+  cursor: alias;
+  height: 200px;
+  left: calc(30% + 10px);
   margin: 0 15px;
   overflow: auto;
   padding: 20px;
   position: fixed;
-  bottom: 10px;
-  left: calc(30% + 10px);
   width: calc(70% - 75px);
-  height: 200px;
   z-index: 2;
 }
 
@@ -249,12 +250,12 @@ li ol>li:before {
 }
 
 .content-span {
-  text-align: left;
+  overflow: hidden;
   padding-left: 10px;
   padding-right: 32px;
-  width: 100%;
-  overflow: hidden;
+  text-align: left;
   text-overflow: ellipsis;
+  width: 100%;
 }
 
 .icon-span {
@@ -266,11 +267,11 @@ li ol>li:before {
   background-color: #c9f9c9;
   border-radius: 50%;
   box-shadow: 0px 0px 5px #00ff00;
+  cursor: pointer;
   font-size: 12px;
   padding: 2px;
   position: absolute;
   top: 5px;
-  cursor: pointer;
 }
 
 .edit-icon {
@@ -283,8 +284,8 @@ li ol>li:before {
 
 .collapsed {
   overflow: hidden;
-  white-space: nowrap;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .expanded {
