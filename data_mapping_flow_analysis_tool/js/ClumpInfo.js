@@ -35,10 +35,10 @@ export default class ClumpInfo {
 
   setData(key, value) {
     if (!(key in this)) {
-      throw new Error(`Invalid key: ${key}`);
+      throw new Error(`[ClumpInfo] Invalid key: ${key}`);
     }
     if (key in this.clumpPropertiesInt && typeof value !== 'number') {
-      throw new Error(`This clump key [${key}] must be a number.`);
+      throw new Error(`[ClumpInfo] This clump key [${key}] must be a number.`);
     }
     this[key] = value;
     return true;

@@ -15,7 +15,7 @@ export default class AppData {
   lastAddedClumpId; // = 0;
 
   // DATA: [localStorageKeyForClumps] Local storage key used to store and retrieve clumps.
-  localStorageKeyForClumps; // = storageNames[settings.storageIndex] || 'dataMappingFlowClumps';
+  localStorageKeyForClumps; // = storageNames[settings.storageIndex] || 'dataClumpFlowAppClumps';
 
   // DATA: [clumpList] A 1D list of data clumps are stored in the browser's local storage.
   // The clumpMatrix, below, is used to render the clumps in their correct 2D positions.
@@ -75,7 +75,7 @@ export default class AppData {
   #appSettings;
 
   constructor(settings = dataDefaultApp.defaultAppSettings) {
-    this.appSettings = settings;
+    this.#appSettings = settings;
 
     this.storageNameErrorText = '';
 
@@ -92,8 +92,31 @@ export default class AppData {
     this.clumpMatrix = [...dataDefaultApp.clumpMatrix]; // [];
   }
 
+  getData(key) {
+    if (key in this) {
+      return this[key];
+    }
+    return dataDefaultError[key];
+  }
+
+  setData(key, value) {
+    if (!(key in this)) {
+      throw new Error(`[AppData] Invalid key: ${key}`);
+    }
+    if (key in this.clumpPropertiesInt && typeof value !== 'number') {
+      throw new Error(`[AppData] This clump key [${key}] must be a number.`);
+    }
+    this[key] = value;
+    return true;
+  }
+
+  // Setter for appSettings.
+  set appSettings(newSettings) {
+    this.#appSettings = newSettings;
+  }
+
   getStorageNameFromSettings() {
-    return this.#appSettings.storageNames[this.#appSettings.storageIndex] || 'dataFlowFallbackKey';
+    return this.#appSettings.storageNames[this.#appSettings.storageIndex] || 'dataClumpFlowAppFallbackKey';
   }
 
   setClumpListFromStorageUsingKeyFromSettings() {
@@ -103,26 +126,6 @@ export default class AppData {
   parseClumpListFromStorage() {
     return JSON.parse(localStorage.getItem(this.localStorageKeyForClumps) || '[]');
   }
-
-  // Setter for appSettings.
-  set appSettings(newSettings) {
-    this.#appSettings = newSettings;
-  }
-
-  // getData(key) {
-  //   if (key in this) {
-  //     return this[key];
-  //   }
-  //   return dataDefaultError[key];
-  // }
-
-  // setData(key, value) {
-  //   if (key in this) {
-  //     this[key] = value;
-  //     return true;
-  //   }
-  //   return false;
-  // }
 
   // async fetchData(url) {
   //   const response = await fetch(url);

@@ -30,8 +30,6 @@ export const dataDefaultApp = {
   editingIndex: null,
 
   // DATA: [localStorageKeyForClumps] Local storage key used to store and retrieve clumps.
-  // let localStorageKeyForClumps = settings.storageNames[settings.storageIndex] || 'dataMappingFlowClumps';
-  // localStorageKeyForClumps: settings.storageNames[settings.storageIndex] || 'dataMappingFlowClumps',
   localStorageKeyForClumps: 'default',
 
   // DATA: [clumps] A list of data clumps are stored in the browser's local storage.
