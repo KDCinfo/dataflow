@@ -1,10 +1,6 @@
-import { dataDefaultApp, dataDefaultError } from './dataDefaultApp.js';
+import { dataDefaultApp } from './dataDefaultApp.js';
 
 export default class AppData {
-  // Default settings for the app.
-  static debugPrintClumpMatrix = false;
-  static debugConsoleLogs = true;
-
   // DATA: [editingIndex] Updated when edited a clump, and reset when clump is saved.
   editingIndex; // = null;  // Track if we’re editing an existing clump
 

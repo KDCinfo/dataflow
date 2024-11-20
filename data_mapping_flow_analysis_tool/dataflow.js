@@ -111,7 +111,7 @@ function selectClumpNode(eventTarget) {
 function loadForEdit(index, event) {
   event.stopPropagation();
 
-  debugConsoleLogs && console.log('Editing clump:', clumpList[index]);
+  AppConfig.debugConsoleLogs && console.log('Editing clump:', clumpList[index]);
 
   editingIndex = index;
   updateLinkToDropdownOptions(); // Updates list and toggles disabled.
@@ -581,7 +581,7 @@ function addClumpToMatrix(newClump) {
     }
   }
 
-  if (debugPrintClumpMatrix) {
+  if (AppConfig.debugPrintClumpMatrix) {
     // For debugging to see the matrix layout.
     console.log('Clump Matrix:');
     console.table(clumpMatrix);
@@ -598,14 +598,14 @@ function updateClumpMatrix(clumpMatrix, linkedRowIndex, linkedCol, id) {
 }
 
 function convertGridRepeatSettingValueToCellWidth(curGridRepeat = settings.gridRepeatRangeValue) {
-  debugConsoleLogs && console.log('curGridRepeat:', curGridRepeat);
+  AppConfig.debugConsoleLogs && console.log('curGridRepeat:', curGridRepeat);
 
   // const gridRepeatOptions = ['auto', '1fr', '150px', '200px', '250px', '300px'];
   const curGridRepeatRangeValue = gridRepeatOptions[parseInt(curGridRepeat, 10) - 1];
   // const curGridRepeatRangeValue = curGridRepeat === "1"
   //   ? gridRepeatOptions[0] : curGridRepeat === "2"
   //     ? gridRepeatOptions[1] : `${50 * curGridRepeat}px`; // This was cool.
-  debugConsoleLogs && console.log('curGridRepeatRangeValue:', curGridRepeatRangeValue);
+  AppConfig.debugConsoleLogs && console.log('curGridRepeatRangeValue:', curGridRepeatRangeValue);
 
   return curGridRepeatRangeValue;
 }
@@ -628,7 +628,7 @@ function createNewStorage() {
   // Temporarily disable the new storage button to prevent double-clicks.
   newStorageNameButton.disabled = true;
 
-  debugConsoleLogs && console.log('Create new storage:', newStorageNameInput.value);
+  AppConfig.debugConsoleLogs && console.log('Create new storage:', newStorageNameInput.value);
 
   if (isValidKeyName(newStorageNameInput.value)) {
     hideStorageError();
@@ -660,7 +660,7 @@ function createNewStorage() {
 }
 
 function deleteSelectedStorage() {
-  debugConsoleLogs && console.log('Delete selected storage:', storageNameTag.value);
+  AppConfig.debugConsoleLogs && console.log('Delete selected storage:', storageNameTag.value);
 
   if (storageNamingError.classList.contains('error-visible')) {
     hideStorageError();
@@ -697,7 +697,7 @@ function deleteSelectedStorage() {
 
 // const storageName = document.getElementById("storageName");
 function useSelectedStorage() {
-  debugConsoleLogs && console.log('Use selected storage:', storageNameTag.value);
+  AppConfig.debugConsoleLogs && console.log('Use selected storage:', storageNameTag.value);
 
   if (storageNamingError.classList.contains('error-visible')) {
     hideStorageError();
@@ -1043,8 +1043,8 @@ function handleImportData() {
 function togglePanel(event) {
   event.stopPropagation();
 
-  debugConsoleLogs && console.log('togglePanel');
-  debugConsoleLogs && console.log(event.target.parentElement.parentElement);
+  AppConfig.debugConsoleLogs && console.log('togglePanel');
+  AppConfig.debugConsoleLogs && console.log(event.target.parentElement.parentElement);
 
   const panelToExpand = document.querySelector('.info-panel.export-import');
   const panelHotspot = document.querySelector('.panel-from-hotspot');
