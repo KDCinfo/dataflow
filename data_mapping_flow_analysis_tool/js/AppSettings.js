@@ -1,5 +1,5 @@
 import AppConfig from './AppConfig.js';
-import AppConstants from './appConstants.js';
+import AppConstants from './AppConstants.js';
 import AppData from './AppData.js';
 import AppHelpers from './AppHelper.js';
 import ClumpInfo from './ClumpInfo.js';
@@ -50,23 +50,28 @@ export default class AppSettings {
     this.initEventListeners();
 
     // Initial render call
-    renderMatrix();
+    this.renderMatrix();
   }
 
   resolveSelectors(selectors) {
     const resolved = {};
-    for (const [key, value] of Object.entries(selectors)) {
-      resolved[key] = typeof value === 'string'
-        ? document.querySelector(value)
-        : this.resolveSelectors(value);
+    const uiConfigKeys = Object.keys(selectors);
+    for (const configKey of uiConfigKeys) {
+      for (const [key, value] of Object.entries(selectors[configKey])) {
+        resolved[key] = typeof value === 'string'
+          ? document.querySelector(value)
+          : this.resolveSelectors(value);
+      }
     }
     return resolved;
   }
 
   getJsonSettingsFromStorageOrDefaults() {
+    const dataFromStorage = localStorage.getItem(AppConstants.localStorageSettingsKey);
+    const dataFromDefaults = JSON.stringify(dataDefaultApp.defaultAppSettings);
     return JSON.parse(
-      localStorage.getItem(AppConstants.localStorageSettingsKey) ||
-      JSON.stringify(dataDefaultApp.defaultAppSettings)
+      dataFromStorage || dataFromDefaults
+
     );
   }
 
@@ -82,28 +87,32 @@ export default class AppSettings {
       } else {
         this.uiElements.saveClumpButton.disabled = true;
       }
-    }).bind(this);
+    });
+    // }).bind(this);
+    // AppSettings.js: Uncaught TypeError: Cannot read properties of undefined (reading 'bind')
+    // Arrow functions (() => {}) automatically inherit the lexical 'this' context of the
+    // enclosing scope. There’s no need to manually bind this when using arrow functions.
     this.uiElements.clumpCodeInput.addEventListener('input', () => {
       if (this.uiElements.clumpNameInput.value.trim() !== '') {
         this.uiElements.saveClumpButton.disabled = false;
       } else {
         this.uiElements.saveClumpButton.disabled = true;
       }
-    }).bind(this);
+    });
     this.uiElements.linkTo.addEventListener('change', () => {
       if (this.uiElements.clumpNameInput.value.trim() !== '') {
         this.uiElements.columnSelect.disabled = false;
       } else {
         this.uiElements.columnSelect.disabled = true;
       }
-    }).bind(this);
+    });
     this.uiElements.columnSelect.addEventListener('change', () => {
       if (this.uiElements.clumpNameInput.value.trim() !== '') {
         this.uiElements.saveClumpButton.disabled = false;
       } else {
         this.uiElements.saveClumpButton.disabled = true;
       }
-    }).bind(this);
+    });
 
     // Listener on 'newStorageNameInput' field to check if the 'New Storage' button should be bold.
     this.uiElements.newStorageNameInput.addEventListener('input', this.checkNewStorageButton.bind(this));

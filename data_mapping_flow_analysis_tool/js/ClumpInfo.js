@@ -1,4 +1,4 @@
-import AppConstants from './appConstants.js';
+import AppConstants from './AppConstants.js';
 import AppHelpers from './AppHelper.js';
 
 export default class ClumpInfo {
@@ -37,7 +37,7 @@ export default class ClumpInfo {
 
   // Factory for creating an error instance.
   static createErrorInfoData() {
-    this.logError('Error creating ClumpInfo instance');
+    ClumpInfo.logError('Error creating ClumpInfo instance');
 
     return new ClumpInfo(
       AppConstants.defaultClumpErrorValues.id,
@@ -48,7 +48,7 @@ export default class ClumpInfo {
     );
   }
 
-  logError(errMsg) {
+  static logError(errMsg) {
     console.error(`ClumpInfo Error: ${errMsg}`);
   }
 }

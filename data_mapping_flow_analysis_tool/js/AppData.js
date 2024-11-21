@@ -89,6 +89,7 @@ export default class AppData {
     this.localStorageKeyForClumps = this.getStorageNameFromSettings();
 
     // The clumpList is parsed from local storage using the 'active storage key' that was just set.
+    this.clumpList = [];
     this.setClumpList(this.parseClumpListFromStorage());
 
     this.clumpMatrix = [...dataDefaultApp.clumpMatrix]; // [];
@@ -106,6 +107,7 @@ export default class AppData {
     if (key in this) {
       return this[key];
     }
+    // throw new Error(`[AppData] Invalid key: ${key}`);
     return dataDefaultError[key];
   }
 
