@@ -2,6 +2,7 @@ import AppConfig from './AppConfig.js';
 import AppConstants from './appConstants.js';
 import AppData from './AppData.js';
 import AppHelpers from './AppHelper.js';
+import ClumpInfo from './ClumpInfo.js';
 import { dataDefaultApp } from './dataDefaultApp.js';
 import FileHandler from './FileHandler.js';
 
@@ -47,6 +48,9 @@ export default class AppSettings {
     // Initialize event listeners.
     //
     this.initEventListeners();
+
+    // Initial render call
+    renderMatrix();
   }
 
   resolveSelectors(selectors) {
@@ -107,6 +111,114 @@ export default class AppSettings {
 
     this.uiElements.exportDataButton.addEventListener('click', this.handleExportData.bind(this));
     this.uiElements.importDataButton.addEventListener('click', this.handleImportData.bind(this));
+
+    this.uiElements.clumpFormId.addEventListener('submit', this.handleFormSubmit.bind(this));
+    this.uiElements.clumpFormId.addEventListener('reset', this.handleFormReset.bind(this));
+  }
+
+  handleFormSubmit(event) {
+    // clumpFormId.onsubmit = (event) => {
+    event.preventDefault();
+
+    // Clump cell placement has 3 options:
+    //
+    // [Linked]: 'Column to Add To' dropdown is irrelevant.
+    // 1. Add to the same row as the linked clump, in the next column.
+    //
+    // [Unlinked]: 'Link to Clump' dropdown should be set to 'None'.
+    // 2. When 'Last' is selected, add new clump to the last column that had a clump added to it.
+    // 3. Add to a specific column.
+    //
+    const newLinkTo = parseInt(this.uiElements.linkTo.value, 10) || -1;
+    const isLinked = !isNaN(newLinkTo) && newLinkTo > 0;
+    let columnToAddTo;
+
+    const columnRawValue = this.uiElements.columnSelect.options[this.uiElements.columnSelect.selectedIndex].value;
+
+    if (this.dataManager.editingIndex === null) {
+      //
+      // ADDING A NEW CLUMP
+      //
+      const newClumpID = this.dataManager.lastAddedClumpId + 1;
+
+      const addNewClump = new ClumpInfo();
+      addNewClump.id = newClumpID;
+      addNewClump.clumpName = this.uiElements.clumpNameInput.value;
+      addNewClump.clumpCode = this.uiElements.clumpCodeInput.value;
+
+      // Populate either the 'linkedClumpId' (if linked), or the given 'Column' (if not linked).
+      //
+      if (isLinked) {
+        // [Linked]
+        columnToAddTo = this.dataManager.lastAddedCol + 1;
+        addNewClump.linkedClumpID = newLinkTo;
+      } else {
+        // [Unlinked]
+        columnToAddTo = columnRawValue === 'last' ? lastAddedCol : parseInt(columnRawValue, 10);
+        addNewClump.column = columnToAddTo;
+      }
+
+      // Add the new clump to the end of the 'clumps' 1D array.
+      const clumpListToAdd = [...this.dataManager.getData('clumpList')];
+      clumpListToAdd.push(addNewClump);
+      this.dataManager.setData('clumpList', clumpListToAdd);
+
+      // Inject the new clump to the 'clumpMatrix' 2D array.
+      this.dataManager.addClumpToMatrix(addNewClump);
+
+      // Update global variables.
+      this.dataManager.setData('lastAddedClumpId', newClumpID);
+      //
+    } else {
+      //
+      // EDITING AN EXISTING CLUMP
+      //
+      const editedClump = this.dataManager.clumpList[this.dataManager.editingIndex];
+
+      editedClump.clumpName = this.uiElements.clumpNameInput.value;
+      editedClump.clumpCode = this.uiElements.clumpCodeInput.value;
+
+      this.dataManager.editingIndex = null;
+      this.updateDataInHtml();
+      this.clearSelectedClumpNode();
+    }
+
+    this.storeClumps();
+    this.renderMatrix();
+    this.uiElements.clumpFormId.reset();
+
+    const howManyExpanded = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded').length;
+    this.uiElements.outputContainer.style.marginBottom = howManyExpanded > 0 ? '260px' : '0';
+    this.uiElements.outputContainer.style.height = howManyExpanded > 0
+      ? 'calc(100vh - 42px - 260px)'
+      : 'calc(100vh - 42px)';
+  };
+
+  // When canceling an edit, reset the 'editingIndex' to null, and remove the
+  // last 'Link to Clump' dropdown option if it is the same as the original 'linkedClumpID'.
+  handleFormReset(event) {
+    event.preventDefault();
+
+    // This will reset the form fields, regardless of any nesting.
+    // clumpFormId.reset();
+    // Manually clear each input, textarea, and select within the form
+    document.querySelectorAll("#clumpFormId input, #clumpFormId textarea, #clumpFormId select").forEach((field) => {
+      if (field.type === "checkbox" || field.type === "radio") {
+        field.checked = field.defaultChecked;
+      } else {
+        field.value = field.defaultValue;
+      }
+    });
+
+    this.dataManager.editingIndex = null;
+
+    this.uiElements.saveClumpButton.disabled = this.uiElements.clumpNameInput.value.trim() === '';
+
+    this.updateLinkToDropdownOptions(); // Updates list and toggles disabled.
+    this.updateColumnSelectDropdownOptions(); // Toggles disabled.
+    this.updateDataInHtml();
+    // This will clear the 'edit border' from the selected clump node.
+    this.clearSelectedClumpNode();
   }
 
   handleExportData() {

@@ -92,6 +92,9 @@ export default class AppData {
     this.setClumpList(this.parseClumpListFromStorage());
 
     this.clumpMatrix = [...dataDefaultApp.clumpMatrix]; // [];
+
+    // Initialize the 'clumpMatrix' with the clumps from local storage.
+    this.addClumpsToMatrix();
   }
 
   // Setter for appSettings called from parent ('AppSettings').
