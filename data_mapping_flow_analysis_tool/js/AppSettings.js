@@ -123,8 +123,8 @@ export default class AppSettings {
       this.dataManager.importAppData(
         importedDataArray, // importedClumps
         null, // updatedEditingIndex
-        this.dataDefaultApp.lastAddedCol,
-        this.dataDefaultApp.lastAddedClumpId
+        dataDefaultApp.lastAddedCol,
+        dataDefaultApp.lastAddedClumpId
       );
 
       // Update UI.
@@ -337,6 +337,231 @@ export default class AppSettings {
       }
       this.uiElements.storageNameTag.appendChild(option);
     });
+  }
+
+  //
+  // @TODO: Extract these to an 'AppForm' class.
+  //
+
+  loadForEdit(index, event) {
+    event.stopPropagation();
+
+    AppConfig.debugConsoleLogs && console.log('Editing clump:', this.dataManager.clumpList[index]);
+
+    this.dataManager.setData('editingIndex', index);
+    this.updateLinkToDropdownOptions(); // Updates list and toggles disabled.
+    this.updateColumnSelectDropdownOptions(); // Toggles disabled.
+    this.updateDataInHtml();
+    this.selectClumpNode(event.target);
+
+    const clump = this.dataManager.clumpList[index];
+    this.uiElements.clumpNameInput.value = clump.clumpName;
+    this.uiElements.clumpCodeInput.value = clump.clumpCode;
+
+    // Update value and disable.
+    this.uiElements.linkTo.value = isNaN(clump.linkedClumpID) ? '' : clump.linkedClumpID;
+    this.uiElements.columnSelect.value = clump.column === -1 ? 'last' : clump.column;
+  }
+
+  // Clear the 'clump-node-selected' class from all clump nodes.
+  clearSelectedClumpNode() {
+    const clumpNodes = document.querySelectorAll('.clump-node');
+    clumpNodes.forEach(node => node.classList.remove('clump-node-selected'));
+  }
+
+  selectClumpNode(eventTarget) {
+    this.clearSelectedClumpNode();
+    // Add class to selected clump node.
+    eventTarget.parentElement.parentElement.classList.add('clump-node-selected');
+  }
+
+  // Deleting individual cells is not easily possible due to linked clumps. For instance,
+  //   what happens when you delete a clump that has a clump linked to it from its right?
+  // And the shifting involved for cells below, left and right, will require some complexity.
+  // For now, we'll just provide the ability to remove the last clump added (an undo).
+  deleteLastClump(event) {
+    event.stopPropagation();
+
+    if (confirm("Are you sure you want to delete this clump?")) {
+      //
+      //  C1R1 |  0    |  0
+      //  C1R2 |  0    |  0
+      //  C1R3 |< C2R1 |  0
+      //  0    |  C2R2 |< C3R1
+      //  0    |  0    |  C3R2
+      //  0    |  C2R3 |  0
+      //  0    |  C2R4 |< C3R3
+      //  0    |  0    |  C3R4
+      //  0    |  0    |  C3R5
+      //  0    |  C2R5 |  0
+      //  C1R4 |< C2R6 |  0
+      //  0    |  C2R7 |< C3R6
+      //  0    |  0    |  C3R7
+      //  C1R5 |  0    |  0
+
+      if (this.dataManager.editingIndex === this.dataManager.clumpList.length - 1) {
+        this.dataManager.setData('editingIndex', null);
+      }
+
+      // Remove the clump from the clumps array.
+      const clumpListToPop = [...this.dataManager.getData('clumpList')];
+      clumpListToPop.pop();
+      this.dataManager.setData('clumpList', clumpListToPop);
+
+      // Clear matrix and re-add all clumps.
+      this.dataManager.addClumpsToMatrix();
+
+      // Update global variables.
+      this.dataManager.setData(
+        'lastAddedClumpId',
+        this.dataManager.clumpList.length > 0
+          ? this.dataManager.clumpList[this.dataManager.clumpList.length - 1].id
+          : 0
+      );
+
+      // Cycle through 'clumpMatrix' in reverse by rows, then columns,
+      // looking for the Column that the new last clump ID is in.
+      // This will be the new 'lastAddedCol'.
+      findLastAddedColLoop:
+      for (let c = getColumnCount() - 1; c >= 0; c--) {
+        for (let r = getRowCount() - 1; r >= 0; r--) {
+          if (this.dataManager.clumpMatrix[r][c] === this.dataManager.lastAddedClumpId) {
+            this.dataManager.setData('lastAddedCol', c + 1);
+            break findLastAddedColLoop;
+          }
+        }
+      }
+
+      this.dataManager.storeClumps();
+      this.updateDataInHtml();
+      this.renderMatrix();
+
+      const howManyExpanded = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded').length;
+      this.uiElements.outputContainer.style.marginBottom = howManyExpanded > 0 ? '260px' : '0';
+      this.uiElements.outputContainer.style.height = howManyExpanded > 0
+        ? 'calc(100vh - 42px - 260px)'
+        : 'calc(100vh - 42px)';
+    }
+  }
+
+  showStorageError(errText) {
+    if (
+      this.uiElements.storageNamingError.classList.contains('hidden') ||
+      this.uiElements.storageNamingError.classList.contains('error-hidden')
+    ) {
+      classListChain(this.uiElements.storageNamingError)
+        .remove('hidden')
+        .remove('error-hidden')
+        .add('error-visible');
+    }
+    this.uiElements.storageNamingError.innerHTML = errText;
+  }
+
+  // const newStorageNameInput = document.getElementById("newStorageNameInput");
+  createNewStorage() {
+    // Temporarily disable the new storage button to prevent double-clicks.
+    this.uiElements.newStorageNameButton.disabled = true;
+
+    AppConfig.debugConsoleLogs &&
+      console.log('Create new storage:', this.uiElements.newStorageNameInput.value);
+
+    if (this.isValidKeyName(this.uiElements.newStorageNameInput.value)) {
+      hideStorageError();
+      setTimeout(() => {
+        // Reset input field.
+        this.uiElements.newStorageNameInput.value = '';
+        // Reset error message.
+        this.uiElements.storageNamingError.innerHTML = '';
+        // Remove temporary disablement of the new storage button.
+        this.uiElements.newStorageNameButton.disabled = false;
+        // Reset CSS styling on the 'New Storage' button.
+        this.checkNewStorageButton();
+      }, 250);
+      // From initialization above:
+      //   const storageNames = settings.storageNames;
+      // JavaScript is a pass-by-reference language for
+      // non-primitives, so we can modify the original array.
+      this.appSettingsInfo.storageNames.push(this.uiElements.newStorageNameInput.value);
+      this.storeSettings();
+      this.renderMatrix();
+    } else {
+      this.showStorageError(storageNameErrorText);
+      // Remove temporary disablement of the new storage button.
+      this.uiElements.newStorageNameButton.disabled = false;
+      // Reset CSS styling on the 'New Storage' button.
+      this.checkNewStorageButton();
+    }
+  }
+
+  deleteSelectedStorage() {
+    AppConfig.debugConsoleLogs &&
+      console.log('Delete selected storage:', this.uiElements.storageNameTag.value);
+
+    if (this.uiElements.storageNamingError.classList.contains('error-visible')) {
+      this.hideStorageError();
+    }
+
+    if (
+      this.appSettingsInfo.storageNames.length > 1 &&
+      this.uiElements.storageNameTag.value !== '0' &&
+      this.uiElements.storageNameTag.value !== this.appSettingsInfo.storageIndex
+    ) {
+      if (confirm(`\nAre you sure you want to delete this storage?
+            \nAny data within this storage will be lost.
+            \nClick 'Cancel' and switch to this storage to export your data.\n`)) {
+
+        this.hideStorageError();
+
+        const selectedStorageIndex = parseInt(this.uiElements.storageNameTag.value, 10);
+        const selectedStorageName = this.appSettingsInfo.storageNames[selectedStorageIndex];
+
+        const newList = this.appSettingsInfo.storageNames.toSpliced(selectedStorageIndex, 1);
+        this.appSettingsInfo.storageNames = [...newList];
+        this.storeSettings();
+
+        // Remove from local storage.
+        localStorage.removeItem(selectedStorageName);
+
+        this.renderMatrix();
+      }
+    } else {
+      // This should never be hit because the button should be disabled when not allowed.
+      this.showStorageError(storageNameErrDelText);
+    }
+  }
+
+  // const storageName = document.getElementById("storageName");
+  useSelectedStorage() {
+    AppConfig.debugConsoleLogs &&
+      console.log('Use selected storage:', this.uiElements.storageNameTag.value);
+
+    if (this.uiElements.storageNamingError.classList.contains('error-visible')) {
+      this.hideStorageError();
+    }
+
+    if (this.uiElements.storageNameTag.value !== this.appSettings.storageIndex) {
+      // Update Settings.
+      this.appSettings.storageIndex = parseInt(this.uiElements.storageNameTag.value, 10);
+      this.storeSettings();
+
+      // Update data.
+      this.dataManager.setData('editingIndex', null);
+      this.dataManager.setData('lastAddedCol', dataDefaultApp.lastAddedCol);
+      this.dataManager.setData('lastAddedClumpId', dataDefaultApp.lastAddedClumpId);
+      this.dataManager.setClumpList(); // Default: getStorageNameFromSettings()
+
+      // Clear matrix and re-add all clumps.
+      this.dataManager.addClumpsToMatrix();
+
+      // Update UI.
+      this.uiElements.clumpFormId.reset();
+      this.uiElements.outputContainer.style.marginBottom = '0';
+      this.uiElements.outputContainer.style.height = 'calc(100vh - 42px)';
+      this.uiElements.storageNameLabelCurrent.textContent =
+        this.appSettings.storageNames[this.appSettings.storageIndex];
+      this.updateDataInHtml();
+      this.renderMatrix();
+    }
   }
 
   // handleButtonClick() {

@@ -122,7 +122,7 @@ export default class AppData {
     return this.#appSettingsInfo.storageNames[this.#appSettingsInfo.storageIndex] || 'dataClumpFlowAppFallbackKey';
   }
 
-  setClumpList(newClumpList) {
+  setClumpList(newClumpList = this.getStorageNameFromSettings()) {
     this.clumpList.length = 0;
     this.clumpList = [...newClumpList];
   }
@@ -210,7 +210,6 @@ export default class AppData {
     this.lastAddedClumpId = updatedLastAddedClumpId;
 
     // Clear matrix and re-add all clumps.
-    this.clumpMatrix.length = 0;
     this.addClumpsToMatrix();
   }
 
