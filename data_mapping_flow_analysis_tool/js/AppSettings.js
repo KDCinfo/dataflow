@@ -2,6 +2,7 @@ import AppConfig from './AppConfig.js';
 import AppConstants from './appConstants.js';
 import AppData from './AppData.js';
 import { dataDefaultApp } from './dataDefaultApp.js';
+import FileHandler from './FileHandler.js';
 
 export default class AppSettings {
   //
@@ -105,6 +106,34 @@ export default class AppSettings {
 
     this.uiElements.exportDataButton.addEventListener('click', this.handleExportData.bind(this));
     this.uiElements.importDataButton.addEventListener('click', this.handleImportData.bind(this));
+  }
+
+  handleExportData() {
+    FileHandler.handleExportData(this.dataManager.getData('clumpList'));
+  }
+
+  handleImportData() {
+    const importedDataArray = FileHandler.handleImportData();
+    if (
+      typeof importedDataArray !== 'undefined' &&
+      Array.isArray(importedDataArray) &&
+      importedDataArray.length > 0
+    ) {
+      // Update data.
+      this.dataManager.importAppData(
+        importedDataArray, // importedClumps
+        null, // updatedEditingIndex
+        this.dataDefaultApp.lastAddedCol,
+        this.dataDefaultApp.lastAddedClumpId
+      );
+
+      // Update UI.
+      this.uiElements.clumpFormId.reset();
+      this.uiElements.outputContainer.style.marginBottom = '0';
+      this.uiElements.outputContainer.style.height = 'calc(100vh - 42px)';
+      this.updateDataInHtml();
+      this.renderMatrix();
+    }
   }
 
   //
@@ -308,77 +337,6 @@ export default class AppSettings {
       }
       this.uiElements.storageNameTag.appendChild(option);
     });
-  }
-
-  //
-  // @TODO: Extract these to a 'FileHandler' class.
-  //
-
-  handleExportData() {
-    // Data to export.
-    const clumpListToExport = this.dataManager.getData('clumpList');
-
-    const dataStr = JSON.stringify(clumpListToExport, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'dataclumps.json';
-    link.click();
-    URL.revokeObjectURL(url);
-  }
-
-  handleImportData() {
-    if (confirm(`\nWarning:\n
-          Importing data will overwrite the current data.\n
-          Are you sure you want to continue?\n`)) {
-      //
-      // document.getElementById('importFile').click();
-
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.onchange = e => {
-        const file = e.target.files[0];
-        if (!file) return;
-        handleImportFile(file).bind(this);
-      }
-      fileInput.click();
-    }
-
-    function handleImportFile(file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const importedClumps = JSON.parse(e.target.result);
-          if (Array.isArray(importedClumps)) {
-            //
-            // Update data.
-
-            this.dataManager.importAppData(
-              importedClumps,
-              null,
-              lastAddedColDefault,
-              lastAddedClumpIdDefault
-            );
-
-            // Update UI.
-
-            this.uiElements.clumpFormId.reset();
-            this.uiElements.outputContainer.style.marginBottom = '0';
-            this.uiElements.outputContainer.style.height = 'calc(100vh - 42px)';
-            this.updateDataInHtml();
-            this.renderMatrix();
-
-            //
-          } else {
-            alert('Invalid data format');
-          }
-        } catch {
-          alert('Failed to import data');
-        }
-      };
-      reader.readAsText(file);
-    }
   }
 
   // handleButtonClick() {
