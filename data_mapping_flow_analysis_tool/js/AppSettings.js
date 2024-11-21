@@ -107,39 +107,11 @@ export default class AppSettings {
     this.uiElements.importDataButton.addEventListener('click', this.handleImportData.bind(this));
   }
 
-  // Function to bold 'New Storage' button text if the 'newStorageNameInput' value is valid.
-  checkNewStorageButton() {
-    const newStorageNameValue = this.uiElements.newStorageNameInput.value.trim();
-    const isValid = this.isValidKeyName(newStorageNameValue);
-    // Make button text bold.
-    this.uiElements.newStorageNameButton.style.fontWeight = isValid ? 'bold' : 'normal';
-    // Change button's cursor.
-    this.uiElements.newStorageNameButton.style.cursor = isValid ? 'pointer' : 'default';
-
-    if (isValid) {
-      this.hideStorageError();
-    }
-  }
-
-  // - If the selected storage name is:
-  // - 'default':
-  //   - Disable 'Delete Selected'.
-  // - the currently active storage name:
-  //   - Disable both buttons.
-  toggleStorageButtons() {
-    const selectedIndex = this.uiElements.storageNameTag.selectedIndex;
-    const selectedStorageName = this.appSettingsInfo.storageNames[selectedIndex];
-
-    const isDefault = selectedStorageName === 'default';
-    const isActive = selectedIndex === this.appSettingsInfo.storageIndex;
-
-    this.uiElements.storageButtonDelete.disabled = isDefault || isActive;
-    this.uiElements.storageButtonUse.disabled = isActive;
-  }
-
-  // #
-  // # Helper Methods
-  // #
+  //
+  // @TODO: Extract these into a base 'UIInterface' class that can be extended.
+  //        May need to rethink how to shape these classes based on
+  //        where the data should reside based on where it is used most.
+  //
 
   // Regular expression (regex) to validate storage names.
   // Also checks if the name is already in the list.
@@ -192,6 +164,44 @@ export default class AppSettings {
     );
   }
 
+  //
+  // @TODO: Extract these to a 'UIInterface' class for the storage settings.
+  //
+
+  // Function to bold 'New Storage' button text if the 'newStorageNameInput' value is valid.
+  checkNewStorageButton() {
+    const newStorageNameValue = this.uiElements.newStorageNameInput.value.trim();
+    const isValid = this.isValidKeyName(newStorageNameValue);
+    // Make button text bold.
+    this.uiElements.newStorageNameButton.style.fontWeight = isValid ? 'bold' : 'normal';
+    // Change button's cursor.
+    this.uiElements.newStorageNameButton.style.cursor = isValid ? 'pointer' : 'default';
+
+    if (isValid) {
+      this.hideStorageError();
+    }
+  }
+
+  // - If the selected storage name is:
+  // - 'default':
+  //   - Disable 'Delete Selected'.
+  // - the currently active storage name:
+  //   - Disable both buttons.
+  toggleStorageButtons() {
+    const selectedIndex = this.uiElements.storageNameTag.selectedIndex;
+    const selectedStorageName = this.appSettingsInfo.storageNames[selectedIndex];
+
+    const isDefault = selectedStorageName === 'default';
+    const isActive = selectedIndex === this.appSettingsInfo.storageIndex;
+
+    this.uiElements.storageButtonDelete.disabled = isDefault || isActive;
+    this.uiElements.storageButtonUse.disabled = isActive;
+  }
+
+  //
+  // @TODO: Extract these to a 'UIInterface' class for the grid repeat setting.
+  //
+
   convertGridRepeatSettingValueToCellWidth(curGridRepeat = settings.gridRepeatRangeValue) {
     AppConfig.debugConsoleLogs && console.log('curGridRepeat:', curGridRepeat);
 
@@ -224,6 +234,10 @@ export default class AppSettings {
     this.storeSettings();
   }
 
+  //
+  // @TODO: Extract these to a 'UIInterface' class for the data output.
+  //
+
   updateDataInHtml() {
     // Last added Clump ID.
     this.uiElements.lastAddedClumpIdTag.textContent = this.dataManager.lastAddedClumpId.toString();
@@ -239,6 +253,61 @@ export default class AppSettings {
     this.uiElements.editingIdTag.textContent = currentEditingIndex === null
       ? '_'
       : clumpList[currentEditingIndex].id.toString();
+  }
+
+  //
+  // @TODO: Extract these to a 'UIInterface' class for dropdowns.
+  //
+
+  updateLinkToDropdownOptions() {
+    this.uiElements.linkTo.innerHTML = '<option value="">None</option>';
+
+    // This loop extrapolates in-use linkTo IDs so they are not
+    // shown in the dropdown (because they're already linked to).
+    const thisDataManager = this.dataManager;
+    const linkedClumpIDs = thisDataManager.clumpList.map(clump => clump.linkedClumpID);
+    thisDataManager.clumpList.forEach((clump, index) => {
+      // If the clump is not the one being edited, or it is not already linked.
+      if (thisDataManager.editingIndex !== index || !linkedClumpIDs.includes(clump.id)) {
+        const option = document.createElement('option');
+        option.value = clump.id;
+        option.textContent = clump.clumpName;
+        this.uiElements.linkTo.appendChild(option);
+      }
+    });
+    this.uiElements.linkTo.disabled = thisDataManager.editingIndex !== null;
+  }
+
+  updateColumnSelectDropdownOptions() {
+    this.uiElements.columnSelect.innerHTML = '<option value="last">Last Column</option>';
+
+    // Using 'clumpMatrix', this will yield a list of available columns
+    // (which the UI uses for the 'Column to Add To' dropdown).
+    const thisDataManager = this.dataManager;
+    const columns = thisDataManager.clumpMatrix.length > 0
+      ? Array.from({ length: thisDataManager.clumpMatrix[0].length }, (_, index) => index + 1)
+      : [1];
+    columns.forEach(column => {
+      const option = document.createElement('option');
+      option.value = column;
+      option.textContent = `Column ${column}`;
+      this.uiElements.columnSelect.appendChild(option);
+    });
+    this.uiElements.columnSelect.disabled = thisDataManager.editingIndex !== null;
+  }
+
+  updateStorageNameDropdownOptions() {
+    this.uiElements.storageNameTag.innerHTML = '';
+
+    this.appSettingsInfo.storageNames.forEach((storageName, index) => {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = storageName;
+      if (index === settings.storageIndex) {
+        option.selected = true;
+      }
+      this.uiElements.storageNameTag.appendChild(option);
+    });
   }
 
   //

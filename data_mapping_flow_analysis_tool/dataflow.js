@@ -1,55 +1,6 @@
 // Initialize the 'clumpMatrix' with the clumps from local storage.
 addClumpsToMatrix();
 
-function updateLinkToDropdownOptions() {
-  linkTo.innerHTML = '<option value="">None</option>';
-
-  // This loop extrapolates in-use linkTo IDs so they are not
-  // shown in the dropdown (because they're already linked to).
-  const linkedClumpIDs = clumpList.map(clump => clump.linkedClumpID);
-  clumpList.forEach((clump, index) => {
-    // If the clump is not the one being edited, or it is not already linked.
-    if (editingIndex !== index || !linkedClumpIDs.includes(clump.id)) {
-      const option = document.createElement('option');
-      option.value = clump.id;
-      option.textContent = clump.clumpName;
-      linkTo.appendChild(option);
-    }
-  });
-  linkTo.disabled = editingIndex !== null;
-}
-
-function updateColumnSelectDropdownOptions() {
-  columnSelect.innerHTML = '<option value="last">Last Column</option>';
-
-  // Using 'clumpMatrix', this will yield a list of available columns
-  // (which the UI uses for the 'Column to Add To' dropdown).
-  const columns = clumpMatrix.length > 0
-    ? Array.from({ length: clumpMatrix[0].length }, (_, index) => index + 1)
-    : [1];
-  columns.forEach(column => {
-    const option = document.createElement('option');
-    option.value = column;
-    option.textContent = `Column ${column}`;
-    columnSelect.appendChild(option);
-  });
-  columnSelect.disabled = editingIndex !== null;
-}
-
-function updateStorageNameDropdownOptions() {
-  storageNameTag.innerHTML = '';
-
-  settings.storageNames.forEach((storageName, index) => {
-    const option = document.createElement('option');
-    option.value = index;
-    option.textContent = storageName;
-    if (index === settings.storageIndex) {
-      option.selected = true;
-    }
-    storageNameTag.appendChild(option);
-  });
-}
-
 // Clear the 'clump-node-selected' class from all clump nodes.
 function clearSelectedClumpNode() {
   const clumpNodes = document.querySelectorAll('.clump-node');
