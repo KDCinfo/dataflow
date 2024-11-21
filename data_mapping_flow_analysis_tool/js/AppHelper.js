@@ -17,4 +17,8 @@ export default class AppHelpers {
     }
     return intProps;
   }
+
+  static unescapeHTML(code) {
+    return code.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
 }

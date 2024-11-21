@@ -1,6 +1,7 @@
 import AppConfig from './AppConfig.js';
 import AppConstants from './appConstants.js';
 import AppData from './AppData.js';
+import AppHelpers from './AppHelper.js';
 import { dataDefaultApp } from './dataDefaultApp.js';
 import FileHandler from './FileHandler.js';
 
@@ -564,20 +565,268 @@ export default class AppSettings {
     }
   }
 
-  // handleButtonClick() {
-  //   // Logic for button click
-  //   // this.uiElements.label.textContent = 'Button clicked!';
-  //   this.uiElements.label.textContent = AppHelpers.formatDate(new Date());
-  // }
-  // async loadData(url) {
-  //   await this.dataManager.fetchData(url);
-  //   this.updateUIWithData();
-  // }
-  // updateUIWithData() {
-  //   // Assume we have data in 'dataManager' to display in the UI
-  //   this.uiElements.label.textContent = this.dataManager.getData('labelContent') || 'Default content';
-  // }
-  // updateSetting(newSetting) {
-  //   // Update the state and UI as necessary
-  // }
+  togglePanel(event) {
+    event.stopPropagation();
+
+    AppConfig.debugConsoleLogs && console.log('togglePanel');
+    AppConfig.debugConsoleLogs && console.log(event.target.parentElement.parentElement);
+
+    const panelToExpand = document.querySelector('.info-panel.export-import');
+    const panelHotspot = document.querySelector('.panel-from-hotspot');
+
+    if (panelToExpand.classList.contains('panel-from-expanded-to-collapsed')) {
+      classListChain(panelToExpand)
+        .remove('panel-from-expanded-to-collapsed')
+        .add('panel-from-collapsed-to-expanded');
+    } else {
+      classListChain(panelToExpand)
+        .remove('panel-from-collapsed-to-expanded')
+        .add('panel-from-expanded-to-collapsed');
+    }
+
+    // ? panelHotspot.children[0].textContent = '▶' // right arrow
+    panelToExpand.classList.contains('panel-from-expanded-to-collapsed')
+      ? panelHotspot.children[0].textContent = '◀'
+      : panelHotspot.children[0].textContent = '▼';
+  }
+
+  renderMatrix() {
+    // Set CSS property dynamically to control number of columns.
+    const columnCount = this.dataManager.getColumnCount();
+
+    // Clear container before rendering
+    if (this.dataManager.clumpList.length === 0) {
+      let clumpContainerContent = '<div class="empty-notes">';
+      clumpContainerContent += '<h2>Data Clump Flow App</h2>';
+      clumpContainerContent += '<p>Tips:</p>';
+      clumpContainerContent += '<ul>';
+      clumpContainerContent += '  <li>Cell clumps flow from top down by default, and left to right when linked.</li>';
+      clumpContainerContent += `  <li>To export, switch to the desired storage name (using the 'Use Selected' button), then click the 'Export Data' button.</li>`;
+      clumpContainerContent += '</ul>';
+
+      clumpContainerContent += '<ul>';
+      clumpContainerContent += '  <li>Clicking cells will show clump contents in a window at the bottom of the screen.</li>';
+      clumpContainerContent += '  <li>Multiple cell contents can be expanded, each will be layered on top of the previous.</li>';
+      clumpContainerContent += '  <li>Closing the last, or topmost content window will reveal the content window below it.</li>';
+      clumpContainerContent += '  <li>Any expanded cell content window can be collapsed, even those beneath the last opened.</li>';
+      clumpContainerContent += '</ul>';
+
+      clumpContainerContent += '<ul>';
+      clumpContainerContent += `  <li>When a clump is shown, although a single click on either the cell or content window will close the content window, highlighting text within the content window will not close it (so long as text is highlighted).
+          </li>`;
+      clumpContainerContent += '</ul>';
+
+      clumpContainerContent += `<p>
+            <code>@TODO:</code> <small>(referenced in
+            <a href='https://github.com/KDCinfo/dataflow/tree/main/data_mapping_flow_analysis_tool' target='_blank'>Readme</a>
+            )</small>:</p>`;
+      clumpContainerContent += '<ol>';
+      clumpContainerContent += '  <li>Only the last clump can be deleted, then the next, and the next.</li>';
+      clumpContainerContent += "  <li>When editing clumps, only 'clump names' and 'data clumps' can be updated.";
+      clumpContainerContent += "    <ol>";
+      clumpContainerContent += '      <li>Clump links cannot be changed.</li>';
+      clumpContainerContent += '      <li>Clumps cannot be moved.</li>';
+      clumpContainerContent += '    </ol>';
+      clumpContainerContent += '  </li>';
+      clumpContainerContent += `  <li>Bug: Sometimes 'Import Data' will fail silently*.`;
+      clumpContainerContent += "    <ol>";
+      clumpContainerContent += '      <li>*An error is shown in the dev tools console.</li>';
+      clumpContainerContent += '      <li>Workaround: Try it again. Subequent attempts usually work.</li>';
+      clumpContainerContent += '    </ol>';
+      clumpContainerContent += '  </li>';
+      clumpContainerContent += '</ol>';
+      clumpContainerContent += '</div>';
+      this.uiElements.clumpContainer.innerHTML = clumpContainerContent;
+      this.uiElements.clumpContainer.style.color = '#ffffff';
+    } else {
+      this.uiElements.clumpContainer.innerHTML = '';
+      // Set color to same as '.output-container'.
+      this.uiElements.clumpContainer.style.color = '#000000';
+    }
+
+    // [ GRID REPEAT SLIDER ]
+
+    // [1] Add ticks to the slider.
+    // const gridRepeatSliderMarkers = document.getElementById('gridRepeatSliderMarkers');
+    this.uiElements.gridRepeatSliderMarkers.innerHTML = '';
+    this.uiElements.gridRepeatOptions.forEach((option, index) => {
+      const marker = document.createElement('option');
+      marker.value = index + 1;
+      marker.label = option;
+      this.uiElements.gridRepeatSliderMarkers.appendChild(marker);
+    });
+
+    // [2] Use value from: settings.gridRepeatRangeValue
+    const cellWidth = this.convertGridRepeatSettingValueToCellWidth();
+    this.uiElements.clumpContainer.style.gridTemplateColumns = `repeat(${columnCount}, ${cellWidth})`;
+
+    // [3] Update the grid repeat slider.
+    this.uiElements.gridRepeatRangeInput.value = this.appSettingsInfo.gridRepeatRangeValue;
+
+    // [4] Update the grid repeat slider label.
+    this.uiElements.gridRepeatHTMLSpan.textContent = `[${this.appSettingsInfo.gridRepeatRangeValue}] ${cellWidth}`;
+
+    // [5] Update the 'storageName' dropdown from settings.storage
+    this.updateStorageNameDropdownOptions();
+    this.uiElements.storageNameLabelCurrent.textContent = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
+
+    // [6] Enable/disable storage buttons.
+    this.toggleStorageButtons();
+
+    // [ CLUMP NODE PLACEMENT ]
+    //
+    // Note: only the last-added clump should have a 'delete' icon.
+    //
+    // const cell = document.createElement('div');
+    // cell.className = 'clump-node';
+    // cell.style.gridColumnStart = col + 1;
+    // cell.style.gridRowStart = row + 1;
+    // cell.innerHTML = `<strong>${clump.name}</strong><br>${clump.code}
+    //               <span class="edit-icon" onclick="loadForEdit(${clumps.indexOf(clump)}, event)">✏️</span>
+    //               <span class="delete-icon" onclick="deleteClump(${clumps.indexOf(clump)}, event)">❌</span>`;
+    // clumpContainer.appendChild(cell);
+    //
+    // lastAddedClumpId = clump.id;
+    //
+    //  C1R1 = Col 1, Row 1
+    //  ---- - ----- - -----
+    //  Col1 |  Col2 |  Col3
+    //  ---- - ----- - -----
+    //  C1R1 |    0  |    0  | Row 1
+    //  C1R2 |    0  |    0  | Row 2
+    //  C1R3 |< C2R1 |    0  | Row 3
+    //    0  |  C2R2 |< C3R1 | Row 4
+    //    0  |    0  |  C3R2 | Row 5
+    //    0  |  C2R3 |    0  | Row 6
+    //    0  |  C2R4 |< C3R3 | Row 7
+    //    0  |    0  |  C3R4 | Row 8
+    //    0  |    0  |  C3R5 | Row 9
+    //    0  |  C2R5 |    0  | Row 10
+    //  C1R4 |< C2R6 |    0  | Row 11
+    //    0  |  C2R7 |< C3R6 | Row 12
+    //    0  |    0  |  C3R7 | Row 13
+    //  C1R5 |    0  |    0  | Row 14
+    //
+    // Cycle through 'clumpMatrix' placing a clump cell or empty cell in HTML.
+    // - All the cells are on the right side of the screen.
+    // - The right side should be scrollable either vertically or horizontally when needed.
+    // - All cell heights and widths should be fixed.
+    // - All rows have the same number of cells, and all columns the same number of cells.
+    // - When a cell title is tapped, its contents expand into a small scrollable window.
+
+    // const newClump = {
+    //     id: newClumpID,
+    //     clumpName: clumpNameInput.value,
+    //     clumpCode: clumpCodeInput.value,
+    //     column: -1,
+    //     linkedClumpID: -1,
+    //   };
+
+    let clumpListIndex = -1;
+
+    // Cycle through the clumpMatrix to render the clumps.
+    //
+    for (let r = 0; r < this.dataManager.clumpMatrix.length; r++) {
+      for (let c = 0; c < this.dataManager.clumpMatrix[r].length; c++) {
+        const curClumpId = this.dataManager.clumpMatrix[r][c];
+
+        if (curClumpId === 0) {
+          const emptyCell = document.createElement('div');
+          emptyCell.className = 'clump-node empty';
+          this.uiElements.clumpContainer.appendChild(emptyCell);
+          continue;
+        }
+
+        const clumpFound = this.dataManager.clumpList.find(clump => clump.id === curClumpId);
+        const clumpCell = document.createElement('div');
+        clumpListIndex = this.dataManager.clumpList.indexOf(clumpFound);
+
+        clumpCell.className = `clump-node collapsed clump-list-index-${clumpListIndex}`;
+
+        // Create content span for clump name and code
+        const contentSpan = document.createElement('div');
+        contentSpan.className = 'content-span';
+        contentSpan.innerHTML = `<strong>${clumpFound.clumpName}</strong>
+              <br>${clumpFound.clumpCode.split('\n')[0]}`;
+        clumpCell.appendChild(contentSpan);
+
+        // Apply linked/unlinked class based on the condition
+        clumpCell.classList.add(clumpFound.linkedClumpID !== -1 ? 'linked' : 'unlinked');
+
+        const iconSpan = document.createElement('div');
+        iconSpan.className = 'icon-span';
+
+        // Create and append the edit icon
+        const editIcon = document.createElement('div');
+        editIcon.className = 'edit-icon';
+        editIcon.textContent = '✏️';
+        editIcon.onclick = (event) => {
+          event.stopPropagation(); // Prevent toggle when clicking edit
+          this.loadForEdit(this.dataManager.clumpList.indexOf(clumpFound), event).bind(this);
+        };
+        iconSpan.appendChild(editIcon);
+
+        // Conditionally create and append the delete icon
+        if (this.dataManager.clumpList[this.dataManager.clumpList.length - 1].id === clumpFound.id) {
+          const deleteIcon = document.createElement('div');
+          deleteIcon.className = 'delete-icon';
+          deleteIcon.textContent = '❌';
+          deleteIcon.onclick = (event) => {
+            event.stopPropagation(); // Prevent toggle when clicking delete
+            this.deleteLastClump(event).bind(this);
+          };
+          iconSpan.appendChild(deleteIcon);
+        }
+        clumpCell.appendChild(iconSpan);
+
+        // Toggle function to handle cell expansion/collapse
+        const toggleCell = () => {
+          clumpCell.classList.toggle('expanded');
+          clumpCell.classList.toggle('collapsed');
+
+          const isCellCollapsed = clumpCell.classList.contains('collapsed');
+          const howManyExpanded = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded').length;
+
+          this.uiElements.outputContainer.style.marginBottom = howManyExpanded > 0 ? '260px' : '0';
+          this.uiElements.outputContainer.style.height = howManyExpanded > 0
+            ? 'calc(100vh - 42px - 260px)'
+            : 'calc(100vh - 42px)';
+
+          contentSpan.innerHTML = `<strong>${clumpFound.clumpName}</strong>
+                <br>${isCellCollapsed
+              ? clumpFound.clumpCode.split('\n')[0]
+              : '<pre>' + AppHelpers.unescapeHTML(clumpFound.clumpCode) + '</pre>'
+            }`;
+
+          if (!isCellCollapsed) {
+            contentSpan.querySelector('pre').style.zIndex = howManyExpanded + 10;
+          }
+        };
+
+        // Add toggle click listener to contentSpan but without any inner <pre> tags.
+        contentSpan.addEventListener('click', (event) => {
+          // event.stopPropagation(); // Prevent bubbling to avoid unintended behavior.
+          if (window.getSelection().toString()) {
+            // Prevent toggle if there's a selection.
+            event.stopPropagation();
+            return;
+          }
+          toggleCell().bind(this);
+        });
+
+        // Append cell to the container
+        this.uiElements.clumpContainer.appendChild(clumpCell);
+      }
+    }
+
+    this.updateLinkToDropdownOptions(); // Updates list and toggles disabled.
+    this.updateColumnSelectDropdownOptions(); // Toggles disabled.
+    this.updateDataInHtml();
+
+    // Re-highlight edited cell, if any.
+    if (this.dataManager.editingIndex !== null) {
+      const indexCell = document.querySelector(`.clump-list-index-${this.dataManager.editingIndex}`);
+      indexCell && indexCell.classList.add('clump-node-selected');
+    }
+  }
 }
