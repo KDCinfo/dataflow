@@ -1,6 +1,6 @@
 import AppConfig from './AppConfig.js';
 import AppHelpers from './AppHelper.js';
-import { dataDefaultApp, dataDefaultError } from './dataDefaultApp.js';
+import DataDefaultMaps from './DataDefaultMaps.js';
 
 export default class AppData {
   // DATA: [editingIndex] Updated when edited a clump, and reset when clump is saved.
@@ -76,14 +76,14 @@ export default class AppData {
   // and pushed down when updated via the 'appSettings' setter.
   #appSettingsInfo;
 
-  constructor(settings = dataDefaultApp.defaultAppSettings) {
+  constructor(settings = DataDefaultMaps.dataDefaultMap().defaultAppSettings) {
     this.#appSettingsInfo = settings;
 
     this.storageNameErrorText = '';
 
-    this.editingIndex = dataDefaultApp.editingIndex; // null;
-    this.lastAddedCol = dataDefaultApp.lastAddedCol; // 1;
-    this.lastAddedClumpId = dataDefaultApp.lastAddedClumpId; // 0;
+    this.editingIndex = DataDefaultMaps.dataDefaultMap().editingIndex; // null;
+    this.lastAddedCol = DataDefaultMaps.dataDefaultMap().lastAddedCol; // 1;
+    this.lastAddedClumpId = DataDefaultMaps.dataDefaultMap().lastAddedClumpId; // 0;
 
     // The 'active storage key' is passed in from settings retrieved from local storage in 'AppSettings'.
     this.localStorageKeyForClumps = this.getStorageNameFromSettings();
@@ -92,7 +92,7 @@ export default class AppData {
     this.clumpList = [];
     this.setClumpList(this.parseClumpListFromStorage());
 
-    this.clumpMatrix = [...dataDefaultApp.clumpMatrix]; // [];
+    this.clumpMatrix = [...DataDefaultMaps.dataDefaultMap().clumpMatrix]; // [];
 
     // Initialize the 'clumpMatrix' with the clumps from local storage.
     this.addClumpsToMatrix();
@@ -108,7 +108,7 @@ export default class AppData {
       return this[key];
     }
     // throw new Error(`[AppData] Invalid key: ${key}`);
-    return dataDefaultError[key];
+    return DataDefaultMaps.dataDefaultErrorMap()[key];
   }
 
   setData(keyToSet, newValue) {

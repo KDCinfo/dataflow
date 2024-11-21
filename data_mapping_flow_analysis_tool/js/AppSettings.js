@@ -3,7 +3,7 @@ import AppConstants from './AppConstants.js';
 import AppData from './AppData.js';
 import AppHelpers from './AppHelper.js';
 import ClumpInfo from './ClumpInfo.js';
-import { dataDefaultApp } from './dataDefaultApp.js';
+import DataDefaultMaps from './DataDefaultMaps.js';
 import FileHandler from './FileHandler.js';
 
 export default class AppSettings {
@@ -68,7 +68,9 @@ export default class AppSettings {
 
   getJsonSettingsFromStorageOrDefaults() {
     const dataFromStorage = localStorage.getItem(AppConstants.localStorageSettingsKey);
-    const dataFromDefaults = JSON.stringify(dataDefaultApp.defaultAppSettings);
+    const dataFromDefaults = JSON.stringify(
+      DataDefaultMaps.dataDefaultMap().defaultAppSettings
+    );
     return JSON.parse(
       dataFromStorage || dataFromDefaults
 
@@ -245,8 +247,8 @@ export default class AppSettings {
       this.dataManager.importAppData(
         importedDataArray, // importedClumps
         null, // updatedEditingIndex
-        dataDefaultApp.lastAddedCol,
-        dataDefaultApp.lastAddedClumpId
+        DataDefaultMaps.dataDefaultMap().lastAddedCol,
+        DataDefaultMaps.dataDefaultMap().lastAddedClumpId
       );
 
       // Update UI.
@@ -353,7 +355,7 @@ export default class AppSettings {
   // @TODO: Extract these to a 'UIInterface' class for the grid repeat setting.
   //
 
-  convertGridRepeatSettingValueToCellWidth(curGridRepeat = settings.gridRepeatRangeValue) {
+  convertGridRepeatSettingValueToCellWidth(curGridRepeat = this.appSettingsInfo.gridRepeatRangeValue) {
     AppConfig.debugConsoleLogs && console.log('curGridRepeat:', curGridRepeat);
 
     // const gridRepeatOptions = ['auto', '1fr', '150px', '200px', '250px', '300px'];
@@ -378,7 +380,7 @@ export default class AppSettings {
     this.uiElements.clumpContainer.style.gridTemplateColumns = `repeat(${columnCount}, ${cellWidth})`;
 
     // Update the grid repeat slider label.
-    this.uiElements.gridRepeatHTMLSpan.textContent = `[${newGridRepeat}] ${cellWidth}`;
+    this.uiElements.gridRepeatHtmlSpan.textContent = `[${newGridRepeat}] ${cellWidth}`;
 
     // Store the new setting.
     this.appSettingsInfo.gridRepeatRangeValue = newGridRepeat;
@@ -454,7 +456,7 @@ export default class AppSettings {
       const option = document.createElement('option');
       option.value = index;
       option.textContent = storageName;
-      if (index === settings.storageIndex) {
+      if (index === this.appSettingsInfo.storageIndex) {
         option.selected = true;
       }
       this.uiElements.storageNameTag.appendChild(option);
@@ -661,15 +663,15 @@ export default class AppSettings {
       this.hideStorageError();
     }
 
-    if (this.uiElements.storageNameTag.value !== this.appSettings.storageIndex) {
+    if (this.uiElements.storageNameTag.value !== this.appSettingsInfo.storageIndex) {
       // Update Settings.
-      this.appSettings.storageIndex = parseInt(this.uiElements.storageNameTag.value, 10);
+      this.appSettingsInfo.storageIndex = parseInt(this.uiElements.storageNameTag.value, 10);
       this.storeSettings();
 
       // Update data.
       this.dataManager.setData('editingIndex', null);
-      this.dataManager.setData('lastAddedCol', dataDefaultApp.lastAddedCol);
-      this.dataManager.setData('lastAddedClumpId', dataDefaultApp.lastAddedClumpId);
+      this.dataManager.setData('lastAddedCol', DataDefaultMaps.dataDefaultMap().lastAddedCol);
+      this.dataManager.setData('lastAddedClumpId', DataDefaultMaps.dataDefaultMap().lastAddedClumpId);
       this.dataManager.setClumpList(); // Default: getStorageNameFromSettings()
 
       // Clear matrix and re-add all clumps.
@@ -680,7 +682,7 @@ export default class AppSettings {
       this.uiElements.outputContainer.style.marginBottom = '0';
       this.uiElements.outputContainer.style.height = 'calc(100vh - 42px)';
       this.uiElements.storageNameLabelCurrent.textContent =
-        this.appSettings.storageNames[this.appSettings.storageIndex];
+      this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
       this.updateDataInHtml();
       this.renderMatrix();
     }
@@ -770,7 +772,7 @@ export default class AppSettings {
     // [1] Add ticks to the slider.
     // const gridRepeatSliderMarkers = document.getElementById('gridRepeatSliderMarkers');
     this.uiElements.gridRepeatSliderMarkers.innerHTML = '';
-    this.uiElements.gridRepeatOptions.forEach((option, index) => {
+    AppConstants.gridRepeatOptions.forEach((option, index) => {
       const marker = document.createElement('option');
       marker.value = index + 1;
       marker.label = option;
@@ -785,7 +787,7 @@ export default class AppSettings {
     this.uiElements.gridRepeatRangeInput.value = this.appSettingsInfo.gridRepeatRangeValue;
 
     // [4] Update the grid repeat slider label.
-    this.uiElements.gridRepeatHTMLSpan.textContent = `[${this.appSettingsInfo.gridRepeatRangeValue}] ${cellWidth}`;
+    this.uiElements.gridRepeatHtmlSpan.textContent = `[${this.appSettingsInfo.gridRepeatRangeValue}] ${cellWidth}`;
 
     // [5] Update the 'storageName' dropdown from settings.storage
     this.updateStorageNameDropdownOptions();
