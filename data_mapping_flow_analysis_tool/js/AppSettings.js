@@ -125,6 +125,22 @@ export default class AppSettings {
 
     this.uiElements.clumpFormId.addEventListener('submit', this.handleFormSubmit.bind(this));
     this.uiElements.clumpFormId.addEventListener('reset', this.handleFormReset.bind(this));
+
+    // this.uiElements.settingsPanelToggle
+    // onclick="togglePanel(event)"
+    this.uiElements.settingsPanelToggle.addEventListener('click', this.togglePanel.bind(this));
+    // id="gridRepeatRangeInput"
+    // oninput="updateGridRepeat(event)"
+    this.uiElements.gridRepeatRangeInput.addEventListener('input', this.updateGridRepeat.bind(this));
+    // id="storageButtonDelete"
+    // onclick="deleteSelectedStorage()"
+    this.uiElements.storageButtonDelete.addEventListener('click', this.deleteSelectedStorage.bind(this));
+    // id="storageButtonUse"
+    // onclick="useSelectedStorage()"
+    this.uiElements.storageButtonUse.addEventListener('click', this.useSelectedStorage.bind(this));
+    // id="newStorageNameButton"
+    // onclick="createNewStorage()"
+    this.uiElements.newStorageNameButton.addEventListener('click', this.createNewStorage.bind(this));
   }
 
   handleFormSubmit(event) {

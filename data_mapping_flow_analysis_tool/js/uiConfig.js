@@ -1,7 +1,8 @@
 export const uiConfig = {
   ui: {
     outputContainer: '#outputContainer',
-    clumpContainer: '#clumpContainer'
+    clumpContainer: '#clumpContainer',
+    settingsPanelToggle: '#settingsPanelToggle'
   },
   clumpPanel: {
     clumpFormId: '#clumpFormId',

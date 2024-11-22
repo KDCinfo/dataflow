@@ -115,7 +115,7 @@ export default class AppData {
     if (!(keyToSet in this)) {
       throw new Error(`[AppData] Invalid key: ${keyToSet}`);
     }
-    const arrayOfIntKeys = AppHelpers.listOfKeysWithInts().bind(this);
+    const arrayOfIntKeys = AppHelpers.listOfKeysWithInts();
     if (keyToSet in arrayOfIntKeys && typeof newValue !== 'number') {
       throw new Error(`[AppData] This clump key [${keyToSet}] must be a number.`);
     }

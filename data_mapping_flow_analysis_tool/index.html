@@ -61,7 +61,7 @@
       </form>
 
       <!-- Click to collapse -->
-      <div class="panel-from-hotspot" onclick="togglePanel(event)">
+      <div id="settingsPanelToggle" class="panel-from-hotspot">
         <span class="collapse-arrow">▼</span>
       </div>
       <!-- App Settings; Export/Import buttons -->
@@ -80,8 +80,11 @@
             Grid Repeat: <span class="no-wrap" class="grid-repeat-html-span"
               id="gridRepeatHtmlSpan">6</span>
           </label>
-          <input type="range" id="gridRepeatRangeInput" class="grid-repeat-range-input" min="1"
-            max="6" value="2" oninput="updateGridRepeat(event)" list="gridRepeatSliderMarkers" />
+          <input type="range"
+            id="gridRepeatRangeInput"
+            class="grid-repeat-range-input"
+            min="1" max="6" value="2"
+            list="gridRepeatSliderMarkers" />
           <datalist id="gridRepeatSliderMarkers"></datalist>
         </div>
 
@@ -100,13 +103,12 @@
           <!-- Two-button wrapper -->
           <div class="storage-buttons form-buttons">
             <!-- Storage: Delete Selected -->
-            <button id="storageButtonDelete" class="storage-button-delete"
-              onclick="deleteSelectedStorage()">
+            <button id="storageButtonDelete" class="storage-button-delete">
               Delete Selected
             </button>
 
             <!-- Storage: Use Selected; force wrap text -->
-            <button id="storageButtonUse" class="storage-button-use" onclick="useSelectedStorage()">
+            <button id="storageButtonUse" class="storage-button-use">
               Use<br>Selected
             </button>
           </div>
@@ -115,7 +117,7 @@
           <div class="storage-create-name storage-buttons form-buttons">
             <!-- Storage: Create New -->
             <input type="text" id="newStorageNameInput" placeholder="newStorageName">
-            <button id="newStorageNameButton" onclick="createNewStorage()">New Storage</button>
+            <button id="newStorageNameButton">New Storage</button>
           </div>
           <span id="storageNamingError"
             class="error storage-naming-error error-visible hidden"></span>
