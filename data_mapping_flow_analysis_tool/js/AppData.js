@@ -265,8 +265,8 @@ export default class AppData {
   //
   addClumpToMatrix(newClump) {
     const { id, linkedClumpID, column } = newClump;
-    const rowCount = getRowCount();
-    const colCount = getColumnCount();
+    const rowCount = this.getRowCount();
+    const colCount = this.getColumnCount();
 
     // Check if LINKED: 'linkedClumpID' >= 1
     //
@@ -481,7 +481,7 @@ export default class AppData {
     if (AppConfig.debugPrintClumpMatrix) {
       // For debugging to see the matrix layout.
       console.log('Clump Matrix:');
-      console.table(clumpMatrix);
+      console.table(this.clumpMatrix);
     }
   }
 }

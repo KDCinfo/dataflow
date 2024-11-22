@@ -162,11 +162,11 @@ export default class AppSettings {
 
     const columnRawValue = this.uiElements.columnSelect.options[this.uiElements.columnSelect.selectedIndex].value;
 
-    if (this.dataManager.editingIndex === null) {
+    if (this.dataManager.getData('editingIndex') === null) {
       //
       // ADDING A NEW CLUMP
       //
-      const newClumpID = this.dataManager.lastAddedClumpId + 1;
+      const newClumpID = this.dataManager.getData('lastAddedClumpId') + 1;
 
       const addNewClump = new ClumpInfo();
       addNewClump.id = newClumpID;
@@ -177,11 +177,13 @@ export default class AppSettings {
       //
       if (isLinked) {
         // [Linked]
-        columnToAddTo = this.dataManager.lastAddedCol + 1;
+        columnToAddTo = this.dataManager.getData('lastAddedCol') + 1;
         addNewClump.linkedClumpID = newLinkTo;
       } else {
         // [Unlinked]
-        columnToAddTo = columnRawValue === 'last' ? lastAddedCol : parseInt(columnRawValue, 10);
+        columnToAddTo = columnRawValue === 'last'
+          ? this.dataManager.getData('lastAddedCol')
+          : parseInt(columnRawValue, 10);
         addNewClump.column = columnToAddTo;
       }
 
@@ -200,12 +202,19 @@ export default class AppSettings {
       //
       // EDITING AN EXISTING CLUMP
       //
-      const editedClump = this.dataManager.clumpList[this.dataManager.editingIndex];
+      console.log('clumpList before:', this.dataManager.getData('clumpList'));
 
+      const editedClumpIndex = this.dataManager.getData('editingIndex');
+      const editedClump = this.dataManager.clumpList[editedClumpIndex];
+
+      // Apparently this edits the clump in place.
+      // @TODO: If so, we should probably clone the clumpList, updated it, then replace the clumpList.
       editedClump.clumpName = this.uiElements.clumpNameInput.value;
       editedClump.clumpCode = this.uiElements.clumpCodeInput.value;
 
-      this.dataManager.editingIndex = null;
+      console.log('clumpList after:', this.dataManager.getData('clumpList'));
+
+      this.dataManager.setData('editingIndex', null);
       this.updateDataInHtml();
       this.clearSelectedClumpNode();
     }
@@ -237,7 +246,7 @@ export default class AppSettings {
       }
     });
 
-    this.dataManager.editingIndex = null;
+    this.dataManager.setData('editingIndex', null);
 
     this.uiElements.saveClumpButton.disabled = this.uiElements.clumpNameInput.value.trim() === '';
 
@@ -263,6 +272,7 @@ export default class AppSettings {
       this.dataManager.importAppData(
         importedDataArray, // importedClumps
         null, // updatedEditingIndex
+        // @TODO: Replace this with static map.
         DataDefaultMaps.dataDefaultMap().lastAddedCol,
         DataDefaultMaps.dataDefaultMap().lastAddedClumpId
       );
@@ -409,19 +419,19 @@ export default class AppSettings {
 
   updateDataInHtml() {
     // Last added Clump ID.
-    this.uiElements.lastAddedClumpIdTag.textContent = this.dataManager.lastAddedClumpId.toString();
+    this.uiElements.lastAddedClumpIdTag.textContent = this.dataManager.getData('lastAddedClumpId').toString();
 
     // Last column a clump was added to.
-    this.uiElements.lastAddedColTag.textContent = this.dataManager.lastAddedCol.toString();
+    this.uiElements.lastAddedColTag.textContent = this.dataManager.getData('lastAddedCol').toString();
 
     // Currently edited clump index and ID.
-    const currentEditingIndex = this.dataManager.editingIndex;
+    const currentEditingIndex = this.dataManager.getData('editingIndex');
     this.uiElements.editingIndexTag.textContent = currentEditingIndex === null
       ? '_'
       : currentEditingIndex.toString();
     this.uiElements.editingIdTag.textContent = currentEditingIndex === null
       ? '_'
-      : clumpList[currentEditingIndex].id.toString();
+      : this.dataManager.getData('clumpList')[currentEditingIndex].id.toString();
   }
 
   //
@@ -433,18 +443,17 @@ export default class AppSettings {
 
     // This loop extrapolates in-use linkTo IDs so they are not
     // shown in the dropdown (because they're already linked to).
-    const thisDataManager = this.dataManager;
-    const linkedClumpIDs = thisDataManager.clumpList.map(clump => clump.linkedClumpID);
-    thisDataManager.clumpList.forEach((clump, index) => {
+    const linkedClumpIDs = this.dataManager.getData('clumpList').map(clump => clump.linkedClumpID);
+    this.dataManager.getData('clumpList').forEach((clump, index) => {
       // If the clump is not the one being edited, or it is not already linked.
-      if (thisDataManager.editingIndex !== index || !linkedClumpIDs.includes(clump.id)) {
+      if (this.dataManager.getData('editingIndex') !== index || !linkedClumpIDs.includes(clump.id)) {
         const option = document.createElement('option');
         option.value = clump.id;
         option.textContent = clump.clumpName;
         this.uiElements.linkTo.appendChild(option);
       }
     });
-    this.uiElements.linkTo.disabled = thisDataManager.editingIndex !== null;
+    this.uiElements.linkTo.disabled = this.dataManager.getData('editingIndex') !== null;
   }
 
   updateColumnSelectDropdownOptions() {
@@ -452,9 +461,8 @@ export default class AppSettings {
 
     // Using 'clumpMatrix', this will yield a list of available columns
     // (which the UI uses for the 'Column to Add To' dropdown).
-    const thisDataManager = this.dataManager;
-    const columns = thisDataManager.clumpMatrix.length > 0
-      ? Array.from({ length: thisDataManager.clumpMatrix[0].length }, (_, index) => index + 1)
+    const columns = this.dataManager.getData('clumpMatrix').length > 0
+      ? Array.from({ length: this.dataManager.getData('clumpMatrix')[0].length }, (_, index) => index + 1)
       : [1];
     columns.forEach(column => {
       const option = document.createElement('option');
@@ -462,7 +470,7 @@ export default class AppSettings {
       option.textContent = `Column ${column}`;
       this.uiElements.columnSelect.appendChild(option);
     });
-    this.uiElements.columnSelect.disabled = thisDataManager.editingIndex !== null;
+    this.uiElements.columnSelect.disabled = this.dataManager.getData('editingIndex') !== null;
   }
 
   updateStorageNameDropdownOptions() {
@@ -486,7 +494,8 @@ export default class AppSettings {
   loadForEdit(index, event) {
     event.stopPropagation();
 
-    AppConfig.debugConsoleLogs && console.log('Editing clump:', this.dataManager.clumpList[index]);
+    AppConfig.debugConsoleLogs &&
+      console.log('Editing clump:', this.dataManager.getData('clumpList')[index]);
 
     this.dataManager.setData('editingIndex', index);
     this.updateLinkToDropdownOptions(); // Updates list and toggles disabled.
@@ -494,7 +503,7 @@ export default class AppSettings {
     this.updateDataInHtml();
     this.selectClumpNode(event.target);
 
-    const clump = this.dataManager.clumpList[index];
+    const clump = this.dataManager.getData('clumpList')[index];
     this.uiElements.clumpNameInput.value = clump.clumpName;
     this.uiElements.clumpCodeInput.value = clump.clumpCode;
 
@@ -539,12 +548,14 @@ export default class AppSettings {
       //  0    |  0    |  C3R7
       //  C1R5 |  0    |  0
 
-      if (this.dataManager.editingIndex === this.dataManager.clumpList.length - 1) {
+      const getClumpList = this.dataManager.getData('clumpList');
+
+      if (this.dataManager.getData('editingIndex') === getClumpList.length - 1) {
         this.dataManager.setData('editingIndex', null);
       }
 
       // Remove the clump from the clumps array.
-      const clumpListToPop = [...this.dataManager.getData('clumpList')];
+      const clumpListToPop = [...getClumpList];
       clumpListToPop.pop();
       this.dataManager.setData('clumpList', clumpListToPop);
 
@@ -554,8 +565,8 @@ export default class AppSettings {
       // Update global variables.
       this.dataManager.setData(
         'lastAddedClumpId',
-        this.dataManager.clumpList.length > 0
-          ? this.dataManager.clumpList[this.dataManager.clumpList.length - 1].id
+        getClumpList.length > 0
+          ? getClumpList[getClumpList.length - 1].id
           : 0
       );
 
@@ -565,7 +576,7 @@ export default class AppSettings {
       findLastAddedColLoop:
       for (let c = getColumnCount() - 1; c >= 0; c--) {
         for (let r = getRowCount() - 1; r >= 0; r--) {
-          if (this.dataManager.clumpMatrix[r][c] === this.dataManager.lastAddedClumpId) {
+          if (this.dataManager.getData('clumpMatrix')[r][c] === this.dataManager.getData('lastAddedClumpId')) {
             this.dataManager.setData('lastAddedCol', c + 1);
             break findLastAddedColLoop;
           }
@@ -589,7 +600,7 @@ export default class AppSettings {
       this.uiElements.storageNamingError.classList.contains('hidden') ||
       this.uiElements.storageNamingError.classList.contains('error-hidden')
     ) {
-      classListChain(this.uiElements.storageNamingError)
+      this.classListChain(this.uiElements.storageNamingError)
         .remove('hidden')
         .remove('error-hidden')
         .add('error-visible');
@@ -606,7 +617,7 @@ export default class AppSettings {
       console.log('Create new storage:', this.uiElements.newStorageNameInput.value);
 
     if (this.isValidKeyName(this.uiElements.newStorageNameInput.value)) {
-      hideStorageError();
+      this.hideStorageError();
       setTimeout(() => {
         // Reset input field.
         this.uiElements.newStorageNameInput.value = '';
@@ -625,7 +636,7 @@ export default class AppSettings {
       this.storeSettings();
       this.renderMatrix();
     } else {
-      this.showStorageError(storageNameErrorText);
+      this.showStorageError(this.dataManager.getData('storageNameErrorText'));
       // Remove temporary disablement of the new storage button.
       this.uiElements.newStorageNameButton.disabled = false;
       // Reset CSS styling on the 'New Storage' button.
@@ -666,7 +677,7 @@ export default class AppSettings {
       }
     } else {
       // This should never be hit because the button should be disabled when not allowed.
-      this.showStorageError(storageNameErrDelText);
+      this.showStorageError(AppConstants.storageNameErrDelText);
     }
   }
 
@@ -714,11 +725,11 @@ export default class AppSettings {
     const panelHotspot = document.querySelector('.panel-from-hotspot');
 
     if (panelToExpand.classList.contains('panel-from-expanded-to-collapsed')) {
-      classListChain(panelToExpand)
+      this.classListChain(panelToExpand)
         .remove('panel-from-expanded-to-collapsed')
         .add('panel-from-collapsed-to-expanded');
     } else {
-      classListChain(panelToExpand)
+      this.classListChain(panelToExpand)
         .remove('panel-from-collapsed-to-expanded')
         .add('panel-from-expanded-to-collapsed');
     }
@@ -734,7 +745,7 @@ export default class AppSettings {
     const columnCount = this.dataManager.getColumnCount();
 
     // Clear container before rendering
-    if (this.dataManager.clumpList.length === 0) {
+    if (this.dataManager.getData('clumpList').length === 0) {
       let clumpContainerContent = '<div class="empty-notes">';
       clumpContainerContent += '<h2>Data Clump Flow App</h2>';
       clumpContainerContent += '<p>Tips:</p>';
@@ -865,9 +876,11 @@ export default class AppSettings {
 
     // Cycle through the clumpMatrix to render the clumps.
     //
-    for (let r = 0; r < this.dataManager.clumpMatrix.length; r++) {
-      for (let c = 0; c < this.dataManager.clumpMatrix[r].length; c++) {
-        const curClumpId = this.dataManager.clumpMatrix[r][c];
+    const getClumpMatrix = this.dataManager.getData('clumpMatrix');
+    const getClumpList = this.dataManager.getData('clumpList');
+    for (let r = 0; r < getClumpMatrix.length; r++) {
+      for (let c = 0; c < getClumpMatrix[r].length; c++) {
+        const curClumpId = getClumpMatrix[r][c];
 
         if (curClumpId === 0) {
           const emptyCell = document.createElement('div');
@@ -876,9 +889,9 @@ export default class AppSettings {
           continue;
         }
 
-        const clumpFound = this.dataManager.clumpList.find(clump => clump.id === curClumpId);
+        const clumpFound = getClumpList.find(clump => clump.id === curClumpId);
         const clumpCell = document.createElement('div');
-        clumpListIndex = this.dataManager.clumpList.indexOf(clumpFound);
+        clumpListIndex = getClumpList.indexOf(clumpFound);
 
         clumpCell.className = `clump-node collapsed clump-list-index-${clumpListIndex}`;
 
@@ -901,12 +914,12 @@ export default class AppSettings {
         editIcon.textContent = '✏️';
         editIcon.onclick = (event) => {
           event.stopPropagation(); // Prevent toggle when clicking edit
-          this.loadForEdit(this.dataManager.clumpList.indexOf(clumpFound), event).bind(this);
+          this.loadForEdit(getClumpList.indexOf(clumpFound), event).bind(this);
         };
         iconSpan.appendChild(editIcon);
 
         // Conditionally create and append the delete icon
-        if (this.dataManager.clumpList[this.dataManager.clumpList.length - 1].id === clumpFound.id) {
+        if (getClumpList[getClumpList.length - 1].id === clumpFound.id) {
           const deleteIcon = document.createElement('div');
           deleteIcon.className = 'delete-icon';
           deleteIcon.textContent = '❌';
@@ -963,8 +976,8 @@ export default class AppSettings {
     this.updateDataInHtml();
 
     // Re-highlight edited cell, if any.
-    if (this.dataManager.editingIndex !== null) {
-      const indexCell = document.querySelector(`.clump-list-index-${this.dataManager.editingIndex}`);
+    if (this.dataManager.getData('editingIndex') !== null) {
+      const indexCell = document.querySelector(`.clump-list-index-${this.dataManager.getData('editingIndex')}`);
       indexCell && indexCell.classList.add('clump-node-selected');
     }
   }
