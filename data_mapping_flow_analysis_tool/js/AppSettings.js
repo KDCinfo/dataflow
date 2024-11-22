@@ -219,7 +219,7 @@ export default class AppSettings {
       this.clearSelectedClumpNode();
     }
 
-    this.storeClumps();
+    this.dataManager.storeClumps();
     this.renderMatrix();
     this.uiElements.clumpFormId.reset();
 
@@ -337,6 +337,10 @@ export default class AppSettings {
   }
 
   storeSettings() {
+    // Update AppData.
+    this.dataManager.updateAppSettingsInfo = this.appSettingsInfo;
+
+    // Store the settings in local storage.
     localStorage.setItem(
       AppConstants.localStorageSettingsKey,
       JSON.stringify(this.appSettingsInfo)
@@ -690,9 +694,11 @@ export default class AppSettings {
       this.hideStorageError();
     }
 
-    if (this.uiElements.storageNameTag.value !== this.appSettingsInfo.storageIndex) {
+    const newStorageIndex = parseInt(this.uiElements.storageNameTag.value, 10);
+    if (newStorageIndex !== this.appSettingsInfo.storageIndex) {
       // Update Settings.
-      this.appSettingsInfo.storageIndex = parseInt(this.uiElements.storageNameTag.value, 10);
+      this.appSettingsInfo.storageIndex = newStorageIndex;
+      // Store Settings.
       this.storeSettings();
 
       // Update data.
@@ -709,7 +715,7 @@ export default class AppSettings {
       this.uiElements.outputContainer.style.marginBottom = '0';
       this.uiElements.outputContainer.style.height = 'calc(100vh - 42px)';
       this.uiElements.storageNameLabelCurrent.textContent =
-      this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
+        this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
       this.updateDataInHtml();
       this.renderMatrix();
     }
@@ -914,7 +920,7 @@ export default class AppSettings {
         editIcon.textContent = '✏️';
         editIcon.onclick = (event) => {
           event.stopPropagation(); // Prevent toggle when clicking edit
-          this.loadForEdit(getClumpList.indexOf(clumpFound), event).bind(this);
+          this.loadForEdit(getClumpList.indexOf(clumpFound), event);
         };
         iconSpan.appendChild(editIcon);
 
@@ -925,7 +931,7 @@ export default class AppSettings {
           deleteIcon.textContent = '❌';
           deleteIcon.onclick = (event) => {
             event.stopPropagation(); // Prevent toggle when clicking delete
-            this.deleteLastClump(event).bind(this);
+            this.deleteLastClump(event);
           };
           iconSpan.appendChild(deleteIcon);
         }

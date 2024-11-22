@@ -16,12 +16,9 @@ export default class AppData {
   // always be in order, even when a hole is left from a deletion.
   lastAddedClumpId; // = 0;
 
-  // DATA: [localStorageKeyForClumps] Local storage key used to store and retrieve clumps.
-  localStorageKeyForClumps; // = storageNames[settings.storageIndex] || 'dataClumpFlowAppClumps';
-
   // DATA: [clumpList] A 1D list of data clumps are stored in the browser's local storage.
   // The clumpMatrix, below, is used to render the clumps in their correct 2D positions.
-  clumpList; // = JSON.parse(localStorage.getItem(localStorageKeyForClumps) || '[]');
+  clumpList; // = JSON.parse(localStorage.getItem(localStorageKeyForClumps()) || '[]');
 
   // DATA: [clumpMatrix] A 2D array to keep track of clump ID cell placement, empty
   //                     cells, and matrix width (rows) and height (cols) detection.
@@ -85,12 +82,9 @@ export default class AppData {
     this.lastAddedCol = DataDefaultMaps.dataDefaultMap().lastAddedCol; // 1;
     this.lastAddedClumpId = DataDefaultMaps.dataDefaultMap().lastAddedClumpId; // 0;
 
-    // The 'active storage key' is passed in from settings retrieved from local storage in 'AppSettings'.
-    this.localStorageKeyForClumps = this.getStorageNameFromSettings();
-
-    // The clumpList is parsed from local storage using the 'active storage key' that was just set.
+    // The clumpList is parsed from local storage using the 'active storage key' from 'appSettingsInfo'.
     this.clumpList = [];
-    this.setClumpList(this.parseClumpListFromStorage());
+    this.setClumpList();
 
     this.clumpMatrix = [...DataDefaultMaps.dataDefaultMap().clumpMatrix]; // [];
 
@@ -123,25 +117,23 @@ export default class AppData {
     return true;
   }
 
-  getStorageNameFromSettings() {
+  localStorageKeyForClumps() {
     return this.#appSettingsInfo.storageNames[this.#appSettingsInfo.storageIndex] || 'dataClumpFlowAppFallbackKey';
   }
 
-  setClumpList(newClumpList = this.getStorageNameFromSettings()) {
+  setClumpList(newClumpList = this.parseClumpListFromStorage()) {
     this.clumpList.length = 0;
     this.clumpList = [...newClumpList];
   }
 
   parseClumpListFromStorage() {
-    return JSON.parse(localStorage.getItem(this.localStorageKeyForClumps) || '[]');
+    return JSON.parse(localStorage.getItem(this.localStorageKeyForClumps()) || '[]');
   }
 
   storeClumps() {
-    const clumpListStorageKey = this.getStorageNameFromSettings();
-    const clumpListForStorage = JSON.stringify(this.clumpList);
     localStorage.setItem(
-      clumpListStorageKey,
-      clumpListForStorage
+      this.localStorageKeyForClumps(),
+      JSON.stringify(this.clumpList)
     );
   }
 
