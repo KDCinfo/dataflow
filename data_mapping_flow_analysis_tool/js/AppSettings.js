@@ -578,8 +578,8 @@ export default class AppSettings {
       // looking for the Column that the new last clump ID is in.
       // This will be the new 'lastAddedCol'.
       findLastAddedColLoop:
-      for (let c = getColumnCount() - 1; c >= 0; c--) {
-        for (let r = getRowCount() - 1; r >= 0; r--) {
+      for (let c = this.dataManager.getColumnCount() - 1; c >= 0; c--) {
+        for (let r = this.dataManager.getRowCount() - 1; r >= 0; r--) {
           if (this.dataManager.getData('clumpMatrix')[r][c] === this.dataManager.getData('lastAddedClumpId')) {
             this.dataManager.setData('lastAddedCol', c + 1);
             break findLastAddedColLoop;
