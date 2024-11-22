@@ -969,7 +969,7 @@ export default class AppSettings {
             event.stopPropagation();
             return;
           }
-          toggleCell().bind(this);
+          toggleCell();
         });
 
         // Append cell to the container

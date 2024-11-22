@@ -220,6 +220,7 @@ li ol>li:before {
   height: 40px;
   justify-content: space-between;
   margin-bottom: 10px;
+  overflow: hidden;
   padding: 5px;
   position: relative;
   text-align: center;
@@ -342,27 +343,29 @@ li ol>li:before {
 }
 
 .linked::after {
-  content: "\2B9A";
+  content: "\21E8";
+  /* content: "\2B9A"; */
   color: #337733;
   font-size: 25px;
+  pointer-events: none;
   position: absolute;
   top: -1px;
-  left: -10px;
+  left: -14px;
   bottom: 0;
   z-index: 2;
-  pointer-events: none;
 }
 
 .unlinked::after {
-  content: "\2B9B";
+  content: "\21E9";
+  /* content: "\2B9B"; */
   color: #337733;
   font-size: 25px;
+  pointer-events: none;
   position: absolute;
   right: 0;
   left: 0;
   top: -18px;
   z-index: 2;
-  pointer-events: none;
 }
 
 .info-panel {
