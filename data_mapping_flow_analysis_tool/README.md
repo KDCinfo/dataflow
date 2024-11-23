@@ -63,29 +63,28 @@ Claude and I went back and forth through six draft variations. I finally gave up
 
 ## @TODO:
 
-- Add pop-up link for empty page message (so it is available after data is added).
-- Allow storage names to be descriptive; use a join table to track descriptive names with the actual storage key names.
-- Add ability to delete any unlinked cell.
-- Add ability to delete any linked cell.
-- Add ability to change links.
-- Add ability to unlink.
-- Add ability to add cells under any bottommost group in a column.
-  - It currently adds cells to the last cell for the selected column, even if a previously added cell was linked/placed above existing sequenced cells.
-- Add ability to move cells, perhaps make it a drag-and-drop feature.
+- Moderate changes:
+  - Add pop-up link for empty page message (so it is available after data is added).
+  - Add color picker for cells
+  - When expanding clumps, add to a queue that can be stored and reapplied after repainting the matrix, so cells can stay open after adding or updating.
+  - Allow storage names to be descriptive; use a join table to track descriptive names with the actual storage key names.
+  - Add ability to delete any unlinked cell.
+  - Add ability to add cells under any bottommost group in a column.
+    - It currently adds cells to the last cell for the selected column, even if a previously added cell was linked/placed above existing sequenced cells.
+  - Swap IDs for `data-` attributes
+    - Leave IDs for labels
+    - Add all `data-` selectors to config file
+    - Swap out all query selectors for `data-` attribute selectors
+    - Question: Is it worth the change?
+- Potentially big changes:
+  - Add ability to delete any linked cell.
+  - Add ability to change links.
+  - Add ability to unlink.
+  - Add ability to move cells, perhaps make it a drag-and-drop feature.
 - Bug: Sometimes 'Import Data' will fail silently*.
   - *An error is shown in the dev tools console.
   - Workaround: Try it again. Subequent attempts usually work.
-
-## @TODOING:
-
-- Refactor and extract JavaScript into classes:
-  - Created new branch for refactoring: [`refactor-js-to-classes`](https://github.com/KDCinfo/dataflow/tree/refactor-js-to-classes/data_mapping_flow_analysis_tool)
-  - Created a temporary `dataflow.js` to hold all JavaScript while it is being refactored.
-  - Created placeholder classes:
-    - AppSettings (primary controller, orchestrator)
-    - AppData
-    - AppHelpers
-  - Normalized all JS references to point to HTML elements by their IDs.
+  - Unsure if this still exists after refactor to classes.
 
 ## @TODONE:
 
@@ -116,5 +115,20 @@ Claude and I went back and forth through six draft variations. I finally gave up
   - Create new storage names
   - Delete storage names
   - Switch to using different storage names
+- Extracted JavaScript into classes:
+  - I refactored this from a monolithic structure to a mix of Faux OO and Faux Procedural so that at least it's not all in the HTML.
+    - If I were to continue this project, I would rethink it more in terms of the parts of the app and how they would function together, as I did my last Flutter app.
+  - Created new branch for refactoring: [`refactor-js-to-classes`](https://github.com/KDCinfo/dataflow/tree/refactor-js-to-classes/data_mapping_flow_analysis_tool)
+  - Created a temporary `dataflow.js` to hold all JavaScript while it is being refactored.
+  - Created placeholder classes:
+    - AppSettings (primary controller, orchestrator)
+    - AppData
+    - AppHelpers
+  - Normalized all JS references to point to HTML elements by their IDs.
+- Fixed all fallout from refactor, including import.
+  - Fixed layering of expanded clumps.
+- Now setting focus on Clump Name field on load and edit.
+- Added option to pop out Add/Edit Form so code clump can be wider.
+
 
 _
