@@ -202,7 +202,7 @@ export default class AppSettings {
       //
       // EDITING AN EXISTING CLUMP
       //
-      console.log('clumpList before:', this.dataManager.getData('clumpList'));
+      AppConfig.debugConsoleLogs && console.log('clumpList before:', this.dataManager.getData('clumpList'));
 
       const editedClumpIndex = this.dataManager.getData('editingIndex');
       const editedClump = this.dataManager.clumpList[editedClumpIndex];
@@ -212,7 +212,7 @@ export default class AppSettings {
       editedClump.clumpName = this.uiElements.clumpNameInput.value;
       editedClump.clumpCode = this.uiElements.clumpCodeInput.value;
 
-      console.log('clumpList after:', this.dataManager.getData('clumpList'));
+      AppConfig.debugConsoleLogs && console.log('clumpList after:', this.dataManager.getData('clumpList'));
 
       this.dataManager.setData('editingIndex', null);
       this.updateDataInHtml();
@@ -943,21 +943,40 @@ export default class AppSettings {
           clumpCell.classList.toggle('collapsed');
 
           const isCellCollapsed = clumpCell.classList.contains('collapsed');
-          const howManyExpanded = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded').length;
+          const expandedCellsContent = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded');
+          const howManyExpanded = expandedCellsContent.length;
 
+          // Provide a margin at the bottom of the screen when at least one cell is expanded.
+          //
           this.uiElements.outputContainer.style.marginBottom = howManyExpanded > 0 ? '260px' : '0';
           this.uiElements.outputContainer.style.height = howManyExpanded > 0
             ? 'calc(100vh - 42px - 260px)'
             : 'calc(100vh - 42px)';
 
-          contentSpan.innerHTML = `<strong>${clumpFound.clumpName}</strong>
-                <br>${isCellCollapsed
+          // Update the content span with clump name and code.
+          //
+          let clumpCellContents = `<strong>${clumpFound.clumpName}</strong>
+            <br>${isCellCollapsed
               ? clumpFound.clumpCode.split('\n')[0]
-              : '<pre>' + AppHelpers.unescapeHTML(clumpFound.clumpCode) + '</pre>'
-            }`;
-
+              : clumpFound.clumpCode.split('\n').slice(0, 2).join('<br>')}`;
           if (!isCellCollapsed) {
-            contentSpan.querySelector('pre').style.zIndex = howManyExpanded + 10;
+            clumpCellContents += `<pre>${AppHelpers.unescapeHTML(clumpFound.clumpCode)}</pre>`;
+          }
+          contentSpan.innerHTML = clumpCellContents;
+
+          // Set z-index for expanded cells.
+          //
+          if (!isCellCollapsed) {
+            let largestExpandedZIndex = 0;
+            const elements = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded .content-span pre');
+            for (const clumpCellPre of elements) {
+              const zIndex = parseInt(clumpCellPre.style.zIndex, 10) || 0;
+              if (zIndex > largestExpandedZIndex) {
+                largestExpandedZIndex = zIndex;
+              }
+            }
+
+            contentSpan.querySelector('pre').style.zIndex = largestExpandedZIndex + 10;
           }
         };
 
