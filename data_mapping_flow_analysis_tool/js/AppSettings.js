@@ -77,10 +77,29 @@ export default class AppSettings {
     );
   }
 
+  // Adding the '.popped' class to 'clump-form-form' will pop out the form.
+  toggleClumpFormPopUp() {
+    this.uiElements.clumpFormId.classList.toggle('popped');
+    this.uiElements.clumpNameInput.focus();
+  }
+
+  removePopUp() {
+    this.uiElements.clumpFormId.classList.remove('popped');
+    this.uiElements.clumpNameInput.focus();
+  }
+
   initEventListeners() {
     //
     // EVENT LISTENERS
     //
+
+    // Listeners to toggle the form pop up.
+    this.uiElements.popItIcon.addEventListener('click', this.toggleClumpFormPopUp.bind(this));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        this.toggleClumpFormPopUp();
+      }
+    });
 
     // Add listeners to enable 'Save Clump' button when 'clump name' and 'code clump' are not empty.
     this.uiElements.clumpNameInput.addEventListener('input', () => {
@@ -216,8 +235,9 @@ export default class AppSettings {
 
       AppConfig.debugConsoleLogs && console.log('clumpList after edit - before update:', this.dataManager.getData('clumpList'));
 
-      this.dataManager.setData('clumpList', updatedClumpList);
+      this.removePopUp();
       this.dataManager.setData('editingIndex', null);
+      this.dataManager.setData('clumpList', updatedClumpList);
 
       AppConfig.debugConsoleLogs && console.log('clumpList after edit - after update:', this.dataManager.getData('clumpList'));
 
@@ -226,8 +246,11 @@ export default class AppSettings {
     }
 
     this.dataManager.storeClumps();
+
+    // Reset the form fields.
+    this.resetFormFields();
+
     this.renderMatrix();
-    this.uiElements.clumpFormId.reset();
 
     const howManyExpanded = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded').length;
     this.uiElements.outputContainer.style.marginBottom = howManyExpanded > 0 ? '260px' : '0';
@@ -236,11 +259,7 @@ export default class AppSettings {
       : 'calc(100vh - 42px)';
   };
 
-  // When canceling an edit, reset the 'editingIndex' to null, and remove the
-  // last 'Link to Clump' dropdown option if it is the same as the original 'linkedClumpID'.
-  handleFormReset(event) {
-    event.preventDefault();
-
+  resetFormFields() {
     // This will reset the form fields, regardless of any nesting.
     // clumpFormId.reset();
     // Manually clear each input, textarea, and select within the form
@@ -251,7 +270,18 @@ export default class AppSettings {
         field.value = field.defaultValue;
       }
     });
+  }
 
+  // When canceling an edit, reset the 'editingIndex' to null, and remove the
+  // last 'Link to Clump' dropdown option if it is the same as the original 'linkedClumpID'.
+  handleFormReset(event) {
+    event.preventDefault();
+
+    // Reset the form fields.
+    this.resetFormFields();
+
+    // Leaving the form popped open for additional adds, but will close for edits.
+    this.removePopUp();
     this.dataManager.setData('editingIndex', null);
 
     this.uiElements.saveClumpButton.disabled = this.uiElements.clumpNameInput.value.trim() === '';

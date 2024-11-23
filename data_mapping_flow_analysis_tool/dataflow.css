@@ -387,7 +387,33 @@ li ol>li:before {
   gap: 15px;
   margin-top: 25px;
   padding: 20px;
+  position: relative;
   max-width: 600px;
+}
+
+/* Icon to pop out form. */
+.clump-form-form .pop-it {
+  cursor: pointer;
+  display: inline-block;
+  font-size: 20px;
+  height: 20px;
+  line-height: 1;
+  position: absolute;
+  right: -4px;
+  top: -6px;
+  width: 20px;
+  z-index: 3;
+}
+
+.clump-form-form .pop-it:hover {
+  box-shadow: -2px 2px 20px lightseagreen;
+}
+
+.clump-form-form.popped {
+  position: fixed;
+  width: 80vw;
+  max-width: none;
+  z-index: 5;
 }
 
 .clump-form-div {
