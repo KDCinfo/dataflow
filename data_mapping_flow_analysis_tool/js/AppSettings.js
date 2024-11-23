@@ -202,19 +202,25 @@ export default class AppSettings {
       //
       // EDITING AN EXISTING CLUMP
       //
-      AppConfig.debugConsoleLogs && console.log('clumpList before:', this.dataManager.getData('clumpList'));
+      AppConfig.debugConsoleLogs && console.log('clumpList before edit:', this.dataManager.getData('clumpList'));
 
       const editedClumpIndex = this.dataManager.getData('editingIndex');
-      const editedClump = this.dataManager.clumpList[editedClumpIndex];
-
-      // Apparently this edits the clump in place.
-      // @TODO: If so, we should probably clone the clumpList, updated it, then replace the clumpList.
+      const editedClump = structuredClone(this.dataManager.getData('clumpList')[editedClumpIndex]);
       editedClump.clumpName = this.uiElements.clumpNameInput.value;
       editedClump.clumpCode = this.uiElements.clumpCodeInput.value;
 
-      AppConfig.debugConsoleLogs && console.log('clumpList after:', this.dataManager.getData('clumpList'));
+      // Replace the clump in the array with the updated one.
+      const updatedClumpList = this.dataManager.getData('clumpList').map((clump, index) =>
+        index === editedClumpIndex ? editedClump : clump
+      );
 
+      AppConfig.debugConsoleLogs && console.log('clumpList after edit - before update:', this.dataManager.getData('clumpList'));
+
+      this.dataManager.setData('clumpList', updatedClumpList);
       this.dataManager.setData('editingIndex', null);
+
+      AppConfig.debugConsoleLogs && console.log('clumpList after edit - after update:', this.dataManager.getData('clumpList'));
+
       this.updateDataInHtml();
       this.clearSelectedClumpNode();
     }
