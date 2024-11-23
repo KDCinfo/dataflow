@@ -520,6 +520,9 @@ export default class AppSettings {
     // Update value and disable.
     this.uiElements.linkTo.value = isNaN(clump.linkedClumpID) ? '' : clump.linkedClumpID;
     this.uiElements.columnSelect.value = clump.column === -1 ? 'last' : clump.column;
+
+    // Set focus to the 'clump name' input field.
+    this.uiElements.clumpNameInput.focus();
   }
 
   // Clear the 'clump-node-selected' class from all clump nodes.
@@ -1011,5 +1014,8 @@ export default class AppSettings {
       const indexCell = document.querySelector(`.clump-list-index-${this.dataManager.getData('editingIndex')}`);
       indexCell && indexCell.classList.add('clump-node-selected');
     }
+
+    // Set focus to the 'clump name' input field.
+    this.uiElements.clumpNameInput.focus();
   }
 }
