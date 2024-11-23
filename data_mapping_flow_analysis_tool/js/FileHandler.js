@@ -14,45 +14,64 @@ export default class FileHandler {
     }
   }
 
-  static handleImportData() {
-    if (confirm(`\nWarning:\n
-          Importing data will overwrite the current data.\n
-          Are you sure you want to continue?\n`)) {
-      //
-      // document.getElementById('importFile').click();
+  static async handleImportData() {
+    return new Promise((resolve, reject) => {
+      if (confirm(`\nWarning:\n
+            Importing data will overwrite the current data.\n
+            Are you sure you want to continue?\n`)) {
+        //
+        // document.getElementById('importFile').click();
 
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.onchange = e => {
-        const file = e.target.files[0];
-        if (!file) {
-          // alert('No file selected');
-          return [];
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.onchange = e => {
+          const file = e.target.files[0];
+          if (!file) {
+            alert('No file selected');
+            reject('No file selected');
+          }
+          this.handleImportFile(file)
+            .then((importedFile) => resolve(importedFile))
+            .catch((error) => reject(error));
         }
-        return handleImportFile(file);
+        fileInput.click();
+      } else {
+        alert('User canceled the operation');
+        reject('User canceled the operation');
       }
-      fileInput.click();
-    }
+    }).catch((error) => {
+      alert('Error importing data');
+      console.error('Error importing data:', error);
+    });
+  }
 
-    function handleImportFile(file) {
+  static async handleImportFile(file) {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
           const importedClumps = JSON.parse(e.target.result);
           if (Array.isArray(importedClumps)) {
             //
-            return importedClumps;
+            resolve(importedClumps);
             //
           } else {
             alert('Invalid data format');
-            return [];
+            reject('Invalid data format');
           }
         } catch {
           alert('Failed to import data');
-          return [];
+          reject('Failed to import data');
         }
       };
+      reader.onerror = () => {
+        alert('Error reading file');
+        reject(new Error('File reading error'));
+      };
       reader.readAsText(file);
-    }
+    }).catch((error) => {
+      alert('Error handling imported file');
+      console.error('Error handling imported file:', error);
+    });
   }
 }

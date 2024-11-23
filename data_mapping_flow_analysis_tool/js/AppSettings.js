@@ -297,8 +297,9 @@ export default class AppSettings {
     FileHandler.handleExportData(this.dataManager.getData('clumpList'));
   }
 
-  handleImportData() {
-    const importedDataArray = FileHandler.handleImportData();
+  async handleImportData() {
+    const importedDataArray = await FileHandler.handleImportData();
+
     if (
       typeof importedDataArray !== 'undefined' &&
       Array.isArray(importedDataArray) &&
