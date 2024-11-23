@@ -20,7 +20,7 @@ body {
   position: relative;
   width: 30%;
   min-width: 210px;
-  max-width: 310px;
+  /* max-width: 310px; */
 }
 
 button {
