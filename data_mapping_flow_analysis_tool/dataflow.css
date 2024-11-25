@@ -63,7 +63,7 @@ h2 {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 ol {
@@ -173,7 +173,25 @@ li ol>li:before {
   width: 70%;
   height: calc(100vh - 42px);
   padding: 20px;
+  position: relative;
   overflow: auto;
+}
+
+.cross-tab-warning {
+  align-items: center;
+  background-color: yellowgreen;
+  box-shadow: 5px 5px 50px palegreen;
+  color: darkblue;
+  display: flex;
+  font-size: 17px;
+  justify-content: center;
+  margin: 15px;
+  min-height: 50px;
+  min-width: 150px;
+  padding: 15px;
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .grid {

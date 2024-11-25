@@ -176,11 +176,122 @@ export default class AppSettings {
     // id="newStorageNameButton"
     // onclick="createNewStorage()"
     this.uiElements.newStorageNameButton.addEventListener('click', this.createNewStorage.bind(this));
+
+    window.addEventListener('storage', (event) => {
+      if (event.key === AppConstants.localStorageSettingsKey) {
+        const oldEventValues = JSON.parse(event.oldValue);
+        const newEventValues = JSON.parse(event.newValue);
+
+        const oldStorageNames = oldEventValues.storageNames;
+        const newStorageNames = newEventValues.storageNames;
+        const oldStorageNamesLength = oldStorageNames.length;
+        const newStorageNamesLength = newStorageNames.length;
+
+        let messageToDisplayOnOtherTabs = '';
+
+        if (oldStorageNamesLength !== newStorageNamesLength) {
+          let allowDismiss = true;
+
+          if (oldStorageNamesLength < newStorageNamesLength) {
+            // A new storage was added.
+            //
+            const addedName = newStorageNames.filter(name => !oldStorageNames.includes(name));
+            messageToDisplayOnOtherTabs = `A storage was added:
+                <br><br>
+                - ${addedName}
+                <br><br>
+                Please refresh the page to see the changes,
+                or tap this message to dismiss.`;
+          } else {
+            // A storage was deleted.
+            //
+            const deletedNameList = oldStorageNames.filter(name => !newStorageNames.includes(name));
+            const deletedName = deletedNameList.length > 0 ? deletedNameList[0].toLowerCase() : '';
+            // If deleted name is same as currently active name,
+            // inform the user their data is stale and to export before refreshing,
+            // and do not allow the message to be dismissed.
+            if (deletedName === this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex]) {
+              allowDismiss = false;
+              messageToDisplayOnOtherTabs = `The currently active storage was deleted:
+                  <br><br>
+                  - ${deletedName}
+                  <br><br>
+                  Please export your data before refreshing
+                  the page or any data on this page will be lost.`;
+            } else {
+              messageToDisplayOnOtherTabs = `A storage was deleted:
+                  <br><br>
+                  - ${deletedName}
+                  <br><br>
+                  Please refresh the page to see the changes,
+                  or tap this message to dismiss.`;
+            }
+          }
+
+          // Run init on the new localStorage.
+          this.appSettingsInfo.storageNames = newStorageNames;
+          const sessionStorageIndex = AppStorage.getSessionStorageIndex(this.appSettingsInfo.storageIndex);
+          if (sessionStorageIndex !== this.appSettingsInfo.storageIndex) {
+            this.appSettingsInfo.storageIndex = sessionStorageIndex;
+          }
+          // 'localStorage' has already been updated via the other tab, but we
+          // still need to update this app's 'AppSettingsInfo' and 'dataManager'.
+          this.storeSettings();
+          this.addTextToCrossTabWarning(
+            allowDismiss,
+            messageToDisplayOnOtherTabs
+          );
+
+          //
+        } else {
+          // Changing 'AppSettingsInfo':
+          // - gridRepeatRangeValue | This is a local setting, so no need to message other tabs about it.
+          // - storageNames | Changes to the storage names should notify other tabs about the change (i.e., adding or deleting).
+          // - storageIndex | There's no need to message other tabs about changing the active storage selection.
+          // Storage names length is checked above, so basically,
+          // there's nothing to do here for the 'AppSettingsInfo' changes.
+        }
+      }
+    });
+  }
+
+  addTextToCrossTabWarning(
+    allowDismiss,
+    messageToDisplayOnOtherTabs
+  ) {
+    this.uiElements.crossTabWarning.classList.remove('hidden');
+    this.uiElements.crossTabWarning.innerHTML = messageToDisplayOnOtherTabs;
+    if (allowDismiss) {
+      this.uiElements.crossTabWarning.style.cursor = 'pointer';
+      this.uiElements.crossTabWarning.onclick = (event) => {
+        event.preventDefault();
+        this.dismissWarningMessage();
+      }
+    } else {
+      this.uiElements.crossTabWarning.style.cursor = 'default';
+      this.uiElements.crossTabWarning.onclick = null;
+    }
+  }
+
+  dismissWarningMessage() {
+    this.uiElements.crossTabWarning.classList.add('hidden');
   }
 
   handleFormSubmit(event) {
     // clumpFormId.onsubmit = (event) => {
     event.preventDefault();
+
+    // Check if AppSettingsInfo.storageIndex reflects
+    // the same name as the currently active storage name.
+    // If not, return. We DO NOT want to update a storage that
+    // doesn't exist, else it will overwrite all the data in the
+    // next storage in the list and replace it with this data.
+    const currentStorageName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex].toLowerCase();
+    const storageNameLabelTrimmed = storageNameLabelCurrent.textContent.trim().toLowerCase();
+    if (currentStorageName !== storageNameLabelTrimmed) {
+      alert('The currently active storage name has been deleted.\n\nPlease refresh the page.');
+      return;
+    }
 
     // Clump cell placement has 3 options:
     //

@@ -61,6 +61,122 @@ Claude and I went back and forth through six draft variations. I finally gave up
 
 > 10 days later... DMFAT was borne to GitHub.
 
+-----
+
+## Adding Session Storage to Isolate Active Storage Index
+
+@11/24/2024 3:26:25 PM
+@11/24/2024 3:37:31 PM
+- Dev Play: Data Clump Flow App
+
+		The app needs to be able to detect if other tabs with the app are also open, and perhaps which tab it is on,
+			so that the app in other tabs don't change the app in the current tab --- least not the current storage setting.
+		Thinking this through...
+		Perhaps `sessionStorage` could help such that the currently opened app
+			wouldn't interfere with any data flow app that's open in other tabs.
+		It would seem the only part that needs detection is for the 'useSelected' setting.
+			Basically, don't change the current storage when the page is refreshed.
+			Perhaps that setting should always be in sessionStorage, and not in localStorage?
+			No, I don't believe sessionStorage is persisted,
+					and it needs an initial load value which should be the last storage that was set.
+				But then, after the initial load, sessionStorage takes over.
+			So I'll need to be able to see if it's present on reload,
+				and if not, (meaning it's a load and not a reload), use localStorage to populate it.
+			So only one vector point?
+				Check on load/reload, after loading localStorage?
+			I currently can't think of any other part of the app or setting that "shouldn't" listen to other tabs.
+
+@11/24/2024 3:51:22 PM
+- Other tabs will have their own sessionStorage setting, so updating localStorage every time is perfectly fine.
+
+@11/24/2024 4:24:34 PM
+- Use 'sessionStorage' for which storage is active, so other open tabs don't change.
+  - What happens when you delete a storage in one tab,
+      but another open app still shows it in the list,
+      and the other tab
+      - tries to use it?
+      - was using it already and tried to make an update to it?
+
+### Outline of what should happen with 'sessionStorage' and 'localStorage'
+
+1. AppSettings are loaded in from 'localStorage' which contains both the 'storageNames' and 'storageIndex' settings.
+    defaultAppSettings: {
+      gridRepeatRangeValue: 0,
+      storageNames: ['error'], // camelCase or snake_case.
+      storageIndex: 0
+    }
+2. If 'sessionStorage' is not present, set 'sessionStorage' from 'localStorage'.
+3. Use 'sessionStorage' to set the 'AppSettings' 'storageIndex' setting.
+4. When switching storage, update 'sessionStorage' and 'localStorage'.
+5. When creating or deleting storage, update 'sessionStorage' and 'localStorage' and notify other tabs to refresh.
+
+### Testing: The Active Index Doesn't Change on Reload
+
+- Open an incognito Chrome browser window (or another browser with dev tools)
+- Open Dev Tools -> Application -> Local Storage
+- [Observe] It should be empty.
+- Open the app in the incognito window.
+- Dev Tools: Local Storage should now have the app settings.
+> AppSettings: AppSettingsInfo:
+> `{ gridRepeatRangeValue: 2, storageNames: Array(1), storageIndex: 0 }`
+- Change to Dev Tools: Session Storage
+- [Observe] { 'dataClumpFlowAppSessionStorageKey': 0 }
+
+- Open a 2nd incognito Chrome browser window
+- Open Dev Tools -> Application -> Local Storage
+- [Observe] It should be empty.
+- Open the app in the 2nd incognito window.
+- Dev Tools: Local Storage should now have the app settings.
+> AppSettings: AppSettingsInfo:
+> `{ gridRepeatRangeValue: 2, storageNames: Array(1), storageIndex: 0 }`
+- Change to Dev Tools: Session Storage
+- [Observe] { 'dataClumpFlowAppSessionStorageKey': 0 }
+
+- In the 2nd browser, create a new storage: t1
+- [Observe] Message is displayed in 1st browser
+- In the 2nd browser, Select the new storage and click the 'Use Selected' button.
+- [Observe] Message is displayed in 1st browser
+
+- In the 1st browser, refresh the page.
+- [Observe] The selected storage is still 'default'.
+- In the 2nd browser, refresh the page.
+- [Observe] The selected storage is still 't1'.
+
+```
+StorageEvent {
+  isTrusted: true,
+  key: 'dataClumpFlowAppSettings',
+  oldValue: '{"gridRepeatRangeValue":2,"storageNames":["default","t1","t2","t3","t4","t5"],"storageIndex":0}',
+  newValue: '{"gridRepeatRangeValue":2,"storageNames":["default","t1","t2","t3","t4","t5","t6"],"storageIndex":0}',
+  ...}
+```
+
+### Testing: Delete Prevents Adding Clumps
+
+- Open an incognito Chrome browser window (or another browser with dev tools)
+- Open the app in the incognito window.
+- Create a new storage: t1
+- Use the new storage: t1
+- Add a clump: AA11
+- Create a new storage: t2
+- Use the new storage: t2
+- Add a clump: BB22
+- Use the new storage: t1
+- [Observe] Clump AA11 is displayed.
+
+- Open a 2nd incognito Chrome browser window
+- Open the app in the 2nd incognito window.
+- Select the storage: t1
+- Click the 'Delete Selected' button.
+- Confirm the deletion.
+- [Observe] Message is displayed in 1st browser
+
+- Back in the 1st browser, try to add a clump.
+- [Observe] An alert dialog is displayed.
+- [Observe] The clump is not added.
+
+-----
+
 ## @TODO:
 
 - Moderate changes:
@@ -129,6 +245,7 @@ Claude and I went back and forth through six draft variations. I finally gave up
   - Fixed layering of expanded clumps.
 - Now setting focus on Clump Name field on load and edit.
 - Added option to pop out Add/Edit Form so code clump can be wider.
+- Implemented 'sessionStorage' for 'active storage index' setting, so any open Data Clump Flow apps in other open tabs don't change the currently active storage.
 
 
 _
