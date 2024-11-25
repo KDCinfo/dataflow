@@ -2,6 +2,7 @@ import AppConfig from './AppConfig.js';
 import AppConstants from './AppConstants.js';
 import AppData from './AppData.js';
 import AppHelpers from './AppHelper.js';
+import AppStorage from './AppStorage.js';
 import ClumpInfo from './ClumpInfo.js';
 import DataDefaultMaps from './DataDefaultMaps.js';
 import FileHandler from './FileHandler.js';
@@ -40,6 +41,7 @@ export default class AppSettings {
 
   constructor(uiSelectors) {
     this.uiElements = this.resolveSelectors(uiSelectors);
+
     this.appSettingsInfo = this.getJsonSettingsFromStorageOrDefaults();
     this.dataManager = new AppData(
       this.appSettingsInfo
@@ -67,7 +69,7 @@ export default class AppSettings {
   }
 
   getJsonSettingsFromStorageOrDefaults() {
-    const dataFromStorage = localStorage.getItem(AppConstants.localStorageSettingsKey);
+    const dataFromStorage = AppStorage.appStorageGetItem(AppConstants.localStorageSettingsKey);
     const dataFromDefaults = JSON.stringify(
       DataDefaultMaps.dataDefaultMap().defaultAppSettings
     );
@@ -378,7 +380,7 @@ export default class AppSettings {
     this.dataManager.updateAppSettingsInfo = this.appSettingsInfo;
 
     // Store the settings in local storage.
-    localStorage.setItem(
+    AppStorage.appStorageSetItem(
       AppConstants.localStorageSettingsKey,
       JSON.stringify(this.appSettingsInfo)
     );
@@ -715,7 +717,7 @@ export default class AppSettings {
         this.storeSettings();
 
         // Remove from local storage.
-        localStorage.removeItem(selectedStorageName);
+        AppStorage.appStorageRemoveItem(selectedStorageName);
 
         this.renderMatrix();
       }
