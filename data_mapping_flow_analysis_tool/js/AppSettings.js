@@ -202,6 +202,10 @@ export default class AppSettings {
                 <br><br>
                 Please refresh the page to see the changes,
                 or tap this message to dismiss.`;
+
+            // @TODO: Update the 'appSettingsInfo' and 'selectStorage' dropdown.
+
+            //
           } else {
             // A storage was deleted.
             //
@@ -216,8 +220,9 @@ export default class AppSettings {
                   <br><br>
                   - ${deletedName}
                   <br><br>
-                  Please export your data before refreshing
-                  the page or any data on this page will be lost.`;
+                  Please export this data before refreshing the page.
+                  <strong>If changes are attempted without a refresh,
+                  all the data in the next storage in the list could be lost.</strong>`;
             } else {
               messageToDisplayOnOtherTabs = `A storage was deleted:
                   <br><br>
@@ -277,10 +282,7 @@ export default class AppSettings {
     this.uiElements.crossTabWarning.classList.add('hidden');
   }
 
-  handleFormSubmit(event) {
-    // clumpFormId.onsubmit = (event) => {
-    event.preventDefault();
-
+  checkIfStorageNameStillExists() {
     // Check if AppSettingsInfo.storageIndex reflects
     // the same name as the currently active storage name.
     // If not, return. We DO NOT want to update a storage that
@@ -290,6 +292,18 @@ export default class AppSettings {
     const storageNameLabelTrimmed = storageNameLabelCurrent.textContent.trim().toLowerCase();
     if (currentStorageName !== storageNameLabelTrimmed) {
       alert('The currently active storage name has been deleted.\n\nPlease refresh the page.');
+      return false;
+    }
+    return true;
+  }
+
+
+  handleFormSubmit(event) {
+    // clumpFormId.onsubmit = (event) => {
+    event.preventDefault();
+
+    // Check if the currently active storage name has been deleted.
+    if (!this.checkIfStorageNameStillExists()) {
       return;
     }
 
@@ -703,6 +717,11 @@ export default class AppSettings {
   // For now, we'll just provide the ability to remove the last clump added (an undo).
   deleteLastClump(event) {
     event.stopPropagation();
+
+    // Check if the currently active storage name has been deleted.
+    if (!this.checkIfStorageNameStillExists()) {
+      return;
+    }
 
     if (confirm("Are you sure you want to delete this clump?")) {
       //

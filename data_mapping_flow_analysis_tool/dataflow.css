@@ -178,14 +178,14 @@ li ol>li:before {
 }
 
 .cross-tab-warning {
-  align-items: center;
   background-color: yellowgreen;
   box-shadow: 5px 5px 50px palegreen;
   color: darkblue;
   display: flex;
+  flex-direction: column;
   font-size: 17px;
-  justify-content: center;
   margin: 15px;
+  max-width: 430px;
   min-height: 50px;
   min-width: 150px;
   padding: 15px;

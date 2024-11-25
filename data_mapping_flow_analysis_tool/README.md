@@ -166,14 +166,17 @@ StorageEvent {
 
 - Open a 2nd incognito Chrome browser window
 - Open the app in the 2nd incognito window.
+- Select the storage: default
+- Click the 'Use Selected' button
+- [Observe] Empty page message is displayed
 - Select the storage: t1
-- Click the 'Delete Selected' button.
-- Confirm the deletion.
+- Click the 'Delete Selected' button
+- Confirm the deletion
 - [Observe] Message is displayed in 1st browser
 
-- Back in the 1st browser, try to add a clump.
-- [Observe] An alert dialog is displayed.
-- [Observe] The clump is not added.
+- Back in the 1st browser, try to add a clump
+- [Observe] An alert dialog is displayed
+- [Observe] The clump is not added
 
 -----
 
@@ -245,7 +248,9 @@ StorageEvent {
   - Fixed layering of expanded clumps.
 - Now setting focus on Clump Name field on load and edit.
 - Added option to pop out Add/Edit Form so code clump can be wider.
-- Implemented 'sessionStorage' for 'active storage index' setting, so any open Data Clump Flow apps in other open tabs don't change the currently active storage.
+- Implemented 'sessionStorage' for 'active storage index' setting.
+  - Any open Data Clump Flow apps in other open tabs can't change the currently active storage.
+- Added cross-tab add/edit/delete protection when an active storage is deleted in another open tab.
 
 
 _
