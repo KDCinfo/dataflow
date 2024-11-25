@@ -1,6 +1,7 @@
 import AppConstants from "./AppConstants.js";
 
 export default class AppStorage {
+  //
   // # Outline of what should happen with 'sessionStorage' and 'localStorage':
   //
   // 1. AppSettings are loaded in from 'localStorage' which contains both the 'storageNames' and 'storageIndex' settings.
@@ -28,10 +29,6 @@ export default class AppStorage {
     } else {
       returnIndex = parseInt(currentSessionStorageIndex, 10);
     }
-
-    console.log('[AppStorage] [get...Index] localStorageIndex:', localStorageIndex);
-    console.log('[AppStorage] [get...Index] currentSessionStorageIndex:', currentSessionStorageIndex);
-    console.log('[AppStorage] [get...Index] getSessionStorageIndex:', returnIndex);
 
     return returnIndex || 0;
   }

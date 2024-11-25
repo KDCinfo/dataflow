@@ -93,7 +93,7 @@ export default class AppData {
   }
 
   // Setter for appSettings called from parent ('AppSettings').
-  set updateAppSettingsInfo(newSettings) {
+  updateAppSettingsInfo(newSettings) {
     this.#appSettingsInfo = newSettings;
   }
 

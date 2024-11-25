@@ -43,6 +43,20 @@ export default class AppSettings {
     this.uiElements = this.resolveSelectors(uiSelectors);
 
     this.appSettingsInfo = this.getJsonSettingsFromStorageOrDefaults();
+
+    // This will override the 'Appsettings.storageIndex' with the 'sessionStorage' value,
+    //   if present, else it falls back to using the 'localStorage' value.
+    // It will then also be stored in 'localStorage' along with the other settings,
+    //   Any other open tabs won't be affected by this 'localStorage' change
+    //   because they will have their own 'sessionStorage' value.
+    const sessionStorageIndex = AppStorage.getSessionStorageIndex(this.appSettingsInfo.storageIndex);
+    if (sessionStorageIndex !== this.appSettingsInfo.storageIndex) {
+      this.appSettingsInfo.storageIndex = sessionStorageIndex;
+    }
+    // storeSettings(false) => Don't update 'dataManager'
+    //                         because it hasn't been initialized yet.
+    this.storeSettings(false);
+
     this.dataManager = new AppData(
       this.appSettingsInfo
     );
@@ -375,9 +389,11 @@ export default class AppSettings {
     };
   }
 
-  storeSettings() {
-    // Update AppData.
-    this.dataManager.updateAppSettingsInfo = this.appSettingsInfo;
+  storeSettings(updateDataManager = true) {
+    // The 'dataManager' is not yet initialized when this method is called from the constructor.
+    if (updateDataManager) {
+      this.dataManager.updateAppSettingsInfo(this.appSettingsInfo);
+    }
 
     // Store the settings in local storage.
     AppStorage.appStorageSetItem(
@@ -742,6 +758,7 @@ export default class AppSettings {
       this.appSettingsInfo.storageIndex = newStorageIndex;
       // Store Settings.
       this.storeSettings();
+      AppStorage.updateSessionStorageIndex(newStorageIndex);
 
       // Update data.
       this.dataManager.setData('editingIndex', null);
