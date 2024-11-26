@@ -653,6 +653,10 @@ datalist {
   padding: 5px;
 }
 
+.storage-name-label-current {
+  color: #b0e000;
+}
+
 /* Responsive layout: stack labels and inputs vertically */
 @media (max-width: 950px) {
   .export-import-buttons {
