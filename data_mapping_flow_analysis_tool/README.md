@@ -2,9 +2,23 @@
 
 <img src="./images/icon128.png" align="right" width="128" height="128">
 
-The "Data Mapping Flow Analysis Tool" was conceptualized when analyzing a variety of `Jenkinsfile`s from multiple sources, and the environments, stages, and flows within each.
+## Purpose
+
+Easily enter data flows for self-analysis, or comparison* between similar flows.
+
+Each data point can be provided with chunks of code or text for easy reference.
+
+* **Comparisons:**
+
+The beauty of the __Data Clump Flow App__ is you can have the app running in multiple browser windows or tabs at the same time for live comparisons between flows.
+
+If the app is run in more than one window or tab, and the list of flows is modified (every flow has its own 'storage entry'), any other open apps will provide a notification (especially if the current flow in one window is deleted in another).
 
 > Live Demo: [kdcinfo.com/app/dataflow/](https://kdcinfo.com/app/dataflow/)
+
+-----
+
+The "Data Mapping Flow Analysis Tool" was conceptualized when analyzing a variety of `Jenkinsfile`s from multiple sources, and the environments, stages, and flows within each.
 
 - The primary thought was to try to keep the flow simple (a sticking point in previous flow-recording app attempts):
   - Cell content: Title.
