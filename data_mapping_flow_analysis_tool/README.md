@@ -16,6 +16,8 @@ If the app is run in more than one window or tab, and the list of flows is modif
 
 > Live Demo: [kdcinfo.com/app/dataflow/](https://kdcinfo.com/app/dataflow/)
 
+<p align="center"><img src="https://github.com/KDCinfo/dataflow/blob/main/data_mapping_flow_analysis_tool/images/data_flow_blog_screenshot3c.png" width="600" title="Data Clump Flow App - Webpage Preview" alt="Data Clump Flow App - Webpage Preview"/></p>
+
 -----
 
 The "Data Mapping Flow Analysis Tool" was conceptualized when analyzing a variety of `Jenkinsfile`s from multiple sources, and the environments, stages, and flows within each.
@@ -126,30 +128,38 @@ Claude and I went back and forth through six draft variations. I finally gave up
 
 ### Testing: The Active Index Doesn't Change on Reload
 
+Part 1
+
 - Open an incognito Chrome browser window (or another browser with dev tools)
 - Open Dev Tools -> Application -> Local Storage
-- [Observe] It should be empty.
+  - [Observe] It should be empty.
 - Open the app in the incognito window.
 - Dev Tools: Local Storage should now have the app settings.
-> AppSettings: AppSettingsInfo:
-> `{ gridRepeatRangeValue: 2, storageNames: Array(1), storageIndex: 0 }`
+  - > AppSettings: AppSettingsInfo:
+  - > `{ gridRepeatRangeValue: 2, storageNames: Array(1), storageIndex: 0 }`
 - Change to Dev Tools: Session Storage
-- [Observe] { 'dataClumpFlowAppSessionStorageKey': 0 }
+  - [Observe] { 'dataClumpFlowAppSessionStorageKey': 0 }
+
+Part 2
 
 - Open a 2nd incognito Chrome browser window
 - Open Dev Tools -> Application -> Local Storage
 - [Observe] It should be empty.
 - Open the app in the 2nd incognito window.
 - Dev Tools: Local Storage should now have the app settings.
-> AppSettings: AppSettingsInfo:
-> `{ gridRepeatRangeValue: 2, storageNames: Array(1), storageIndex: 0 }`
+  - > AppSettings: AppSettingsInfo:
+  - > `{ gridRepeatRangeValue: 2, storageNames: Array(1), storageIndex: 0 }`
 - Change to Dev Tools: Session Storage
 - [Observe] { 'dataClumpFlowAppSessionStorageKey': 0 }
+
+Part 3
 
 - In the 2nd browser, create a new storage: t1
 - [Observe] Message is displayed in 1st browser
 - In the 2nd browser, Select the new storage and click the 'Use Selected' button.
 - [Observe] Message is displayed in 1st browser
+
+Part 4
 
 - In the 1st browser, refresh the page.
 - [Observe] The selected storage is still 'default'.
@@ -167,6 +177,8 @@ StorageEvent {
 
 ### Testing: Delete Prevents Adding Clumps
 
+Part 1
+
 - Open an incognito Chrome browser window (or another browser with dev tools)
 - Open the app in the incognito window.
 - Create a new storage: t1
@@ -176,21 +188,25 @@ StorageEvent {
 - Use the new storage: t2
 - Add a clump: BB22
 - Use the new storage: t1
-- [Observe] Clump AA11 is displayed.
+  - [Observe] Clump AA11 is displayed.
+
+Part 2
 
 - Open a 2nd incognito Chrome browser window
 - Open the app in the 2nd incognito window.
 - Select the storage: default
 - Click the 'Use Selected' button
-- [Observe] Empty page message is displayed
+  - [Observe] Empty page message is displayed
 - Select the storage: t1
 - Click the 'Delete Selected' button
 - Confirm the deletion
-- [Observe] Message is displayed in 1st browser
+  - [Observe] Message is displayed in 1st browser
+
+Part 3
 
 - Back in the 1st browser, try to add a clump
-- [Observe] An alert dialog is displayed
-- [Observe] The clump is not added
+  - [Observe] An alert dialog is displayed
+  - [Observe] The clump is not added
 
 -----
 
