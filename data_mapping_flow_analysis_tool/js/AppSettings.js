@@ -939,50 +939,24 @@ export default class AppSettings {
     // Set CSS property dynamically to control number of columns.
     const columnCount = this.dataManager.getColumnCount();
 
-    // Clear container before rendering
     if (this.dataManager.getData('clumpList').length === 0) {
-      let clumpContainerContent = '<div class="empty-notes">';
-      clumpContainerContent += '<h2>Data Clump Flow App</h2>';
-      clumpContainerContent += '<p>Tips:</p>';
-      clumpContainerContent += '<ul>';
-      clumpContainerContent += '  <li>Cell clumps flow from top down by default, and left to right when linked.</li>';
-      clumpContainerContent += `  <li>To export, switch to the desired storage name (using the 'Use Selected' button), then click the 'Export Data' button.</li>`;
-      clumpContainerContent += '</ul>';
-
-      clumpContainerContent += '<ul>';
-      clumpContainerContent += '  <li>Clicking cells will show clump contents in a window at the bottom of the screen.</li>';
-      clumpContainerContent += '  <li>Multiple cell contents can be expanded, each will be layered on top of the previous.</li>';
-      clumpContainerContent += '  <li>Closing the last, or topmost content window will reveal the content window below it.</li>';
-      clumpContainerContent += '  <li>Any expanded cell content window can be collapsed, even those beneath the last opened.</li>';
-      clumpContainerContent += '</ul>';
-
-      clumpContainerContent += '<ul>';
-      clumpContainerContent += `  <li>When a clump is shown, although a single click on either the cell or content window will close the content window, highlighting text within the content window will not close it (so long as text is highlighted).
-          </li>`;
-      clumpContainerContent += '</ul>';
-
-      clumpContainerContent += `<p>
-            <code>@TODO:</code> <small>(referenced in
-            <a href='https://github.com/KDCinfo/dataflow/tree/main/data_mapping_flow_analysis_tool' target='_blank'>Readme</a>
-            )</small>:</p>`;
-      clumpContainerContent += '<ol>';
-      clumpContainerContent += '  <li>Only the last clump can be deleted, then the next, and the next.</li>';
-      clumpContainerContent += "  <li>When editing clumps, only 'clump names' and 'data clumps' can be updated.";
-      clumpContainerContent += "    <ol>";
-      clumpContainerContent += '      <li>Clump links cannot be changed.</li>';
-      clumpContainerContent += '      <li>Clumps cannot be moved.</li>';
-      clumpContainerContent += '    </ol>';
-      clumpContainerContent += '  </li>';
-      clumpContainerContent += `  <li>Bug: Sometimes 'Import Data' will fail silently*.`;
-      clumpContainerContent += "    <ol>";
-      clumpContainerContent += '      <li>*An error is shown in the dev tools console.</li>';
-      clumpContainerContent += '      <li>Workaround: Try it again. Subequent attempts usually work.</li>';
-      clumpContainerContent += '    </ol>';
-      clumpContainerContent += '  </li>';
-      clumpContainerContent += '</ol>';
-      clumpContainerContent += '</div>';
-      this.uiElements.clumpContainer.innerHTML = clumpContainerContent;
-      this.uiElements.clumpContainer.style.color = '#ffffff';
+      // Show the empty page.
+      //
+      // The old way:
+      // let clumpContainerContent = '<div class="empty-notes">';
+      // clumpContainerContent += '<h2>Data Clump Flow App</h2>';
+      // this.uiElements.clumpContainer.innerHTML = clumpContainerContent;
+      // this.uiElements.clumpContainer.style.color = '#ffffff';
+      //
+      // The new way:
+      AppHelpers.injectHtml(
+        './htmlh/empty-page.htmlh',
+        this.uiElements.clumpContainer,
+        (target) => {
+          console.log('Content injected into:', target);
+          target.style.color = '#ffffff';
+        }
+      );
     } else {
       this.uiElements.clumpContainer.innerHTML = '';
       // Set color to same as '.output-container'.
