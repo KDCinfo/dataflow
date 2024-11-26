@@ -805,10 +805,12 @@ export default class AppSettings {
     // Temporarily disable the new storage button to prevent double-clicks.
     this.uiElements.newStorageNameButton.disabled = true;
 
-    AppConfig.debugConsoleLogs &&
-      console.log('Create new storage:', this.uiElements.newStorageNameInput.value);
+    const trimmedStorageName = this.uiElements.newStorageNameInput.value.trim();
 
-    if (this.isValidKeyName(this.uiElements.newStorageNameInput.value)) {
+    AppConfig.debugConsoleLogs &&
+      console.log('Create new storage:', trimmedStorageName);
+
+    if (this.isValidKeyName(trimmedStorageName)) {
       this.hideStorageError();
       setTimeout(() => {
         // Reset input field.
@@ -824,7 +826,7 @@ export default class AppSettings {
       //   const storageNames = settings.storageNames;
       // JavaScript is a pass-by-reference language for
       // non-primitives, so we can modify the original array.
-      this.appSettingsInfo.storageNames.push(this.uiElements.newStorageNameInput.value);
+      this.appSettingsInfo.storageNames.push(trimmedStorageName);
       this.storeSettings();
       this.renderMatrix();
     } else {
