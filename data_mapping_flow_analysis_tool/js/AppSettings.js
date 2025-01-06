@@ -1125,7 +1125,8 @@ export default class AppSettings {
               ? clumpFound.clumpCode.split('\n')[0]
               : clumpFound.clumpCode.split('\n').slice(0, 2).join('<br>')}`;
           if (!isCellCollapsed) {
-            clumpCellContents += `<pre>${AppHelpers.unescapeHTML(clumpFound.clumpCode)}</pre>`;
+            // Show both 'clumpName' and 'clumpCode' in bottom panel.
+            clumpCellContents += `<pre><b>${AppHelpers.unescapeHTML(clumpFound.clumpName)}</b><br><br>${AppHelpers.unescapeHTML(clumpFound.clumpCode)}</pre>`;
           }
           contentSpan.innerHTML = clumpCellContents;
 
