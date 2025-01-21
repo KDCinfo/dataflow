@@ -1,5 +1,10 @@
+import AppConstants from './AppConstants.js';
+
 export default class FileHandler {
-  static handleExportData(clumpListToExport = null) {
+  static handleExportData({
+    clumpListToExport = null,
+    storageName = AppConstants.defaultExportStorageName
+  }) {
     // Data to export.
     // const clumpListToExport = this.dataManager.getData('clumpList');
     if (clumpListToExport !== null) {
@@ -8,7 +13,7 @@ export default class FileHandler {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'dataclumps.json';
+      link.download = `dataflow_${storageName}.json`;
       link.click();
       URL.revokeObjectURL(url);
     }

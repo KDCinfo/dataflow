@@ -1,3 +1,4 @@
+import AppConstants from './AppConstants.js';
 import ClumpInfo from './ClumpInfo.js';
 
 export default class DataDefaultMMaps {
@@ -36,7 +37,7 @@ export default class DataDefaultMMaps {
     editingIndex: null,
 
     // DATA: [localStorageKeyForClumps] Local storage key used to store and retrieve clumps.
-    localStorageKeyForClumps: 'default',
+    localStorageKeyForClumps: AppConstants.defaultStorageName,
 
     // DATA: [clumps] A list of data clumps are stored in the browser's local storage.
     // let clumpList = JSON.parse(localStorage.getItem(localStorageKeyForClumps) || '[]');
@@ -56,7 +57,7 @@ export default class DataDefaultMMaps {
 
     defaultAppSettings: {
       gridRepeatRangeValue: 2,
-      storageNames: ['default'], // camelCase or snake_case.
+      storageNames: [AppConstants.defaultStorageName], // camelCase or snake_case.
       storageIndex: 0
     }
   });

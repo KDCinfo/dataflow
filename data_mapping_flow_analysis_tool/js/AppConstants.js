@@ -12,6 +12,9 @@ export default class AppConstants {
   // Session Storage.
   static sessionStorageSettingsKey = 'dataClumpFlowAppSessionStorageKey';
 
+  static defaultStorageName = 'default';
+  static defaultExportStorageName = 'dataclumps';
+
   // Regex checks for either 'camelCase' or 'snake_case'.
   // let storageNameErrorText = ``;
   static storageNameErrTextNameEmpty = `Please provide a storage name.`;

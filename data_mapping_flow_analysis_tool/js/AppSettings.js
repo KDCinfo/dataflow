@@ -289,14 +289,13 @@ export default class AppSettings {
     // doesn't exist, else it will overwrite all the data in the
     // next storage in the list and replace it with this data.
     const currentStorageName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex].toLowerCase();
-    const storageNameLabelTrimmed = storageNameLabelCurrent.textContent.trim().toLowerCase();
+    const storageNameLabelTrimmed = this.uiElements.storageNameLabelCurrent.textContent.trim().toLowerCase();
     if (currentStorageName !== storageNameLabelTrimmed) {
       alert('The currently active storage name has been deleted.\n\nPlease refresh the page.');
       return false;
     }
     return true;
   }
-
 
   handleFormSubmit(event) {
     // clumpFormId.onsubmit = (event) => {
@@ -435,7 +434,15 @@ export default class AppSettings {
   }
 
   handleExportData() {
-    FileHandler.handleExportData(this.dataManager.getData('clumpList'));
+    const currentStorageLabelName = this.uiElements.storageNameLabelCurrent.textContent.trim();
+    const exportName = currentStorageLabelName === AppConstants.defaultStorageName
+      ? AppConstants.defaultExportStorageName
+      : currentStorageLabelName;
+
+    FileHandler.handleExportData({
+      clumpListToExport: this.dataManager.getData('clumpList'),
+      storageName: exportName
+    });
   }
 
   async handleImportData() {
@@ -554,7 +561,7 @@ export default class AppSettings {
     const selectedIndex = this.uiElements.storageNameTag.selectedIndex;
     const selectedStorageName = this.appSettingsInfo.storageNames[selectedIndex];
 
-    const isDefault = selectedStorageName === 'default';
+    const isDefault = selectedStorageName === AppConstants.defaultStorageName;
     const isActive = selectedIndex === this.appSettingsInfo.storageIndex;
 
     this.uiElements.storageButtonDelete.disabled = isDefault || isActive;
