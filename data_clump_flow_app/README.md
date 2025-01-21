@@ -16,7 +16,7 @@ If the app is run in more than one window or tab, and the list of flows is modif
 
 > Live Demo: [kdcinfo.com/app/dataflow/](https://kdcinfo.com/app/dataflow/)
 
-<p align="center"><img src="https://github.com/KDCinfo/dataflow/blob/main/data_mapping_flow_analysis_tool/images/data_flow_blog_screenshot3c.png" width="600" title="Data Clump Flow App - Webpage Preview" alt="Data Clump Flow App - Webpage Preview"/></p>
+<p align="center"><img src="https://github.com/KDCinfo/dataflow/blob/main/data_clump_flow_app/images/data_flow_blog_screenshot3c.png" width="600" title="Data Clump Flow App - Webpage Preview" alt="Data Clump Flow App - Webpage Preview"/></p>
 
 -----
 
@@ -267,7 +267,7 @@ Part 3
 - Extracted JavaScript into classes:
   - I refactored this from a monolithic structure to a mix of Faux OO and Faux Procedural so that at least it's not all in the HTML.
     - If I were to continue this project, I would rethink it more in terms of the parts of the app and how they would function together, as I did my last Flutter app.
-  - Created new branch for refactoring: [`refactor-js-to-classes`](https://github.com/KDCinfo/dataflow/tree/refactor-js-to-classes/data_mapping_flow_analysis_tool)
+  - Created new branch for refactoring: [`refactor-js-to-classes`](https://github.com/KDCinfo/dataflow/tree/refactor-js-to-classes/data_clump_flow_app)
   - Created a temporary `dataflow.js` to hold all JavaScript while it is being refactored.
   - Created placeholder classes:
     - AppSettings (primary controller, orchestrator)

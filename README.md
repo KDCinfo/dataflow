@@ -2,7 +2,7 @@
 
 ## Data Mapping Flow Analysis Tool
 
-<img src="./data_mapping_flow_analysis_tool/images/icon128.png" align="right" width="64" height="64">
+<img src="./data_clump_flow_app/images/icon128.png" align="right" width="64" height="64">
 
 The "Data Mapping Flow Analysis Tool" was conceptualized when analyzing a variety of `Jenkinsfile`s from multiple sources, and the environments, stages, and flows within each.
 
