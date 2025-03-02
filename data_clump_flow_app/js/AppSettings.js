@@ -160,6 +160,7 @@ export default class AppSettings {
     this.uiElements.storageNameTag.addEventListener('change', this.toggleStorageButtons.bind(this));
 
     this.uiElements.exportDataButton.addEventListener('click', this.handleExportData.bind(this));
+    this.uiElements.exportAllDataButton.addEventListener('click', this.handleExportAllData.bind(this));
     this.uiElements.importDataButton.addEventListener('click', this.handleImportData.bind(this));
 
     this.uiElements.clumpFormId.addEventListener('submit', this.handleFormSubmit.bind(this));
@@ -436,6 +437,10 @@ export default class AppSettings {
     this.updateDataInHtml();
     // This will clear the 'edit border' from the selected clump node.
     this.clearSelectedClumpNode();
+  }
+
+  handleExportAllData() {
+    console.log('[AppSettings] handleExportAllData');
   }
 
   handleExportData() {
