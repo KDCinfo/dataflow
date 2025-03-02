@@ -1,7 +1,7 @@
 <?php
-  header("Location: http://kdcinfo.com/app/dataflow/data_clump_flow_app/");
+  header("Location: /dataflow/data_clump_flow_app/index.html");
   exit;
 ?>
 <html>
-  <head><META HTTP-EQUIV=refresh content=0;URL=https://kdcinfo.com/app/dataflow/data_clump_flow_app/></head>
+  <head><META HTTP-EQUIV=refresh content=0;URL=/dataflow/data_clump_flow_app/index.html></head>
 </html>
