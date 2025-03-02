@@ -66,22 +66,17 @@
         </div>
       </form>
 
-      <!-- Click to collapse -->
+      <!-- Click to collapse: Settings -->
       <div id="settingsPanelToggle" class="panel-from-hotspot">
-        <span class="collapse-arrow">▼</span>
+        <span class="label">Settings</span>
+        <span class="collapse-arrow">◀</span>
       </div>
-      <!-- App Settings; Export/Import buttons -->
-      <div class="info-panel info-panel-sub export-import panel-from-collapsed-to-expanded">
-        <div class="export-import-block export-import-buttons">
-          <button id="exportDataButton">Export Data</button>
-          <button id="importDataButton">Import Data</button>
-        </div>
-
+      <div class="info-panel info-panel-sub settings panel-from-expanded-to-collapsed">
         <!--
           HTML Slider with options that will update the grid repeat:
           > ['auto', '1fr', '150px', '200px', '250px', '300px']
         -->
-        <div class="export-import-block export-import-slider">
+        <div class="settings-block settings-slider">
           <label for="gridRepeatRangeInput" class="slider-label">
             Grid Repeat: <span class="no-wrap" class="grid-repeat-html-span"
               id="gridRepeatHtmlSpan">6</span>
@@ -89,6 +84,19 @@
           <input type="range" id="gridRepeatRangeInput" class="grid-repeat-range-input" min="1"
             max="6" value="2" list="gridRepeatSliderMarkers" />
           <datalist id="gridRepeatSliderMarkers"></datalist>
+        </div>
+      </div>
+
+      <!-- Click to collapse -->
+      <div id="exportPanelToggle" class="panel-from-hotspot">
+        <span class="label">Project Tools</span>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <!-- App Settings; Export/Import buttons -->
+      <div class="info-panel info-panel-sub export-import panel-from-collapsed-to-expanded">
+        <div class="export-import-block export-import-buttons">
+            <button id="exportDataButton" class="short">Export Data</button>
+          <button id="importDataButton">Import Data</button>
         </div>
 
         <div class="export-import-block export-import-storage-name">

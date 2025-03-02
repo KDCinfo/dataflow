@@ -151,6 +151,10 @@ export default class AppSettings {
       }
     });
 
+    //
+    // 'uiElements' are configured in [data_clump_flow_app/js/uiConfig.js]
+    //
+
     // Listener on 'newStorageNameInput' field to check if the 'New Storage' button should be bold.
     this.uiElements.newStorageNameInput.addEventListener('input', this.checkNewStorageButton.bind(this));
     this.uiElements.storageNameTag.addEventListener('change', this.toggleStorageButtons.bind(this));
@@ -164,6 +168,7 @@ export default class AppSettings {
     // this.uiElements.settingsPanelToggle
     // onclick="togglePanel(event)"
     this.uiElements.settingsPanelToggle.addEventListener('click', this.togglePanel.bind(this));
+    this.uiElements.exportPanelToggle.addEventListener('click', this.togglePanel.bind(this));
     // id="gridRepeatRangeInput"
     // oninput="updateGridRepeat(event)"
     this.uiElements.gridRepeatRangeInput.addEventListener('input', this.updateGridRepeat.bind(this));
@@ -922,11 +927,13 @@ export default class AppSettings {
   togglePanel(event) {
     event.stopPropagation();
 
-    AppConfig.debugConsoleLogs && console.log('togglePanel');
-    AppConfig.debugConsoleLogs && console.log(event.target.parentElement.parentElement);
+    // AppConfig.debugConsoleLogs && console.log('togglePanel [event.currentTarget]');
+    // AppConfig.debugConsoleLogs && console.log(event.currentTarget);
+    // AppConfig.debugConsoleLogs && console.log('togglePanel [event.currentTarget.nextElementSibling]');
+    // AppConfig.debugConsoleLogs && console.log(event.currentTarget.nextElementSibling);
 
-    const panelToExpand = document.querySelector('.info-panel.export-import');
-    const panelHotspot = document.querySelector('.panel-from-hotspot');
+    const panelToExpand = event.currentTarget.nextElementSibling;
+    const panelHotspot = event.currentTarget;
 
     if (panelToExpand.classList.contains('panel-from-expanded-to-collapsed')) {
       this.classListChain(panelToExpand)
@@ -938,10 +945,10 @@ export default class AppSettings {
         .add('panel-from-expanded-to-collapsed');
     }
 
-    // ? panelHotspot.children[0].textContent = '▶' // right arrow
-    panelToExpand.classList.contains('panel-from-expanded-to-collapsed')
-      ? panelHotspot.children[0].textContent = '◀'
-      : panelHotspot.children[0].textContent = '▼';
+    panelHotspot.getElementsByClassName('collapse-arrow')[0].textContent =
+        panelToExpand.classList.contains('panel-from-expanded-to-collapsed')
+      ? '▶'
+      : '▼';
   }
 
   renderMatrix() {

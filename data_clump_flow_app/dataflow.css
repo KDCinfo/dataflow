@@ -523,8 +523,13 @@ li ol>li:before {
   background-color: #003300;
   border-radius: 5px;
   cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  font-size: 12px;
+  height: 18px;
+  justify-content: space-between;
   margin: 5px auto 0;
-  padding: 1px 10px 1px 0;
+  padding: 5px 10px 0;
   position: relative;
   top: 20px;
   text-align: right;
@@ -534,7 +539,7 @@ li ol>li:before {
 }
 
 /* General Panel Styling */
-.info-panel-sub.export-import {
+.info-panel-sub {
   align-items: center;
   flex-direction: column;
   margin-top: 0px;
@@ -543,8 +548,12 @@ li ol>li:before {
   position: relative;
   width: 95%;
 }
+.info-panel-sub.settings {
+  padding-top: 30px;
+}
 
 /* Layout for Export/Import Buttons Block */
+/*
 .export-import-buttons {
   display: flex;
   justify-content: space-between;
@@ -555,14 +564,53 @@ li ol>li:before {
 .export-import-buttons button {
   border: 1px solid #777777;
   border-radius: 4px;
-  flex: 1;
   font-size: 14px;
   padding: 8px 15px;
   white-space: nowrap;
+  flex: 1;
+}
+ */
+
+.settings-block,
+.export-import-block {
+  display: flex;
+  gap: 10px; /* Space between left and right elements */
 }
 
+.export-import-buttons {
+  display: flex;
+  height: 60px; /* Adjust this value as needed */
+  margin-bottom: 15px;
+}
+
+.export-import-buttons > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 50%; /* Half the width of the container */
+}
+
+.export-import-buttons button {
+  border: 1px solid #777777;
+  border-radius: 4px;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.export-import-buttons button.short {
+  height: calc(50% - 5px); /* Half height minus half of the gap */
+  font-size: 12px;
+  padding: 2px 15px;
+}
+
+#importDataButton {
+  width: 50%;
+  height: 100%;
+}
+
+
 /* Layout for Slider Block */
-.export-import-slider {
+.settings-slider {
   align-items: center;
   display: flex;
   flex-direction: column;

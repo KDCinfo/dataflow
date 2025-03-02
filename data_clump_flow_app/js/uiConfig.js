@@ -4,6 +4,7 @@ export const uiConfig = {
     clumpContainer: '#clumpContainer',
     popItIcon: '#popItIcon',
     settingsPanelToggle: '#settingsPanelToggle',
+    exportPanelToggle: '#exportPanelToggle',
     crossTabWarning: '#crossTabWarning'
   },
   clumpPanel: {
