@@ -546,7 +546,7 @@ li ol>li:before {
   padding-bottom: 15px;
   padding-top: 40px;
   position: relative;
-  width: 95%;
+  width: 97%;
 }
 .info-panel-sub.settings {
   padding-top: 30px;
@@ -580,7 +580,9 @@ li ol>li:before {
 .export-import-buttons {
   display: flex;
   height: 60px; /* Adjust this value as needed */
-  margin-bottom: 15px;
+  margin-bottom: 5px;
+  width: 80%;
+  max-width: 250px;
 }
 
 .export-import-buttons > div {
@@ -708,8 +710,8 @@ datalist {
 /* Responsive layout: stack labels and inputs vertically */
 @media (max-width: 950px) {
   .export-import-buttons {
-    flex-direction: column;
-    gap: 15px;
+    /* flex-direction: column; */
+    gap: 5px;
   }
 
   .grid-repeat-html-span {
@@ -745,7 +747,8 @@ datalist {
 
 .script-vars {
   flex-direction: column;
-  margin-bottom: 20px;
+  margin: 20px 0;
+  padding: 20px 5px;
 }
 
 .info-panel.info-panel-sub.script-vars p {

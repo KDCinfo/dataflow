@@ -441,10 +441,18 @@ export default class AppSettings {
 
   handleExportAllData() {
     console.log('[AppSettings] handleExportAllData');
+
+    this.appSettingsInfo.storageNames.forEach((storageName) => {
+      this.exportStorageName(storageName);
+    });
   }
 
   handleExportData() {
     const currentStorageLabelName = this.uiElements.storageNameLabelCurrent.textContent.trim();
+    this.exportStorageName(currentStorageLabelName);
+  }
+
+  exportStorageName(currentStorageLabelName) {
     const exportName = currentStorageLabelName === AppConstants.defaultStorageName
       ? AppConstants.defaultExportStorageName
       : currentStorageLabelName;
