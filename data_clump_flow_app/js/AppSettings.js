@@ -350,7 +350,7 @@ export default class AppSettings {
       //
       if (isLinked) {
         // [Linked]
-        columnToAddTo = this.dataManager.getData('lastAddedCol') + 1;
+        // columnToAddTo = this.dataManager.getData('lastAddedCol') + 1; // Not used?
         addNewClump.linkedClumpID = newLinkTo;
       } else {
         // [Unlinked]
@@ -667,8 +667,11 @@ export default class AppSettings {
     // shown in the dropdown (because they're already linked to).
     const linkedClumpIDs = this.dataManager.getData('clumpList').map(clump => clump.linkedClumpID);
     this.dataManager.getData('clumpList').forEach((clump, index) => {
-      // If the clump is not the one being edited, or it is not already linked.
-      if (this.dataManager.getData('editingIndex') !== index || !linkedClumpIDs.includes(clump.id)) {
+      // If the clump is not the one being edited, and it is not already linked.
+      const isNotLinkedClump = !linkedClumpIDs.includes(clump.id);
+      const isEditingThisClump = this.dataManager.getData('editingIndex') !== index;
+
+      if (isEditingThisClump && isNotLinkedClump) {
         const option = document.createElement('option');
         option.value = clump.id;
         option.textContent = clump.clumpName;
