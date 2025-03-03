@@ -442,8 +442,11 @@ export default class AppSettings {
   handleExportAllData() {
     console.log('[AppSettings] handleExportAllData');
 
+    // Populate the 'export list' by retrieving the data
+    // from localStorage based on the storage name.
     this.appSettingsInfo.storageNames.forEach((storageName) => {
-      this.exportStorageName(storageName);
+      this.dataManager.setClumpExportList(storageName);
+      this.exportStorageName(storageName, this.dataManager.clumpExportList);
     });
   }
 
@@ -452,13 +455,15 @@ export default class AppSettings {
     this.exportStorageName(currentStorageLabelName);
   }
 
-  exportStorageName(currentStorageLabelName) {
+  exportStorageName(currentStorageLabelName, storedData) {
     const exportName = currentStorageLabelName === AppConstants.defaultStorageName
       ? AppConstants.defaultExportStorageName
       : currentStorageLabelName;
 
     FileHandler.handleExportData({
-      clumpListToExport: this.dataManager.getData('clumpList'),
+      clumpListToExport: typeof storedData === 'undefined'
+          ? this.dataManager.getData('clumpList')
+          : storedData,
       storageName: exportName
     });
   }

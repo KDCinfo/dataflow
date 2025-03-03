@@ -20,6 +20,10 @@ export default class AppData {
   // The clumpMatrix, below, is used to render the clumps in their correct 2D positions.
   clumpList; // = JSON.parse(localStorage.getItem(localStorageKeyForClumps()) || '[]');
 
+  // In [AppSettings.js] where:
+  //   storageName === this.appSettingsInfo.storageNames.forEach((storageName) => { ...
+  clumpExportList; // []
+
   // DATA: [clumpMatrix] A 2D array to keep track of clump ID cell placement, empty
   //                     cells, and matrix width (rows) and height (cols) detection.
   //
@@ -86,6 +90,9 @@ export default class AppData {
     this.clumpList = [];
     this.setClumpList();
 
+    // Initialize an empty list for the 'Export All' functionality.
+    this.clumpExportList = [];
+
     this.clumpMatrix = [...DataDefaultMaps.dataDefaultMap().clumpMatrix]; // [];
 
     // Initialize the 'clumpMatrix' with the clumps from local storage.
@@ -125,9 +132,26 @@ export default class AppData {
     this.clumpList.length = 0;
     this.clumpList = [...newClumpList];
   }
-
   parseClumpListFromStorage() {
     return JSON.parse(localStorage.getItem(this.localStorageKeyForClumps()) || '[]');
+  }
+
+  //
+  // # Export All
+  //
+  // This call updates: this.clumpExportList // = [];
+  // Storage names are passed in from 'AppSettings.handleExportAllData'.
+  // Keeping these separate from the two methods above to keep priorities cleaner.
+  setClumpExportList(exportName = '') {
+    const newClumpExportList = this.parseClumpExportListFromStorage(exportName);
+    this.clumpExportList.length = 0;
+    this.clumpExportList = [...newClumpExportList];
+  }
+  // This function is not refactored with 'parseClumpListFromStorage'
+  //   because this function needs to know when the storage is empty,
+  //   and cannot be a fallback to 'this.localStorageKeyForClumps()'.
+  parseClumpExportListFromStorage(storageNameToGet = '') {
+    return JSON.parse(localStorage.getItem(storageNameToGet) || '[]');
   }
 
   storeClumps() {
