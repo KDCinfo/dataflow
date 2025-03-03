@@ -136,11 +136,19 @@ export default class AppSettings {
         this.uiElements.saveClumpButton.disabled = true;
       }
     });
-    this.uiElements.linkTo.addEventListener('change', () => {
+    this.uiElements.linkTo.addEventListener('change', (evt) => {
       if (this.uiElements.clumpNameInput.value.trim() !== '') {
-        this.uiElements.columnSelect.disabled = false;
+        this.uiElements.saveClumpButton.disabled = false;
       } else {
+        this.uiElements.saveClumpButton.disabled = true;
+      }
+      // A cell is either linked to an existing cell, or it needs to be added to a specific column.
+      // So if the 'Link to Clump' dropdown is used, the 'Column to Add To' dropdown cannot.
+      // This is already happening in the submit, but this visual disabling is a better UX.
+      if (evt.target.value !== '') {
         this.uiElements.columnSelect.disabled = true;
+      } else {
+        this.uiElements.columnSelect.disabled = false;
       }
     });
     this.uiElements.columnSelect.addEventListener('change', () => {
