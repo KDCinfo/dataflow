@@ -362,7 +362,7 @@ export default class AppSettings {
         columnToAddTo = columnRawValue === 'last'
           ? this.dataManager.getData('lastAddedCol')
           : parseInt(columnRawValue, 10);
-        addNewClump.column = columnToAddTo;
+        addNewClump.linkToAbove = columnToAddTo;
       }
 
       // Add the new clump to the end of the 'clumps' 1D array.
@@ -746,7 +746,7 @@ export default class AppSettings {
 
     // Update value and disable.
     this.uiElements.linkTo.value = isNaN(clump.linkedClumpID) ? '' : clump.linkedClumpID;
-    this.uiElements.columnSelect.value = clump.column === -1 ? 'last' : clump.column;
+    this.uiElements.columnSelect.value = clump.linkToAbove === -1 ? 'last' : clump.linkToAbove;
 
     // Set focus to the 'clump name' input field.
     this.uiElements.clumpNameInput.focus();
