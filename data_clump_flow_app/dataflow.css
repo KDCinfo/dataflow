@@ -434,34 +434,78 @@ li ol>li:before {
   z-index: 5;
 }
 
-.clump-form-div {
+.clump-form-div-wrapper {
+  background-color: #00330033;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.clump-form-div label {
+.clump-form-div-wrapper-inside {
+  border: 1px solid #b0e00055;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 8px 10px 5px;
+}
+
+.bgcolor1 {
+  border-style: dashed;
+}
+.bgcolor2 {
+  border-style: dotted;
+}
+
+.clump-form-div {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+}
+
+.clump-form-div > label {
   display: inline-block;
   font-size: 14px;
   margin-right: 10px;
   text-align: right;
-  width: 125px;
+  min-width: 125px;
 }
 
-.clump-form-div input,
-.clump-form-div textarea,
-.clump-form-div select {
+.clump-form-div > input[type='text'],
+.clump-form-div > select,
+.clump-form-div > textarea {
   flex: 1;
   padding: 5px;
   font-size: 14px;
 }
 
-.clump-form-div input,
-.clump-form-div textarea {
+.clump-form-div > input[type='text'],
+.clump-form-div > select,
+.clump-form-div > textarea,
+.clump-form-div > div {
+  max-width: 235px;
   min-width: 120px;
   width: 100%;
 }
 
-.clump-form-div select {
+.clump-form-div-inline {
+  display: inline-flex;
+  font-size: 12px;
+  text-align: left;
+  align-items: normal;
+  height: 24px;
+  line-height: 28px;
+  padding: 0 10px 0 5px;
+}
+
+.clump-form-div-radios {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  max-width: 150px !important;
+}
+
+.clump-form-div > select {
   min-width: 120px;
 }
 
@@ -477,7 +521,7 @@ li ol>li:before {
 }
 
 /* Responsive layout: stack labels and inputs vertically */
-@media (max-width: 900px) {
+@media (max-width: 1185px) {
   .clump-form-form {
     padding: 15px;
   }
@@ -487,15 +531,15 @@ li ol>li:before {
     align-items: flex-start;
   }
 
-  .clump-form-div label {
+  .clump-form-div > label {
     text-align: left;
     margin-right: 0;
     margin-bottom: 5px;
     width: auto;
   }
 
-  .clump-form-div input,
-  .clump-form-div textarea {
+  .clump-form-div > input,
+  .clump-form-div > textarea {
     width: 90%;
   }
 

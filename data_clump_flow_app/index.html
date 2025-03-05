@@ -46,18 +46,36 @@
           <textarea id="clumpCodeInput"></textarea>
         </div>
 
-        <div class="clump-form-div">
-          <label for="linkTo">Link to Clump:</label>
-          <select id="linkTo">
-            <option value="">None</option>
-          </select>
-        </div>
+        <div class="clump-form-div-wrapper">
+          <div class="clump-form-div-wrapper-inside bgcolor1">
+            <div class="clump-form-div">
+              <label for="columnSelect">Column to Add To:</label>
+              <select id="columnSelect">
+                <option value="last">Last Added</option>
+              </select>
+            </div>
+          </div>
 
-        <div class="clump-form-div">
-          <label for="columnSelect">Column to Add To:</label>
-          <select id="columnSelect">
-            <option value="last">Last Column</option>
-          </select>
+          <div class="clump-form-div-wrapper-inside bgcolor2">
+            <div class="clump-form-div">
+              <label for="linkTo">Or &mdash; Link to Clump:</label>
+              <select id="linkTo">
+                <option value="">None</option>
+              </select>
+            </div>
+            <div class="clump-form-div">
+              <!-- ClumpInfo: { linkTo, column } | left: assign ID to 'linkTo' | above: assign ID to 'column' -->
+              <label for="linkToLeft">Parent cell is:</label>
+              <div class="clump-form-div-radios">
+                <label class="clump-form-div-inline">
+                  <input type="radio" name="linkToPosition" id="linkToLeft" value="left">&nbsp;Left
+                </label>
+                <label class="clump-form-div-inline">
+                  <input type="radio" name="linkToPosition" id="linkToAbove" value="above">&nbsp;Above
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="form-buttons">

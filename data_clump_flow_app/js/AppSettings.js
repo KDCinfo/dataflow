@@ -682,7 +682,7 @@ export default class AppSettings {
   }
 
   updateColumnSelectDropdownOptions() {
-    this.uiElements.columnSelect.innerHTML = '<option value="last">Last Column</option>';
+    this.uiElements.columnSelect.innerHTML = '<option value="last">Last Added</option>';
 
     // Using 'clumpMatrix', this will yield a list of available columns
     // (which the UI uses for the 'Column to Add To' dropdown).
