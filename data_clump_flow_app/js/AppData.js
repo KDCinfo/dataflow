@@ -207,6 +207,27 @@ export default class AppData {
     return this.clumpMatrix.length > 0 ? this.clumpMatrix[0].length : 1;
   }
 
+  // const clumpMatrix = [
+  //   #1 #2 #3   // Columns
+  //   [1, 0, 0], // Row 1 | When 1: A non-link is added, nothing happens.
+  //   [2, 3, 0], // Row 2 | When 2: A non-link is added, nothing happens.
+  //                       | When 3: A link is added, Rows < 2 will pad a 0 in Column 2.
+  //   [0, 4, 5]  // Row 3 | When 4: A non-link is added, Row 3 will pad a 0 in Cols < 2.
+  //               /       | When 5: A link is added, Rows < 3 will pad a 0 in Column 3.
+  // ];
+  // Returns the last ID for a column by iterating through the rows
+  // from bottom to top looking for a non-zero ID for the provided column.
+  lastIdFromColumn(columnValue) {
+    let lastId = 0;
+    for (let r = this.getRowCount(); r > 0; r--) {
+      if (this.clumpMatrix[r - 1][columnValue - 1] !== 0) {
+        lastId = this.clumpMatrix[r - 1][columnValue - 1];
+        break;
+      }
+    }
+    return lastId;
+  }
+
   // Helper to insert a new row filled with zeros at a specific index.
   insertPaddedRowToMatrix(index) {
     // The splice will insert a new row at the specified index.
