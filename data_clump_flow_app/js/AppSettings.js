@@ -320,17 +320,22 @@ export default class AppSettings {
       return;
     }
 
-    // Clump cell placement has 3 options:
+    // Clump cell placement has 2 options:
     //
-    // [Linked]: 'Column to Add To' dropdown is irrelevant.
+    // [Linked][toLeft]
     // 1. Add to the same row as the linked clump, in the next column.
     //
-    // [Unlinked]: 'Link to Clump' dropdown should be set to 'None'.
+    // [Linked][toAbove]
     // 2. When 'Last' is selected, add new clump to the last column that had a clump added to it.
     // 3. Add to a specific column.
     //
-    const newLinkTo = parseInt(this.uiElements.linkTo.value, 10) || -1;
-    const isLinked = !isNaN(newLinkTo) && newLinkTo > 0;
+    // The 'Add to Column' dropdown is a shortcut to linking the cell
+    //   to either the 'Last Added' clump, or the last clump in a
+    //   specific column using the 'above' option.
+    //   This dropdown is disabled (irrelevant) when the 'Link to Clump' is not 'None'.
+    //
+    const newLinkToFromUI = parseInt(this.uiElements.linkTo.value, 10) || -1;
+    const isLinked = !isNaN(newLinkToFromUI) && newLinkToFromUI > 0;
     let columnToAddTo;
 
     const columnRawValue = this.uiElements.columnSelect.options[this.uiElements.columnSelect.selectedIndex].value;
@@ -351,7 +356,7 @@ export default class AppSettings {
       if (isLinked) {
         // [Linked]
         // columnToAddTo = this.dataManager.getData('lastAddedCol') + 1; // Not used?
-        addNewClump.linkedClumpID = newLinkTo;
+        addNewClump.linkedClumpID = newLinkToFromUI;
       } else {
         // [Unlinked]
         columnToAddTo = columnRawValue === 'last'
@@ -381,6 +386,13 @@ export default class AppSettings {
       const editedClump = structuredClone(this.dataManager.getData('clumpList')[editedClumpIndex]);
       editedClump.clumpName = this.uiElements.clumpNameInput.value;
       editedClump.clumpCode = this.uiElements.clumpCodeInput.value;
+
+      // if (isLinked && editedClump.linkedClumpID !== newLinkToFromUI) {
+      //   editedClump.linkedClumpID = newLinkToFromUI;
+      //
+      //   // Update the clump in the 'clumpMatrix' 2D array.
+      //   this.dataManager.updateClumpInMatrix(editedClump);
+      // }
 
       // Replace the clump in the array with the updated one.
       const updatedClumpList = this.dataManager.getData('clumpList').map((clump, index) =>
