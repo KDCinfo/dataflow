@@ -10,7 +10,7 @@ export default class AppData {
   lastAddedCol; // = 1;
 
   // DATA: [lastAddedClumpId] Unlinked clumps are placed under the last clump that was added,
-  //                          unless a specific Col is selected from the 'linkTo' dropdown.
+  //                          unless a specific Col is selected from the 'linkToId' dropdown.
   // Unsure that it matters, but for now, IDs are always incremented, and
   // are never reused within the 'clumpMatrix' array. Ergo, IDs should
   // always be in order, even when a hole is left from a deletion.
@@ -47,11 +47,11 @@ export default class AppData {
   //
   // const clumpMatrix = [
   //   #1 #2 #3   // Columns
-  //   [1, 0, 0], // Row 1 | When 1-non-link is added, nothing happens.
-  //   [2, 3, 0], // Row 2 | When 2-non-link is added, nothing happens.
-  //                       | When 3-linked is added, Rows < 2 will pad a 0 in Column 2.
-  //   [0, 4, 5]  // Row 3 | When 4-non-link is added, Row 3 will pad a 0 in Cols < 2.
-  //              //       | When 5-linked is added, Rows < 3 will pad a 0 in Column 3.
+  //   [1, 0, 0], // Row 1 | When 1: A non-link is added, nothing happens.
+  //   [2, 3, 0], // Row 2 | When 2: A non-link is added, nothing happens.
+  //                       | When 3: A link is added, Rows < 2 will pad a 0 in Column 2.
+  //   [0, 4, 5]  // Row 3 | When 4: A non-link is added, Row 3 will pad a 0 in Cols < 2.
+  //               /       | When 5: A link is added, Rows < 3 will pad a 0 in Column 3.
   // ];
   //
   //  A more detailed example:
@@ -239,9 +239,9 @@ export default class AppData {
   //   this.data = await response.json();
   // }
 
-  // 'linkTo' = Existing clump ID to link to:
+  // 'linkToId' = Existing clump ID to link to:
   //            Its Col and Row can be found via the clumpMatrix.
-  // const linkTo = document.getElementById('linkTo');
+  // const linkToId = document.getElementById('linkToId');
   //
   // [clumps] A list of data clumps are stored in the browser's local storage. Clumps
   //          contain the data for each clump, and an ID for placement and linking. The
@@ -280,7 +280,7 @@ export default class AppData {
   //  C1R5 |    0  |    0  | Row 14
   //
   addClumpToMatrix(newClump) {
-    const { id, linkedClumpID, column } = newClump;
+    const { id, linkedToLeft, column } = newClump;
     const rowCount = this.getRowCount();
     const colCount = this.getColumnCount();
 
@@ -288,16 +288,16 @@ export default class AppData {
     //
     // - LINKED (>= 1):
     //
-    //   Check if the 'linkTo' clump's column is the last column.
+    //   Check if the 'linkToId' clump's column is the last column.
     //
     // -- Yes:
     //    ~ Push a new column (0) to the end of every row.
-    //    ~ Place new clump ID at end of 'linkTo' clump's row (look up in clumpMatrix).
+    //    ~ Place new clump ID at end of 'linkToId' clump's row (look up in clumpMatrix).
     //
     // -- No:
     //    Because all unlinked clumps (prior to becoming linked) should have empty cells
     //      to their immediate right, and it's not the last column:
-    //    ~ Replace 0 in cell to right of the 'linkTo' clump's column (look up in clumpMatrix).
+    //    ~ Replace 0 in cell to right of the 'linkToId' clump's column (look up in clumpMatrix).
     //
     // - UNLINKED (=== -1):
     //
@@ -328,7 +328,7 @@ export default class AppData {
     //     ~ Insert a 0-padded row at 'rowToAddTo'.
     //     ~ Insert the new clump's ID in the new clump's column.
 
-    if (linkedClumpID >= 1) {
+    if (linkedToLeft >= 1) {
       //
       // [ LINKED ] clump processing
       //
@@ -339,7 +339,7 @@ export default class AppData {
       linkClumpLoop:
       for (let r = 0; r < rowCount; r++) {
         for (let c = 0; c < colCount; c++) {
-          if (this.clumpMatrix[r][c] === linkedClumpID) {
+          if (this.clumpMatrix[r][c] === linkedToLeft) {
             linkedRowIndex = r;
             linkedCol = c + 1;
             break linkClumpLoop;
@@ -352,7 +352,7 @@ export default class AppData {
         return;
       }
 
-      // Check if the 'linkTo' clump's column is the last column.
+      // Check if the 'linkToId' clump's column is the last column.
       // If so, we need a new column for the new clump.
       // if (linkedCol === colCount - 1) {
       if (linkedCol === colCount) {

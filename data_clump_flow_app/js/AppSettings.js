@@ -136,7 +136,7 @@ export default class AppSettings {
         this.uiElements.saveClumpButton.disabled = true;
       }
     });
-    this.uiElements.linkTo.addEventListener('change', (evt) => {
+    this.uiElements.linkToId.addEventListener('change', (evt) => {
       if (this.uiElements.clumpNameInput.value.trim() !== '') {
         this.uiElements.saveClumpButton.disabled = false;
       } else {
@@ -334,9 +334,14 @@ export default class AppSettings {
     //   specific column using the 'above' option.
     //   This dropdown is disabled (irrelevant) when the 'Link to Clump' is not 'None'.
     //
-    const newLinkToFromUI = parseInt(this.uiElements.linkTo.value, 10) || -1;
-    const isLinked = !isNaN(newLinkToFromUI) && newLinkToFromUI > 0;
-    let columnToAddTo;
+    const newLinkToIdFromUI = parseInt(this.uiElements.linkToId.value, 10) || -1;
+    const getByLinkNotColumn = !isNaN(newLinkToIdFromUI) && newLinkToIdFromUI > 0;
+    const getByColumnNotLink = !getByLinkNotColumn;
+
+    const isLinkedLeft = getByLinkNotColumn && this.uiElements.linkedToLeft.checked;
+    const isLinkedAbove = getByLinkNotColumn && this.uiElements.linkedToLAbove.checked;
+
+    let linkToAboveId;
 
     const columnRawValue = this.uiElements.columnSelect.options[this.uiElements.columnSelect.selectedIndex].value;
 
@@ -353,10 +358,9 @@ export default class AppSettings {
 
       // Populate either the 'linkedClumpId' (if linked), or the given 'Column' (if not linked).
       //
-      if (isLinked) {
-        // [Linked]
+      if (isLinkedLeft) {
         // columnToAddTo = this.dataManager.getData('lastAddedCol') + 1; // Not used?
-        addNewClump.linkedClumpID = newLinkToFromUI;
+        addNewClump.linkedToLeft = newLinkToIdFromUI;
       } else {
         // [Unlinked]
         columnToAddTo = columnRawValue === 'last'
@@ -673,11 +677,11 @@ export default class AppSettings {
   //
 
   updateLinkToDropdownOptions() {
-    this.uiElements.linkTo.innerHTML = '<option value="">None</option>';
+    this.uiElements.linkToId.innerHTML = '<option value="">None</option>';
 
     // This loop extrapolates in-use linkTo IDs so they are not
     // shown in the dropdown (because they're already linked to).
-    const linkedClumpIDs = this.dataManager.getData('clumpList').map(clump => clump.linkedClumpID);
+    const linkedClumpIDs = this.dataManager.getData('clumpList').map(clump => clump.linkedToLeft);
     this.dataManager.getData('clumpList').forEach((clump, index) => {
       // If the clump is not the one being edited, and it is not already linked.
       const isNotLinkedClump = !linkedClumpIDs.includes(clump.id);
@@ -687,10 +691,10 @@ export default class AppSettings {
         const option = document.createElement('option');
         option.value = clump.id;
         option.textContent = clump.clumpName;
-        this.uiElements.linkTo.appendChild(option);
+        this.uiElements.linkToId.appendChild(option);
       }
     });
-    this.uiElements.linkTo.disabled = this.dataManager.getData('editingIndex') !== null;
+    this.uiElements.linkToId.disabled = this.dataManager.getData('editingIndex') !== null;
   }
 
   updateColumnSelectDropdownOptions() {
@@ -745,8 +749,8 @@ export default class AppSettings {
     this.uiElements.clumpCodeInput.value = clump.clumpCode;
 
     // Update value and disable.
-    this.uiElements.linkTo.value = isNaN(clump.linkedClumpID) ? '' : clump.linkedClumpID;
-    this.uiElements.columnSelect.value = clump.linkToAbove === -1 ? 'last' : clump.linkToAbove;
+    this.uiElements.linkToId.value = isNaN(clump.linkedToLeft) ? '' : clump.linkedToLeft;
+    this.uiElements.columnSelect.value = clump.linkedToAbove === -1 ? 'last' : clump.linkedToAbove;
 
     // Set focus to the 'clump name' input field.
     this.uiElements.clumpNameInput.focus();
@@ -1129,7 +1133,7 @@ export default class AppSettings {
         clumpCell.appendChild(contentSpan);
 
         // Apply linked/unlinked class based on the condition
-        clumpCell.classList.add(clumpFound.linkedClumpID !== -1 ? 'linked' : 'unlinked');
+        clumpCell.classList.add(clumpFound.linkedToLeft !== -1 ? 'linked' : 'unlinked');
 
         const iconSpan = document.createElement('div');
         iconSpan.className = 'icon-span';

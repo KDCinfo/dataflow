@@ -6,14 +6,14 @@ export default class ClumpInfo {
     id = AppConstants.defaultClumpValues.id,
     clumpName = AppConstants.defaultClumpValues.clumpName,
     clumpCode = AppConstants.defaultClumpValues.clumpCode,
-    linkToAbove = AppConstants.defaultClumpValues.linkToAbove,
-    linkedClumpID = AppConstants.defaultClumpValues.linkedClumpID
+    linkedToAbove = AppConstants.defaultClumpValues.linkedToAbove,
+    linkedToLeft = AppConstants.defaultClumpValues.linkedToLeft
   ) {
     this.id = id;
     this.clumpName = clumpName;
     this.clumpCode = clumpCode;
-    this.linkToAbove = linkToAbove;
-    this.linkedClumpID = linkedClumpID;
+    this.linkedToAbove = linkedToAbove;
+    this.linkedToLeft = linkedToLeft;
   }
 
   getData(key) {
@@ -43,8 +43,8 @@ export default class ClumpInfo {
       AppConstants.defaultClumpErrorValues.id,
       AppConstants.defaultClumpErrorValues.clumpName,
       AppConstants.defaultClumpErrorValues.clumpCode,
-      AppConstants.defaultClumpErrorValues.linkToAbove,
-      AppConstants.defaultClumpErrorValues.linkedClumpID
+      AppConstants.defaultClumpErrorValues.linkedToAbove,
+      AppConstants.defaultClumpErrorValues.linkedToLeft
     );
   }
 

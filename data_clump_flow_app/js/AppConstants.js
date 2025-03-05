@@ -30,14 +30,14 @@ export default class AppConstants {
     id: -1,
     clumpName: '',
     clumpCode: '',
-    linkToAbove: -1,
-    linkedClumpID: -1
+    linkedToAbove: -1,
+    linkedToLeft: -1
   };
   static defaultClumpErrorValues = {
     id: -2,
     clumpName: 'ErrName',
     clumpCode: 'ErrCode',
-    linkToAbove: -2,
-    linkedClumpID: -2
+    linkedToAbove: -2,
+    linkedToLeft: -2
   };
 };
