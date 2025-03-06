@@ -402,6 +402,17 @@ export default class AppSettings {
       : 'calc(100vh - 42px)';
   };
 
+  get getByLinkNotColumn() {
+    const newLinkToIdFromUI = parseInt(this.uiElements.linkToId.value, 10) || -1;
+    // const getByLinkNotColumn = !isNaN(newLinkToIdFromUI) && newLinkToIdFromUI > 0;
+    return !isNaN(newLinkToIdFromUI) && newLinkToIdFromUI > 0;
+  }
+
+  get isLinkToLeftSelected() {
+    // const isLinkedLeft = getByLinkNotColumn && this.uiElements.linkedToLeft.checked;
+    return this.getByLinkNotColumn && this.uiElements.linkedToLeft.checked;
+  }
+
   getLinkInfo(columnRawValue) {
     const returnObject = {
       isLinkedLeft: false,
@@ -422,17 +433,13 @@ export default class AppSettings {
     //   specific column using the 'above' option.
     //   This dropdown is disabled (irrelevant) when the 'Link to Clump' is not 'None'.
     //
-    const newLinkToIdFromUI = parseInt(this.uiElements.linkToId.value, 10) || -1;
-    const getByLinkNotColumn = !isNaN(newLinkToIdFromUI) && newLinkToIdFromUI > 0;
-
-    const isLinkedLeft = getByLinkNotColumn && this.uiElements.linkedToLeft.checked;
-    if (isLinkedLeft) {
+    if (this.isLinkToLeftSelected) {
       returnObject.isLinkedLeft = true;
       returnObject.linkId = newLinkToIdFromUI;
       // clump.linkedToLeft = newLinkToIdFromUI;
     } else {
       // We need to determine the ID of the clump to link to.
-      const isLinkedAbove = getByLinkNotColumn && this.uiElements.linkedToLAbove.checked;
+      const isLinkedAbove = this.getByLinkNotColumn && this.uiElements.linkedToLAbove.checked;
       const columnValue = parseInt(columnRawValue, 10) || this.dataManager.getData('lastAddedCol');
 
       // The parent cell ID to link to (above) is either:
@@ -700,22 +707,33 @@ export default class AppSettings {
   updateLinkToDropdownOptions() {
     this.uiElements.linkToId.innerHTML = '<option value="">None</option>';
 
-    // This loop extrapolates in-use linkTo IDs so they are not
+    // This map extrapolates in-use linkTo IDs so they are not
     // shown in the dropdown (because they're already linked to).
     const linkedClumpIDs = this.dataManager.getData('clumpList').map(clump => clump.linkedToLeft);
-    this.dataManager.getData('clumpList').forEach((clump, index) => {
-      // If the clump is not the one being edited, and it is not already linked.
-      const isNotLinkedClump = !linkedClumpIDs.includes(clump.id);
-      const isEditingThisClump = this.dataManager.getData('editingIndex') !== index;
+    const editingIndex = this.dataManager.getData('editingIndex');
 
-      if (isEditingThisClump && isNotLinkedClump) {
-        const option = document.createElement('option');
-        option.value = clump.id;
-        option.textContent = clump.clumpName;
-        this.uiElements.linkToId.appendChild(option);
+    this.dataManager.getData('clumpList').forEach((clump, index) => {
+      // You can't link a clump to itself.
+      if (editingIndex !== index) {
+        // If 'linkToLeft' is checked, only show clumps that are not already linked to.
+        // Otherwise, all clumps can be linked to 'above', even those with an existing link
+        // (in which case, the existing link will be moved to the new clump's ID; i.e. pushed down).
+        if (this.isLinkToLeftSelected && !linkedClumpIDs.includes(clump.id)) {
+          const option = document.createElement('option');
+          option.value = clump.id;
+          option.textContent = clump.clumpName;
+          this.uiElements.linkToId.appendChild(option);
+        } else if (!this.isLinkToLeftSelected) {
+          const option = document.createElement('option');
+          option.value = clump.id;
+          option.textContent = clump.clumpName;
+          this.uiElements.linkToId.appendChild(option);
+        }
       }
     });
-    this.uiElements.linkToId.disabled = this.dataManager.getData('editingIndex') !== null;
+
+    // We can now edit 'column' (now 'linkedToLeft') and 'linkTo' (now 'linkedToAbove') properties.
+    // this.uiElements.linkToId.disabled = this.dataManager.getData('editingIndex') !== null;
   }
 
   updateColumnSelectDropdownOptions() {
@@ -732,7 +750,9 @@ export default class AppSettings {
       option.textContent = `Column ${column}`;
       this.uiElements.columnSelect.appendChild(option);
     });
-    this.uiElements.columnSelect.disabled = this.dataManager.getData('editingIndex') !== null;
+
+    // We can now edit 'column' (now 'linkedToLeft') and 'linkTo' (now 'linkedToAbove') properties.
+    // this.uiElements.columnSelect.disabled = this.dataManager.getData('editingIndex') !== null;
   }
 
   updateStorageNameDropdownOptions() {
