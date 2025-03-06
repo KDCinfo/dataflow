@@ -78,6 +78,7 @@ export default class AppData {
   #appSettingsInfo;
 
   constructor(settings = DataDefaultMaps.dataDefaultMap().defaultAppSettings) {
+    // A '#' is used to denote private variables in JavaScript.
     this.#appSettingsInfo = settings;
 
     this.storageNameErrorText = '';
@@ -130,10 +131,43 @@ export default class AppData {
 
   setClumpList(newClumpList = this.parseClumpListFromStorage()) {
     this.clumpList.length = 0;
-    this.clumpList = [...newClumpList];
+
+    console.log('*** [AppData] [Clump Before]', newClumpList);
+    const convertedList = newClumpList.length > 0 && newClumpList[0].hasOwnProperty('column')
+        ? this.checkAndConvertClumps(newClumpList)
+        : newClumpList;
+    console.log('*** [AppData] [Clump After]', convertedList);
+
+    this.clumpList = [...convertedList];
   }
   parseClumpListFromStorage() {
     return JSON.parse(localStorage.getItem(this.localStorageKeyForClumps()) || '[]');
+  }
+
+  checkAndConvertClumps(checkClumpList) {
+    // old: column | new: linkedToAbove
+    // old: linkTo | new: linkedToLeft
+    if (checkClumpList.length > 0) {
+      if (checkClumpList[0].hasOwnProperty('column')) {
+        console.log('*** [AppData] Converting clumps...');
+        try {
+          return checkClumpList.map(oldClump => {
+            return {
+              id: oldClump.id,
+              clumpName: oldClump.clumpName,
+              clumpCode: oldClump.clumpCode,
+              linkedToLeft: oldClump.linkTo,
+              linkedToAbove: oldClump.column
+            };
+          });
+        } catch (e) {
+          console.error('*** [AppData] Error converting clumps:', e);
+          return [];
+        }
+      }
+    }
+    console.log('*** [AppData] No conversion necessary.');
+    return checkClumpList;
   }
 
   //

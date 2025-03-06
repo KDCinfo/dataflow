@@ -89,7 +89,6 @@ export default class AppSettings {
     );
     return JSON.parse(
       dataFromStorage || dataFromDefaults
-
     );
   }
 
