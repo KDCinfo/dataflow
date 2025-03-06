@@ -151,6 +151,11 @@ export default class AppSettings {
         this.uiElements.columnSelect.disabled = false;
       }
     });
+    this.uiElements.linkedToLeft.addEventListener('change', function() {
+      // Refresh 'linkToId' dropdown options.
+      // function(event) => if (event.target.checked) { }
+      this.updateLinkToDropdownOptions();
+    });
     this.uiElements.columnSelect.addEventListener('change', () => {
       if (this.uiElements.clumpNameInput.value.trim() !== '') {
         this.uiElements.saveClumpButton.disabled = false;
