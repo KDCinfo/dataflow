@@ -320,30 +320,11 @@ export default class AppSettings {
       return;
     }
 
-    // Clump cell placement has 2 options:
-    //
-    // [Linked][toLeft]
-    // 1. Add to the same row as the linked clump, in the next column.
-    //
-    // [Linked][toAbove]
-    // 2. When 'Last' is selected, add new clump to the last column that had a clump added to it.
-    // 3. Add to a specific column.
-    //
-    // The 'Add to Column' dropdown is a shortcut to linking the cell
-    //   to either the 'Last Added' clump, or the last clump in a
-    //   specific column using the 'above' option.
-    //   This dropdown is disabled (irrelevant) when the 'Link to Clump' is not 'None'.
-    //
-    const newLinkToIdFromUI = parseInt(this.uiElements.linkToId.value, 10) || -1;
-    const getByLinkNotColumn = !isNaN(newLinkToIdFromUI) && newLinkToIdFromUI > 0;
-    const getByColumnNotLink = !getByLinkNotColumn;
-
-    const isLinkedLeft = getByLinkNotColumn && this.uiElements.linkedToLeft.checked;
-    const isLinkedAbove = getByLinkNotColumn && this.uiElements.linkedToLAbove.checked;
-
-    let linkToAboveId;
-
     const columnRawValue = this.uiElements.columnSelect.options[this.uiElements.columnSelect.selectedIndex].value;
+
+    const linkObject = this.getLinkInfo(columnRawValue);
+    const isLinkedLeft = linkObject.isLinkedLeft;
+    const linkId = linkObject.linkId;
 
     if (this.dataManager.getData('editingIndex') === null) {
       //
@@ -356,25 +337,10 @@ export default class AppSettings {
       addNewClump.clumpName = this.uiElements.clumpNameInput.value;
       addNewClump.clumpCode = this.uiElements.clumpCodeInput.value;
 
-      // Populate either the 'linkedClumpId' (if linked), or the given 'Column' (if not linked).
-      //
       if (isLinkedLeft) {
-        // columnToAddTo = this.dataManager.getData('lastAddedCol') + 1; // Not used?
-        addNewClump.linkedToLeft = newLinkToIdFromUI;
+        addNewClump.linkedToLeft = linkId;
       } else {
-        // We need to determine the ID of the clump to link to.
-        const columnValue = parseInt(columnRawValue, 10) || this.dataManager.getData('lastAddedCol');
-
-        // The parent cell ID to link to (above) is either:
-        // - a selected link ID from the UI (with the 'above' option selected),
-        // - the last added clump ID (from the 'column select' dropdown), or
-        // - the last ID from a selected column.
-        linkToAboveId = isLinkedAbove
-            ? newLinkToIdFromUI
-            : columnRawValue === 'last'
-                ? this.dataManager.getData('lastAddedClumpId')
-                : this.dataManager.lastIdFromColumn(columnValue);
-        addNewClump.linkedToAbove = linkToAboveId;
+        addNewClump.linkedToAbove = linkId;
       }
 
       // Add the new clump to the end of the 'clumps' 1D array.
@@ -399,12 +365,11 @@ export default class AppSettings {
       editedClump.clumpName = this.uiElements.clumpNameInput.value;
       editedClump.clumpCode = this.uiElements.clumpCodeInput.value;
 
-      // if (isLinked && editedClump.linkedClumpID !== newLinkToFromUI) {
-      //   editedClump.linkedClumpID = newLinkToFromUI;
-      //
-      //   // Update the clump in the 'clumpMatrix' 2D array.
-      //   this.dataManager.updateClumpInMatrix(editedClump);
-      // }
+      if (isLinkedLeft) {
+        editedClump.linkedToLeft = linkId;
+      } else {
+        editedClump.linkedToAbove = linkId;
+      }
 
       // Replace the clump in the array with the updated one.
       const updatedClumpList = this.dataManager.getData('clumpList').map((clump, index) =>
@@ -436,6 +401,54 @@ export default class AppSettings {
       ? 'calc(100vh - 42px - 260px)'
       : 'calc(100vh - 42px)';
   };
+
+  getLinkInfo(columnRawValue) {
+    const returnObject = {
+      isLinkedLeft: false,
+      linkId: -1,
+    };
+
+    // Clump cell placement has 2 options:
+    //
+    // [Linked][toLeft]
+    // 1. Add to the same row as the linked clump, in the next column.
+    //
+    // [Linked][toAbove]
+    // 2. When 'Last' is selected, add new clump to the last column that had a clump added to it.
+    // 3. Add to a specific column.
+    //
+    // The 'Add to Column' dropdown is a shortcut to linking the cell
+    //   to either the 'Last Added' clump, or the last clump in a
+    //   specific column using the 'above' option.
+    //   This dropdown is disabled (irrelevant) when the 'Link to Clump' is not 'None'.
+    //
+    const newLinkToIdFromUI = parseInt(this.uiElements.linkToId.value, 10) || -1;
+    const getByLinkNotColumn = !isNaN(newLinkToIdFromUI) && newLinkToIdFromUI > 0;
+
+    const isLinkedLeft = getByLinkNotColumn && this.uiElements.linkedToLeft.checked;
+    if (isLinkedLeft) {
+      returnObject.isLinkedLeft = true;
+      returnObject.linkId = newLinkToIdFromUI;
+      // clump.linkedToLeft = newLinkToIdFromUI;
+    } else {
+      // We need to determine the ID of the clump to link to.
+      const isLinkedAbove = getByLinkNotColumn && this.uiElements.linkedToLAbove.checked;
+      const columnValue = parseInt(columnRawValue, 10) || this.dataManager.getData('lastAddedCol');
+
+      // The parent cell ID to link to (above) is either:
+      // - a selected link ID from the UI (with the 'above' option selected),
+      // - the last added clump ID (from the 'column select' dropdown), or
+      // - the last ID from a selected column.
+      const linkToAboveId = isLinkedAbove
+          ? newLinkToIdFromUI
+          : columnRawValue === 'last'
+              ? this.dataManager.getData('lastAddedClumpId')
+              : this.dataManager.lastIdFromColumn(columnValue);
+      returnObject.isLinkedLeft = false;
+      returnObject.linkId = linkToAboveId;
+      // clump.linkedToAbove = linkToAboveId;
+    }
+  }
 
   resetFormFields() {
     // This will reset the form fields, regardless of any nesting.
