@@ -74,7 +74,7 @@ export default class AppData {
   clumpMatrix; // = [];
 
   // Find a clump's column directly given its ID.
-  clumpColumn; // = [{id: 1, column: 1}]
+  clumpColumnMap; // = Map: {id: 1, column: 1}
 
   // A localized copy of the settings from storage, maintained in 'AppSettings'
   // and pushed down when updated via the 'appSettings' setter.
@@ -98,6 +98,8 @@ export default class AppData {
     this.clumpExportList = [];
 
     this.clumpMatrix = [...DataDefaultMaps.dataDefaultMap().clumpMatrix]; // [];
+
+    this.clumpColumnMap = new Map(); // {id: 1, column: 1};
 
     // Initialize the 'clumpMatrix' with the clumps from local storage.
     this.addClumpsToMatrix();
@@ -132,6 +134,7 @@ export default class AppData {
     return this.#appSettingsInfo.storageNames[this.#appSettingsInfo.storageIndex] || 'dataClumpFlowAppFallbackKey';
   }
 
+  // This is run on initial load, when changing storage, or when importing data.
   setClumpList(newClumpList = this.parseClumpListFromStorage()) {
     this.clumpList.length = 0;
 
@@ -198,8 +201,19 @@ export default class AppData {
     );
   }
 
+  setColumnInClumpColumnMap(id, column) {
+    // Add or replace the column for the provided ID.
+    // this.clumpColumnMap = new Map(); // {id: 1, column: 1};
+    this.clumpColumnMap.set(id, column);
+  }
+  clearClumpColumnMap() {
+    this.clumpColumnMap.clear();
+  }
+
   // Add clumps to the matrix.
+  // This is called on initial load, when importing, changing storage, or deleting a clump,
   addClumpsToMatrix() {
+    this.clearClumpColumnMap();
     this.clumpMatrix.length = 0;
     this.clumpList.forEach(clump => {
       this.lastAddedClumpId = clump.id;
@@ -338,9 +352,26 @@ export default class AppData {
   //  C1R5 |    0  |    0  | Row 14
   //
   addClumpToMatrix(newClump) {
-    const { id, linkedToLeft, column } = newClump;
+    // const { id, linkTo, column } = newClump;
+    const { id, linkedToLeft, linkedToAbove } = newClump;
     const rowCount = this.getRowCount();
     const colCount = this.getColumnCount();
+
+    // We can determine a cell's column using
+    //   'linkedToLeft', 'linkedToAbove', and 'this.clumpColumnMap'.
+    // The first cell is the only cell with -1, -1, and it will establish the first column.
+    // The other cells can be figured out using 'this.clumpColumnMap' in which
+    //   we can add +1 to a parent cell for cells with a 'linkedToLeft' >= 1,
+    //   and use the parent's same column otherwise, then updating 'this.clumpColumnMap'.
+    // This all assumes that 'linkedTo' clumps are already in the matrix,
+    //   which must be true else they couldn't have been able to be linked to otherwise.
+    const columnIsFirst = linkedToLeft === -1 && linkedToAbove === -1;
+    const newClumpColumnMap = columnIsFirst
+      ? 1
+      : linkedToLeft > 0
+          ? this.clumpColumnMap.get(linkedToLeft) + 1
+          : this.clumpColumnMap.get(linkedToAbove);
+    this.setColumnInClumpColumnMap(id, newClumpColumnMap);
 
     // Check if LINKED: 'linkedClumpID' >= 1
     //
@@ -357,7 +388,7 @@ export default class AppData {
     //      to their immediate right, and it's not the last column:
     //    ~ Replace 0 in cell to right of the 'linkToId' clump's column (look up in clumpMatrix).
     //
-    // - UNLINKED (=== -1):
+    // - LINKED ABOVE | Legacy: UNLINKED
     //
     //   Check if clumpMatrix last row has a '0' in the new clump's column.
     //
@@ -426,7 +457,7 @@ export default class AppData {
 
     } else {
       //
-      // [ UNLINKED ] clump processing
+      // [LINKED ABOVE] clump processing | Legacy: [ UNLINKED ]
       //
       // Reality check: Can colCount ever be 0 if rowCount isn't?
       // Answer: No, because the matrix is initialized with at least one row.
@@ -465,7 +496,7 @@ export default class AppData {
         //
         // In this block we can assume there is at least one cell in the matrix.
         //
-        if (column === 1) {
+        if (newClumpColumnMap === 1) {
           // X-- Is the new clump's column the first column (Col 1)?
           //     ~ Push a new 0-padded Row (same length as other rows) to the matrix.
           //     ~ Place the clump's ID in the first cell/column.
@@ -473,7 +504,7 @@ export default class AppData {
           // clumpMatrix[rowCount][0] = id;
           this.clumpMatrix = this.updateClumpMatrix(rowCount, 0, id);
           this.lastAddedCol = 1;
-        } else if (column === colCount) {
+        } else if (newClumpColumnMap === colCount) {
           // X-- Is the new clump's column the last column?
           //     ~ Find the last non-0 cell/row in the new clump's column and record that row.
           //     ~ Insert a 0-padded row at the recorded row.
@@ -513,7 +544,7 @@ export default class AppData {
 
           for (let r = rowCount; r > 0; r--) {
             // Record the bottommost row of the new clump's column.
-            if (this.clumpMatrix[r - 1][column - 1] !== 0) {
+            if (this.clumpMatrix[r - 1][newClumpColumnMap - 1] !== 0) {
               newClumpBottomRow = r;
               break;
             }
@@ -522,7 +553,7 @@ export default class AppData {
           rowColumnLoop:
           for (let r = rowCount; r > 0; r--) {
             // Record the lowest clump, that is lower than the new clump, in all the columns to the right.
-            for (let c = column; c < colCount; c++) {
+            for (let c = newClumpColumnMap; c < colCount; c++) {
               // We're using [c] instead of [c - 1] because we're looking to the right of the new clump's column.
               if (this.clumpMatrix[r - 1][c] !== 0) {
                 // rightmostCol = c;
@@ -546,8 +577,8 @@ export default class AppData {
           const rowToAddTo = newClumpBottomRow > rightmostRow ? newClumpBottomRow : rightmostRow;
           this.insertPaddedRowToMatrix(rowToAddTo);
           // clumpMatrix[rowToAddTo][column - 1] = id;
-          this.clumpMatrix = this.updateClumpMatrix(rowToAddTo, column - 1, id);
-          this.lastAddedCol = column;
+          this.clumpMatrix = this.updateClumpMatrix(rowToAddTo, newClumpColumnMap - 1, id);
+          this.lastAddedCol = newClumpColumnMap;
         }
       }
     }
