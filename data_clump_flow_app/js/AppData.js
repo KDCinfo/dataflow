@@ -38,14 +38,6 @@ export default class AppData {
   //   and clump ID 5 is linked to clump ID 4.
   //
   // const clumpMatrix = [
-  //   [1, 2, 0], // Column 1
-  //   [0, 3, 4], // Column 2
-  //   [0, 0, 5] // Column 3
-  // ];
-  //
-  // This hurts my head, let's flip it.
-  //
-  // const clumpMatrix = [
   //   #1 #2 #3   // Columns
   //   [1, 0, 0], // Row 1 | When 1: A non-link is added, nothing happens.
   //   [2, 3, 0], // Row 2 | When 2: A non-link is added, nothing happens.
@@ -71,7 +63,18 @@ export default class AppData {
   //  0    |  0    |  C3R8
   //  C1R5 |  0    |  0
   //
+  // # Notes on links:
+  //
+  // The only clump that is not linked is the first clump in the 'clumpList'.
+  // That first clump cannot be deleted and its ID is always 1. Its properties are:
+  // - id: 1 // dataManager.getData('lastAddedClumpId') + 1 // lastAddedClumpId: 0,
+  // - linkedToAbove: -1
+  // - linkedToLeft: -1
+  //
   clumpMatrix; // = [];
+
+  // Find a clump's column directly given its ID.
+  clumpColumn; // = [{id: 1, column: 1}]
 
   // A localized copy of the settings from storage, maintained in 'AppSettings'
   // and pushed down when updated via the 'appSettings' setter.
