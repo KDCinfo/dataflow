@@ -66,7 +66,8 @@ export default class AppData {
   // # Notes on links:
   //
   // The only clump that is not linked is the first clump in the 'clumpList'.
-  // That first clump cannot be deleted and its ID is always 1. Its properties are:
+  // All the other cells will have an ID for either 'linkedToLeft' or 'linkedToAbove' (column).
+  // The first clump cannot be deleted and its ID is always 1. Its properties are:
   // - id: 1 // dataManager.getData('lastAddedClumpId') + 1 // lastAddedClumpId: 0,
   // - linkedToAbove: -1
   // - linkedToLeft: -1
@@ -147,11 +148,68 @@ export default class AppData {
     return JSON.parse(localStorage.getItem(this.localStorageKeyForClumps()) || '[]');
   }
 
-  // This was implemented prior to populating 'clumpList', but was removed
-  //   because an ID for the older 'column' property cannot be known until
-  //   after the 'clumpMatrix' is generated.
-  // It is now called from 'addClumpsToMatrix' after the 'clumpList' is set
-  //   and the 'clumpMatrix' is generated.
+  getClumpAboveId(oldClumpId, oldClumpColumn, oldClumpLinkTo, index, columnTracker) {
+    // When converting a legacy clumpInfo object, we need to convert the 'column' property.
+    //
+    // Both 'linkedTo' and 'linkedClumpID' represent an ID.
+    // 'column' needs to be converted to its parent's ID.
+    // If a parent ID is not found, throw an error.
+    //
+    // If 'linkedToLeft' > 0, then 'linkedToAbove' is 'AppConstants.defaultClumpValues.linkedToAbove'.
+    // Else, we need to find the cell's 'above' linked ID from this.clumpMatrix based on the given 'column'.
+    // How do we find that ID?
+    // Here is how 'addClumpToMatrix' generates the 2D array:
+    //
+    // Always flowing either top-down or top-right,
+    //   here are a couple xample clumpLists - they can diverge
+    //   or continue at any intersection of 'linkedToLeft':
+    // [C1R1, C1R2, C1R3, C2R1, C2R2, C3R1, C3R2, C2R3, C2R4, C3R3, C3R4, C3R5, C2R5, ...]
+    // [C1R1, C1R2, C1R3, C1R4, C1R5, C2R1, C2R2, C2R3, C2R4, C2R5, C3R1, C3R2, C3R3, C3R4, C3R5, ...]
+    //
+    //  C1R1 |  0    |  0
+    //  C1R2 |  0    |  0
+    //  C1R3 |< C2R1 |  0
+    //  0    |  C2R2 |< C3R1
+    //  0    |  0    |  C3R2
+    //  0    |  C2R3 |  0
+    //  0    |  C2R4 |< C3R3
+    //  0    |  0    |  C3R4
+    //
+    // index === 0 ? -1 // linkedToAbove is always -1 for first cell (it can't be linked).
+    // The 2nd cell would be C1R2, which would need to be linked to C1R1 (which is an ID).
+    // The 3rd cell would be C1R3, which would be linked to C1R2.
+    // The 4th cell could be either C1R4 or C2R1.
+    // If the 4th cell is C2R1, that cell's 'linkedToAbove' would be -1.
+    // If the 4th cell is C1R4, that cell's 'linkedToAbove' would be the ID in C1R3.
+    //
+    let clumpColumnAboveId;
+
+    if (index === 0) {
+      clumpColumnAboveId = -1;
+      // You can only be linked to the last cell in a specific column.
+      columnTracker.set(oldClumpColumn, oldClumpId);
+    } else if (oldClumpLinkTo > 0) {
+      console.log('*** [AppData] [columnTracker] [else if A]:', columnTracker);
+      clumpColumnAboveId = -1;
+      const linkedIdColumnPlusOne = this.clumpColumnMap.get(oldClumpLinkTo) + 1;
+      columnTracker.set(linkedIdColumnPlusOne, oldClumpId);
+      console.log('*** [AppData] [columnTracker] [else if B]:', columnTracker);
+    } else {
+      // We need the ID of the last cell placed in this same column.
+      console.log('*** [AppData] [columnTracker] [else A]:', columnTracker);
+      clumpColumnAboveId = columnTracker.get(oldClumpColumn);
+      if (clumpColumnAboveId === undefined) {
+        throw new Error(`*** [AppData] Error: No matching column ID for ${oldClumpColumn}.`);
+      }
+      columnTracker.set(oldClumpColumn, oldClumpId);
+      console.log('*** [AppData] [columnTracker] [else B]:', columnTracker);
+    }
+    return clumpColumnAboveId;
+  }
+
+  // This method is called from 'addClumpsToMatrix', after the 'clumpList' is set and the
+  //   'clumpMatrix' is generated. It cannot be run earlier because an ID for the older
+  //   'column' property cannot be known until after the 'clumpMatrix' is generated.
   convertClumpList() {
     // old: column        | new: linkedToAbove
     // old: linkedTo      | new: linkedToLeft
@@ -167,28 +225,49 @@ export default class AppData {
       if (this.clumpList[0].hasOwnProperty('column')) {
         console.log('*** [AppData] Converting clumps...');
         try {
-          if (this.clumpList[0].hasOwnProperty('linkedTo')) {
+          // const columnTracker = [];
+          const columnTracker = new Map(); // {column, id}
 
-            checkClumpList = this.clumpList.map(oldClump => {
+          if (this.clumpList[0].hasOwnProperty('linkedTo')) {
+            checkClumpList = this.clumpList.map((oldClump, index) => {
+
+              let clumpColumnAboveId = this.getClumpAboveId(
+                oldClump.id,
+                oldClump.column,
+                oldClump.linkedTo,
+                index,
+                columnTracker
+              );
+
               return {
                 id: oldClump.id,
                 clumpName: oldClump.clumpName,
                 clumpCode: oldClump.clumpCode,
-                linkedToAbove: oldClump.column, // @TODO: This is a column, not an ID.
-                linkedToLeft: oldClump.linkedTo
+                linkedToLeft: oldClump.linkedTo,
+                linkedToAbove: clumpColumnAboveId
+                // linkedToAbove: oldClump.column, // @NOTE: This is a column, not an ID.
               };
             });
             console.log('*** [AppData] [checkClumpList] [SUCCESS] [linkedTo]:', checkClumpList);
 
           } else if (this.clumpList[0].hasOwnProperty('linkedClumpID')) {
 
-            checkClumpList = this.clumpList.map(oldClump => {
+            checkClumpList = this.clumpList.map((oldClump, index) => {
+              let clumpColumnAboveId = this.getClumpAboveId(
+                oldClump.id,
+                oldClump.column,
+                oldClump.linkedClumpID,
+                index,
+                columnTracker
+              );
+
               return {
                 id: oldClump.id,
                 clumpName: oldClump.clumpName,
                 clumpCode: oldClump.clumpCode,
-                linkedToAbove: oldClump.column, // @TODO: This is a column, not an ID.
-                linkedToLeft: oldClump.linkedClumpID
+                linkedToLeft: oldClump.linkedClumpID,
+                linkedToAbove: clumpColumnAboveId
+                // linkedToAbove: oldClump.column,
               };
             });
             console.log('*** [AppData] [checkClumpList] [SUCCESS] [linkedClumpID]:', checkClumpList);
@@ -266,6 +345,7 @@ export default class AppData {
         alert('\nClump conversion has already been run\n\nand appears to require a bit of debugging.\n');
 
       } else {
+        this.clumpListConverted = true;
         alert(`This list of clumps requires a conversion to a new format. Press OK to proceed.`);
 
         console.log('*** [AppData] Clumps to be converted.');
@@ -273,7 +353,9 @@ export default class AppData {
         console.log('*** [AppData] Clump Matrix - Pre:', this.clumpMatrix);
 
         this.convertClumpList();
-        this.storeClumps();
+        // @TODO: Uncomment after testing
+        // this.storeClumps();
+        console.log('*** [AppData] CLUMPS NOT STORED!!');
         this.addClumpsToMatrix();
 
         console.log('*** [AppData] Clumps converted to new format.');
@@ -281,7 +363,6 @@ export default class AppData {
         console.log('*** [AppData] Clump Matrix - Post:', this.clumpMatrix);
 
         alert(`Congratulations! Your clumps have been converted to the new format.`);
-        this.clumpListConverted = true;
       }
     }
   }
