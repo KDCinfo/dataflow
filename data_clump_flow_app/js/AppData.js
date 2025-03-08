@@ -74,6 +74,7 @@ export default class AppData {
   clumpMatrix; // = [];
 
   // Find a clump's column directly given its ID.
+  // This is created when adding clumps to the matrix.
   clumpColumnMap; // = Map: {id: 1, column: 1}
 
   // A localized copy of the settings from storage, maintained in 'AppSettings'
@@ -137,34 +138,48 @@ export default class AppData {
   // This is run on initial load, when changing storage, or when importing data.
   setClumpList(newClumpList = this.parseClumpListFromStorage()) {
     this.clumpList.length = 0;
-
-    console.log('*** [AppData] [Clump Before]', newClumpList);
-    const convertedList = newClumpList.length > 0 && newClumpList[0].hasOwnProperty('column')
-        ? this.checkAndConvertClumps(newClumpList)
-        : newClumpList;
-    console.log('*** [AppData] [Clump After]', convertedList);
-
-    this.clumpList = [...convertedList];
+    this.clumpList = [...newClumpList];
   }
   parseClumpListFromStorage() {
     return JSON.parse(localStorage.getItem(this.localStorageKeyForClumps()) || '[]');
   }
 
+  // @TODO: Not yet used.
+  // This was implemented prior to populating 'clumpList', but was removed
+  //   because an ID for the older 'column' property cannot be known until
+  //   after the 'clumpMatrix' is generated.
   checkAndConvertClumps(checkClumpList) {
-    // old: column | new: linkedToAbove
-    // old: linkTo | new: linkedToLeft
+    // old: column        | new: linkedToAbove
+    // old: linkedTo      | new: linkedToLeft
+    // old: linkedClumpID | new: linkedToLeft
+
+    // console.log('*** [AppData] [Clump Before]', newClumpList);
+    // const convertedList = this.checkAndConvertClumps(newClumpList);
+    // console.log('*** [AppData] [Clump After]', convertedList);
+
     if (checkClumpList.length > 0) {
       if (checkClumpList[0].hasOwnProperty('column')) {
         console.log('*** [AppData] Converting clumps...');
         try {
           return checkClumpList.map(oldClump => {
-            return {
-              id: oldClump.id,
-              clumpName: oldClump.clumpName,
-              clumpCode: oldClump.clumpCode,
-              linkedToLeft: oldClump.linkTo,
-              linkedToAbove: oldClump.column
-            };
+            if (checkClumpList[0].hasOwnProperty('linkedTo')) {
+              return {
+                id: oldClump.id,
+                clumpName: oldClump.clumpName,
+                clumpCode: oldClump.clumpCode,
+                linkedToAbove: oldClump.column, // This is a column, not an ID.
+                linkedToLeft: oldClump.linkedTo
+              };
+            } else if (checkClumpList[0].hasOwnProperty('linkedClumpID')) {
+              return {
+                id: oldClump.id,
+                clumpName: oldClump.clumpName,
+                clumpCode: oldClump.clumpCode,
+                linkedToAbove: oldClump.column,
+                linkedToLeft: oldClump.linkedClumpID
+              };
+            }
+            throw new Error('*** [AppData] Error converting clumps: No matching properties.');
           });
         } catch (e) {
           console.error('*** [AppData] Error converting clumps:', e);
@@ -219,6 +234,8 @@ export default class AppData {
       this.lastAddedClumpId = clump.id;
       this.addClumpToMatrix(clump);
     });
+    // @TODO: This might be a good time to convert the entire 'clumpList'
+    //        based on the newly-populated 'clumpMatrix'.
   }
 
   // Helper to extend rows with empty columns as needed.
@@ -352,26 +369,61 @@ export default class AppData {
   //  C1R5 |    0  |    0  | Row 14
   //
   addClumpToMatrix(newClump) {
-    // const { id, linkTo, column } = newClump;
-    const { id, linkedToLeft, linkedToAbove } = newClump;
+    console.log('*** [AppData] [New Clump]', newClump);
+
     const rowCount = this.getRowCount();
     const colCount = this.getColumnCount();
+    console.log('*** [AppData] [Row Count]', rowCount);
+    console.log('*** [AppData] [Col Count]', colCount);
 
-    // We can determine a cell's column using
-    //   'linkedToLeft', 'linkedToAbove', and 'this.clumpColumnMap'.
-    // The first cell is the only cell with -1, -1, and it will establish the first column.
-    // The other cells can be figured out using 'this.clumpColumnMap' in which
-    //   we can add +1 to a parent cell for cells with a 'linkedToLeft' >= 1,
-    //   and use the parent's same column otherwise, then updating 'this.clumpColumnMap'.
-    // This all assumes that 'linkedTo' clumps are already in the matrix,
-    //   which must be true else they couldn't have been able to be linked to otherwise.
-    const columnIsFirst = linkedToLeft === -1 && linkedToAbove === -1;
-    const newClumpColumnMap = columnIsFirst
-      ? 1
-      : linkedToLeft > 0
-          ? this.clumpColumnMap.get(linkedToLeft) + 1
-          : this.clumpColumnMap.get(linkedToAbove);
-    this.setColumnInClumpColumnMap(id, newClumpColumnMap);
+    // old: column        | new: linkedToAbove
+    // old: linkedTo      | new: linkedToLeft
+    // old: linkedClumpID | new: linkedToLeft
+    // const { id, linkedTo, column } = newClump;
+    // const { id, linkedClumpID, column } = newClump;
+    // const { id, linkedToLeft, linkedToAbove } = newClump;
+    const id = newClump.id;
+    let newClumpColumn;
+    let linkedToLeft;
+    // let linkedToAbove;
+    if (newClump.hasOwnProperty('column')) {
+      if (newClump.hasOwnProperty('linkedTo')) {
+        linkedToLeft = newClump.linkedTo;
+        newClumpColumn = newClump.column;
+      } else if (newClump.hasOwnProperty('linkedClumpID')) {
+        linkedToLeft = newClump.linkedClumpID;
+        newClumpColumn = newClump.column;
+      } else {
+        // This is a hard crash because, why are we here?
+        throw new Error('*** [AppData] Error: No matching legacy column-related properties.');
+      }
+    } else {
+      // At this point we should be able to assume the
+      // current 'clumpInfo' object should have the most recent properties.
+      //
+      // How this works:
+      //   We can determine a cell's column using
+      //       'linkedToLeft', 'linkedToAbove', and 'this.clumpColumnMap'.
+      //   - The first cell is the only cell with -1, -1, and it will establish the first column.
+      //   - The other cells can be figured out using 'this.clumpColumnMap' in which we can add +1
+      //       to a parent cell for cells with a 'linkedToLeft' >= 1, and use the
+      //       parent's same column otherwise, then updating 'this.clumpColumnMap'.
+      //   This all assumes that 'linkedTo' clumps are already in the matrix,
+      //     but for which must be true else they couldn't have been able to be linked to otherwise.
+      //
+      const columnIsFirst = newClump.linkedToLeft === -1 && newClump.linkedToAbove === -1;
+      newClumpColumn = columnIsFirst
+        ? 1
+        : newClump.linkedToLeft > 0
+            ? this.clumpColumnMap.get(newClump.linkedToLeft) + 1
+            : this.clumpColumnMap.get(newClump.linkedToAbove);
+      linkedToLeft = newClump.linkedToLeft;
+      // linkedToAbove = newClump.linkedToAbove;
+    }
+    console.log('*** [AppData] [New Clump Column]', newClumpColumn);
+
+    this.setColumnInClumpColumnMap(id, newClumpColumn);
+    console.log('*** [AppData] [Clump Column Map]', this.clumpColumnMap);
 
     // Check if LINKED: 'linkedClumpID' >= 1
     //
@@ -496,7 +548,7 @@ export default class AppData {
         //
         // In this block we can assume there is at least one cell in the matrix.
         //
-        if (newClumpColumnMap === 1) {
+        if (newClumpColumn === 1) {
           // X-- Is the new clump's column the first column (Col 1)?
           //     ~ Push a new 0-padded Row (same length as other rows) to the matrix.
           //     ~ Place the clump's ID in the first cell/column.
@@ -504,7 +556,7 @@ export default class AppData {
           // clumpMatrix[rowCount][0] = id;
           this.clumpMatrix = this.updateClumpMatrix(rowCount, 0, id);
           this.lastAddedCol = 1;
-        } else if (newClumpColumnMap === colCount) {
+        } else if (newClumpColumn === colCount) {
           // X-- Is the new clump's column the last column?
           //     ~ Find the last non-0 cell/row in the new clump's column and record that row.
           //     ~ Insert a 0-padded row at the recorded row.
@@ -544,7 +596,7 @@ export default class AppData {
 
           for (let r = rowCount; r > 0; r--) {
             // Record the bottommost row of the new clump's column.
-            if (this.clumpMatrix[r - 1][newClumpColumnMap - 1] !== 0) {
+            if (this.clumpMatrix[r - 1][newClumpColumn - 1] !== 0) {
               newClumpBottomRow = r;
               break;
             }
@@ -553,7 +605,7 @@ export default class AppData {
           rowColumnLoop:
           for (let r = rowCount; r > 0; r--) {
             // Record the lowest clump, that is lower than the new clump, in all the columns to the right.
-            for (let c = newClumpColumnMap; c < colCount; c++) {
+            for (let c = newClumpColumn; c < colCount; c++) {
               // We're using [c] instead of [c - 1] because we're looking to the right of the new clump's column.
               if (this.clumpMatrix[r - 1][c] !== 0) {
                 // rightmostCol = c;
@@ -577,8 +629,8 @@ export default class AppData {
           const rowToAddTo = newClumpBottomRow > rightmostRow ? newClumpBottomRow : rightmostRow;
           this.insertPaddedRowToMatrix(rowToAddTo);
           // clumpMatrix[rowToAddTo][column - 1] = id;
-          this.clumpMatrix = this.updateClumpMatrix(rowToAddTo, newClumpColumnMap - 1, id);
-          this.lastAddedCol = newClumpColumnMap;
+          this.clumpMatrix = this.updateClumpMatrix(rowToAddTo, newClumpColumn - 1, id);
+          this.lastAddedCol = newClumpColumn;
         }
       }
     }
