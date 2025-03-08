@@ -854,6 +854,7 @@ export default class AppSettings {
       this.dataManager.setData('clumpList', clumpListToPop);
 
       // Clear matrix and re-add all clumps.
+      this.dataManager.resetClumpListConverted();
       this.dataManager.addClumpsToMatrix();
 
       // Update global variables.
@@ -1001,6 +1002,7 @@ export default class AppSettings {
       this.dataManager.setClumpList(); // Default: getStorageNameFromSettings()
 
       // Clear matrix and re-add all clumps.
+      this.dataManager.resetClumpListConverted();
       this.dataManager.addClumpsToMatrix();
 
       // Update UI.

@@ -77,6 +77,8 @@ export default class AppData {
   // This is created when adding clumps to the matrix.
   clumpColumnMap; // = Map: {id: 1, column: 1}
 
+  clumpListConverted; // = false
+
   // A localized copy of the settings from storage, maintained in 'AppSettings'
   // and pushed down when updated via the 'appSettings' setter.
   #appSettingsInfo;
@@ -101,6 +103,7 @@ export default class AppData {
     this.clumpMatrix = [...DataDefaultMaps.dataDefaultMap().clumpMatrix]; // [];
 
     this.clumpColumnMap = new Map(); // {id: 1, column: 1};
+    this.clumpListConverted = false;
 
     // Initialize the 'clumpMatrix' with the clumps from local storage.
     this.addClumpsToMatrix();
@@ -144,11 +147,12 @@ export default class AppData {
     return JSON.parse(localStorage.getItem(this.localStorageKeyForClumps()) || '[]');
   }
 
-  // @TODO: Not yet used.
   // This was implemented prior to populating 'clumpList', but was removed
   //   because an ID for the older 'column' property cannot be known until
   //   after the 'clumpMatrix' is generated.
-  checkAndConvertClumps(checkClumpList) {
+  // It is now called from 'addClumpsToMatrix' after the 'clumpList' is set
+  //   and the 'clumpMatrix' is generated.
+  convertClumpList() {
     // old: column        | new: linkedToAbove
     // old: linkedTo      | new: linkedToLeft
     // old: linkedClumpID | new: linkedToLeft
@@ -157,38 +161,52 @@ export default class AppData {
     // const convertedList = this.checkAndConvertClumps(newClumpList);
     // console.log('*** [AppData] [Clump After]', convertedList);
 
-    if (checkClumpList.length > 0) {
-      if (checkClumpList[0].hasOwnProperty('column')) {
+    let checkClumpList = [];
+
+    if (this.clumpList.length > 0) {
+      if (this.clumpList[0].hasOwnProperty('column')) {
         console.log('*** [AppData] Converting clumps...');
         try {
-          return checkClumpList.map(oldClump => {
-            if (checkClumpList[0].hasOwnProperty('linkedTo')) {
+          if (this.clumpList[0].hasOwnProperty('linkedTo')) {
+
+            checkClumpList = this.clumpList.map(oldClump => {
               return {
                 id: oldClump.id,
                 clumpName: oldClump.clumpName,
                 clumpCode: oldClump.clumpCode,
-                linkedToAbove: oldClump.column, // This is a column, not an ID.
+                linkedToAbove: oldClump.column, // @TODO: This is a column, not an ID.
                 linkedToLeft: oldClump.linkedTo
               };
-            } else if (checkClumpList[0].hasOwnProperty('linkedClumpID')) {
+            });
+            console.log('*** [AppData] [checkClumpList] [SUCCESS] [linkedTo]:', checkClumpList);
+
+          } else if (this.clumpList[0].hasOwnProperty('linkedClumpID')) {
+
+            checkClumpList = this.clumpList.map(oldClump => {
               return {
                 id: oldClump.id,
                 clumpName: oldClump.clumpName,
                 clumpCode: oldClump.clumpCode,
-                linkedToAbove: oldClump.column,
+                linkedToAbove: oldClump.column, // @TODO: This is a column, not an ID.
                 linkedToLeft: oldClump.linkedClumpID
               };
-            }
+            });
+            console.log('*** [AppData] [checkClumpList] [SUCCESS] [linkedClumpID]:', checkClumpList);
+
+          } else {
+            console.error('*** [AppData] Ooops.');
             throw new Error('*** [AppData] Error converting clumps: No matching properties.');
-          });
+          }
         } catch (e) {
-          console.error('*** [AppData] Error converting clumps:', e);
-          return [];
+          console.error('*** [AppData] [Catch]:', e);
+        }
+
+        if (checkClumpList.length > 0) {
+          // Replace this.clumpList with the converted list.
+          this.clumpList = [...checkClumpList];
         }
       }
     }
-    console.log('*** [AppData] No conversion necessary.');
-    return checkClumpList;
   }
 
   //
@@ -224,9 +242,15 @@ export default class AppData {
   clearClumpColumnMap() {
     this.clumpColumnMap.clear();
   }
+  resetClumpListConverted() {
+    this.clumpListConverted = false;
+  }
 
   // Add clumps to the matrix.
-  // This is called on initial load, when importing, changing storage, or deleting a clump,
+  // This function is called on initial load, when importing, changing storage, or deleting a clump,
+  // Except within this function itself,
+  //   this function should always be preceeded with clearing the conversion flag:
+  //   > this.dataManager.resetClumpListConverted();
   addClumpsToMatrix() {
     this.clearClumpColumnMap();
     this.clumpMatrix.length = 0;
@@ -234,8 +258,32 @@ export default class AppData {
       this.lastAddedClumpId = clump.id;
       this.addClumpToMatrix(clump);
     });
-    // @TODO: This might be a good time to convert the entire 'clumpList'
-    //        based on the newly-populated 'clumpMatrix'.
+
+    // Checking the first clump for legacy properties to determine if a conversion is needed.
+    if (this.clumpList.length > 0 && this.clumpList[0].hasOwnProperty('column')) {
+      if (this.clumpListConverted) {
+        console.log('*** [AppData] Clumps already converted.');
+        alert('\nClump conversion has already been run\n\nand appears to require a bit of debugging.\n');
+
+      } else {
+        alert(`This list of clumps requires a conversion to a new format. Press OK to proceed.`);
+
+        console.log('*** [AppData] Clumps to be converted.');
+        console.log('*** [AppData] Clump List - Pre:', this.clumpList);
+        console.log('*** [AppData] Clump Matrix - Pre:', this.clumpMatrix);
+
+        this.convertClumpList();
+        this.storeClumps();
+        this.addClumpsToMatrix();
+
+        console.log('*** [AppData] Clumps converted to new format.');
+        console.log('*** [AppData] Clump List - Post:', this.clumpList);
+        console.log('*** [AppData] Clump Matrix - Post:', this.clumpMatrix);
+
+        alert(`Congratulations! Your clumps have been converted to the new format.`);
+        this.clumpListConverted = true;
+      }
+    }
   }
 
   // Helper to extend rows with empty columns as needed.
@@ -320,6 +368,7 @@ export default class AppData {
     this.lastAddedClumpId = updatedLastAddedClumpId;
 
     // Clear matrix and re-add all clumps.
+    this.dataManager.resetClumpListConverted();
     this.addClumpsToMatrix();
   }
 
