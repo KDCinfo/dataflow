@@ -189,20 +189,20 @@ export default class AppData {
       // You can only be linked to the last cell in a specific column.
       columnTracker.set(oldClumpColumn, oldClumpId);
     } else if (oldClumpLinkTo > 0) {
-      console.log('*** [AppData] [columnTracker] [else if A]:', columnTracker);
+      AppConfig.debugConsoleLogs && console.log('*** [AppData] [columnTracker] [else if A]:', columnTracker);
       clumpColumnAboveId = -1;
       const linkedIdColumnPlusOne = this.clumpColumnMap.get(oldClumpLinkTo) + 1;
       columnTracker.set(linkedIdColumnPlusOne, oldClumpId);
-      console.log('*** [AppData] [columnTracker] [else if B]:', columnTracker);
+      AppConfig.debugConsoleLogs && console.log('*** [AppData] [columnTracker] [else if B]:', columnTracker);
     } else {
       // We need the ID of the last cell placed in this same column.
-      console.log('*** [AppData] [columnTracker] [else A]:', columnTracker);
+      AppConfig.debugConsoleLogs && console.log('*** [AppData] [columnTracker] [else A]:', columnTracker);
       clumpColumnAboveId = columnTracker.get(oldClumpColumn);
       if (clumpColumnAboveId === undefined) {
         throw new Error(`*** [AppData] Error: No matching column ID for ${oldClumpColumn}.`);
       }
       columnTracker.set(oldClumpColumn, oldClumpId);
-      console.log('*** [AppData] [columnTracker] [else B]:', columnTracker);
+      AppConfig.debugConsoleLogs && console.log('*** [AppData] [columnTracker] [else B]:', columnTracker);
     }
     return clumpColumnAboveId;
   }
@@ -223,7 +223,7 @@ export default class AppData {
 
     if (this.clumpList.length > 0) {
       if (this.clumpList[0].hasOwnProperty('column')) {
-        console.log('*** [AppData] Converting clumps...');
+        AppConfig.debugConsoleLogs && console.log('*** [AppData] Converting clumps...');
         try {
           // const columnTracker = [];
           const columnTracker = new Map(); // {column, id}
@@ -248,7 +248,7 @@ export default class AppData {
                 // linkedToAbove: oldClump.column, // @NOTE: This is a column, not an ID.
               };
             });
-            console.log('*** [AppData] [checkClumpList] [SUCCESS] [linkedTo]:', checkClumpList);
+            AppConfig.debugConsoleLogs && console.log('*** [AppData] [checkClumpList] [SUCCESS] [linkedTo]:', checkClumpList);
 
           } else if (this.clumpList[0].hasOwnProperty('linkedClumpID')) {
 
@@ -270,7 +270,7 @@ export default class AppData {
                 // linkedToAbove: oldClump.column,
               };
             });
-            console.log('*** [AppData] [checkClumpList] [SUCCESS] [linkedClumpID]:', checkClumpList);
+            AppConfig.debugConsoleLogs && console.log('*** [AppData] [checkClumpList] [SUCCESS] [linkedClumpID]:', checkClumpList);
 
           } else {
             console.error('*** [AppData] Ooops.');
@@ -341,26 +341,26 @@ export default class AppData {
     // Checking the first clump for legacy properties to determine if a conversion is needed.
     if (this.clumpList.length > 0 && this.clumpList[0].hasOwnProperty('column')) {
       if (this.clumpListConverted) {
-        console.log('*** [AppData] Clumps already converted.');
+        AppConfig.debugConsoleLogs && console.log('*** [AppData] Clumps already converted.');
         alert('\nClump conversion has already been run\n\nand appears to require a bit of debugging.\n');
 
       } else {
         this.clumpListConverted = true;
         alert(`This list of clumps requires a conversion to a new format. Press OK to proceed.`);
 
-        console.log('*** [AppData] Clumps to be converted.');
-        console.log('*** [AppData] Clump List - Pre:', this.clumpList);
-        console.log('*** [AppData] Clump Matrix - Pre:', this.clumpMatrix);
+        AppConfig.debugConsoleLogs && console.log('*** [AppData] Clumps to be converted.');
+        AppConfig.debugConsoleLogs && console.log('*** [AppData] Clump List - Pre:', this.clumpList);
+        AppConfig.debugConsoleLogs && console.log('*** [AppData] Clump Matrix - Pre:', this.clumpMatrix);
 
         this.convertClumpList();
         // @TODO: Uncomment after testing
         // this.storeClumps();
-        console.log('*** [AppData] CLUMPS NOT STORED!!');
+        AppConfig.debugConsoleLogs && console.log('*** [AppData] CLUMPS NOT STORED!!');
         this.addClumpsToMatrix();
 
-        console.log('*** [AppData] Clumps converted to new format.');
-        console.log('*** [AppData] Clump List - Post:', this.clumpList);
-        console.log('*** [AppData] Clump Matrix - Post:', this.clumpMatrix);
+        AppConfig.debugConsoleLogs && console.log('*** [AppData] Clumps converted to new format.');
+        AppConfig.debugConsoleLogs && console.log('*** [AppData] Clump List - Post:', this.clumpList);
+        AppConfig.debugConsoleLogs && console.log('*** [AppData] Clump Matrix - Post:', this.clumpMatrix);
 
         alert(`Congratulations! Your clumps have been converted to the new format.`);
       }
@@ -499,12 +499,14 @@ export default class AppData {
   //  C1R5 |    0  |    0  | Row 14
   //
   addClumpToMatrix(newClump) {
-    console.log('*** [AppData] [New Clump]', newClump);
+    AppConfig.debugConsoleLogs && console.log('*** [AppData] [New Clump]', newClump);
+    AppConfig.debugConsoleLogs && console.log('*** [AppData] [clumpMatrix] [pre]', this.clumpMatrix);
+    AppConfig.debugConsoleLogs && console.log('*** [AppData] [clumpColumnMap]', this.clumpColumnMap);
 
     const rowCount = this.getRowCount();
     const colCount = this.getColumnCount();
-    console.log('*** [AppData] [Row Count]', rowCount);
-    console.log('*** [AppData] [Col Count]', colCount);
+    AppConfig.debugConsoleLogs && console.log('*** [AppData] [Row Count]', rowCount);
+    AppConfig.debugConsoleLogs && console.log('*** [AppData] [Col Count]', colCount);
 
     // old: column        | new: linkedToAbove
     // old: linkedTo      | new: linkedToLeft
@@ -550,10 +552,10 @@ export default class AppData {
       linkedToLeft = newClump.linkedToLeft;
       // linkedToAbove = newClump.linkedToAbove;
     }
-    console.log('*** [AppData] [New Clump Column]', newClumpColumn);
+    AppConfig.debugConsoleLogs && console.log('*** [AppData] [New Clump Column]', newClumpColumn);
 
     this.setColumnInClumpColumnMap(id, newClumpColumn);
-    console.log('*** [AppData] [Clump Column Map]', this.clumpColumnMap);
+    AppConfig.debugConsoleLogs && console.log('*** [AppData] [Clump Column Map]', this.clumpColumnMap);
 
     // Check if LINKED: 'linkedClumpID' >= 1
     //
@@ -767,7 +769,7 @@ export default class AppData {
 
     if (AppConfig.debugPrintClumpMatrix) {
       // For debugging to see the matrix layout.
-      console.log('Clump Matrix:');
+      AppConfig.debugConsoleLogs && console.log('Clump Matrix:');
       console.table(this.clumpMatrix);
     }
   }
