@@ -353,8 +353,7 @@ export default class AppData {
         AppConfig.debugConsoleLogs && console.log('*** [AppData] Clump Matrix - Pre:', this.clumpMatrix);
 
         this.convertClumpList();
-        // @TODO: Uncomment after testing
-        // this.storeClumps();
+        this.storeClumps();
         AppConfig.debugConsoleLogs && console.log('*** [AppData] CLUMPS NOT STORED!!');
         this.addClumpsToMatrix();
 
@@ -449,7 +448,7 @@ export default class AppData {
     this.lastAddedClumpId = updatedLastAddedClumpId;
 
     // Clear matrix and re-add all clumps.
-    this.dataManager.resetClumpListConverted();
+    this.resetClumpListConverted();
     this.addClumpsToMatrix();
   }
 

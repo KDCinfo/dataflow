@@ -423,6 +423,8 @@ export default class AppSettings {
       linkId: -1,
     };
 
+    const newLinkToIdFromUI = parseInt(this.uiElements.linkToId.value, 10) || -1;
+
     // Clump cell placement has 2 options:
     //
     // [Linked][toLeft]
@@ -459,6 +461,7 @@ export default class AppSettings {
       returnObject.linkId = linkToAboveId;
       // clump.linkedToAbove = linkToAboveId;
     }
+    return returnObject;
   }
 
   resetFormFields() {
