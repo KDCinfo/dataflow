@@ -796,9 +796,14 @@ export default class AppSettings {
     this.uiElements.clumpNameInput.value = clump.clumpName;
     this.uiElements.clumpCodeInput.value = clump.clumpCode;
 
-    // Update value and disable.
-    this.uiElements.linkToId.value = isNaN(clump.linkedToLeft) ? '' : clump.linkedToLeft;
-    this.uiElements.columnSelect.value = clump.linkedToAbove === -1 ? 'last' : clump.linkedToAbove;
+    this.uiElements.linkToId.value = clump.linkedToLeft !== -1 ? clump.linkedToLeft : clump.linkedToAbove;
+
+    this.uiElements.linkedToLeft.checked = clump.linkedToLeft !== -1;
+    this.uiElements.linkedToAbove.checked = clump.linkedToAbove !== -1;
+
+    // All existing clumps are linked, either 'left' or 'above'.
+    // The 'column select' dropdown will re-enable when a 'linkTo' is set to 'None'.
+    this.uiElements.columnSelect.disabled = index !== 0;
 
     // Set focus to the 'clump name' input field.
     this.uiElements.clumpNameInput.focus();
