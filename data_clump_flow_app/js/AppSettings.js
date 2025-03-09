@@ -150,7 +150,7 @@ export default class AppSettings {
         this.uiElements.columnSelect.disabled = false;
       }
     });
-    this.uiElements.linkedToLeft.addEventListener('change', function() {
+    this.uiElements.linkedToLeft.addEventListener('change', () => {
       // Refresh 'linkToId' dropdown options.
       // function(event) => if (event.target.checked) { }
       this.updateLinkToDropdownOptions();
