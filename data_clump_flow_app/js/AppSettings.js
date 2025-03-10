@@ -719,21 +719,28 @@ export default class AppSettings {
 
     // This map extrapolates in-use linkTo IDs so they are not
     // shown in the dropdown (because they're already linked to).
-    const linkedClumpIDs = this.dataManager.getData('clumpList').map(clump => clump.linkedToLeft);
+    const tempClumpList = this.dataManager.getData('clumpList');
+    const linkedClumpIDs = tempClumpList.map(clump => clump.linkedToLeft);
     const editingIndex = this.dataManager.getData('editingIndex');
 
-    this.dataManager.getData('clumpList').forEach((clump, index) => {
+    const linkedClumpID = editingIndex === null ? -2 : tempClumpList[editingIndex].linkedToLeft;
+
+    tempClumpList.forEach((clump, index) => {
       // You can't link a clump to itself.
       if (editingIndex !== index) {
         // If 'linkToLeft' is checked, only show clumps that are not already linked to.
         // Otherwise, all clumps can be linked to 'above', even those with an existing link
         // (in which case, the existing link will be moved to the new clump's ID; i.e. pushed down).
-        if (this.uiElements.linkedToLeft.checked && !linkedClumpIDs.includes(clump.id)) {
-          const option = document.createElement('option');
-          option.value = clump.id;
-          option.textContent = clump.clumpName;
-          this.uiElements.linkToId.appendChild(option);
-        } else if (!this.uiElements.linkedToLeft.checked) {
+        if (
+          // If 'isLeft' is checked, and
+          //   the clump is either the currently linked clump, or already linked to.
+          (
+            this.uiElements.linkedToLeft.checked &&
+            (clump.id === linkedClumpID || !linkedClumpIDs.includes(clump.id))
+          ) ||
+          // else, 'isAbove' can link to any clump.
+          !this.uiElements.linkedToLeft.checked
+        ) {
           const option = document.createElement('option');
           option.value = clump.id;
           option.textContent = clump.clumpName;
@@ -790,23 +797,27 @@ export default class AppSettings {
       console.log('Editing clump:', this.dataManager.getData('clumpList')[index]);
 
     this.dataManager.setData('editingIndex', index);
-    this.updateLinkToDropdownOptions(); // Updates list and toggles disabled.
-    this.updateColumnSelectDropdownOptions(); // Toggles disabled.
-    this.updateDataInHtml();
-    this.selectClumpNode(event.target);
 
     const clump = this.dataManager.getData('clumpList')[index];
+    const clumpIsLinkedLeft = clump.linkedToLeft !== -1;
+
     this.uiElements.clumpNameInput.value = clump.clumpName;
     this.uiElements.clumpCodeInput.value = clump.clumpCode;
 
-    this.uiElements.linkToId.value = clump.linkedToLeft !== -1 ? clump.linkedToLeft : clump.linkedToAbove;
-
-    this.uiElements.linkedToLeft.checked = clump.linkedToLeft !== -1;
+    this.uiElements.linkedToLeft.checked = clumpIsLinkedLeft;
     this.uiElements.linkedToAbove.checked = clump.linkedToAbove !== -1;
 
     // All existing clumps are linked, either 'left' or 'above'.
     // The 'column select' dropdown will re-enable when a 'linkTo' is set to 'None'.
-    this.uiElements.columnSelect.disabled = index !== 0;
+    this.uiElements.columnSelect.disabled = index !== 0 ;
+
+    this.updateLinkToDropdownOptions(); // Updates list and toggles disabled.
+    this.updateColumnSelectDropdownOptions(); // Toggles disabled.
+
+    this.updateDataInHtml();
+    this.selectClumpNode(event.target);
+
+    this.uiElements.linkToId.value = clumpIsLinkedLeft ? clump.linkedToLeft : clump.linkedToAbove;
 
     // Set focus to the 'clump name' input field.
     this.uiElements.clumpNameInput.focus();
