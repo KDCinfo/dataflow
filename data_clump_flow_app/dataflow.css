@@ -264,14 +264,15 @@ li ol>li:before {
 }
 
 .content-span,
-.icon-span {
+.edit-icon,
+.delete-icon {
   cursor: pointer;
 }
 
 .content-span {
   overflow: hidden;
   padding-left: 10px;
-  padding-right: 32px;
+  margin-right: 60px;
   text-align: left;
   text-overflow: ellipsis;
   width: 100%;
@@ -288,17 +289,26 @@ li ol>li:before {
   box-shadow: 0px 0px 5px #00ff00;
   cursor: pointer;
   font-size: 12px;
-  padding: 2px;
+  height: 22px;
+  width: 22px;
   position: absolute;
-  top: 5px;
 }
 
 .edit-icon {
+  outline: 1px dashed lightsalmon;
+  margin: 6px 0 0;
+  padding: 4px 2px 0px 2px;
   right: 5px;
+  top: 0;
 }
 
 .delete-icon {
-  right: 27px;
+  height: 14px;
+  margin: 6px 2px 0;
+  padding: 1px 2px 3px 2px;
+  right: 36px;
+  top: 5px;
+  width: 14px;
 }
 
 .collapsed {
