@@ -467,6 +467,12 @@ export default class AppSettings {
     return returnObject;
   }
 
+  enableDisableLinkToFields(onOrOff) {
+    this.uiElements.linkToId.disabled = onOrOff;
+    this.uiElements.linkedToLeft.disabled = onOrOff;
+    this.uiElements.linkedToAbove.disabled = onOrOff;
+  }
+
   resetFormFields() {
     // This will reset the form fields, regardless of any nesting.
     // clumpFormId.reset();
@@ -478,6 +484,14 @@ export default class AppSettings {
         field.value = field.defaultValue;
       }
     });
+
+    // Enable 'columnSelect' dropdown:
+    this.uiElements.columnSelect.disabled =
+        this.uiElements.linkToId.value !== '' ||
+        this.dataManager.getData('editingIndex') === 0;
+
+    // Enable 'linkTo' dropdown and radios: | disabled => editingIndex == 0
+    this.enableDisableLinkToFields(this.dataManager.getData('editingIndex') === 0);
   }
 
   // When canceling an edit, reset the 'editingIndex' to null, and remove the
@@ -485,12 +499,13 @@ export default class AppSettings {
   handleFormReset(event) {
     event.preventDefault();
 
+    this.dataManager.setData('editingIndex', null);
+
     // Reset the form fields.
     this.resetFormFields();
 
     // Leaving the form popped open for additional adds, but will close for edits.
     this.removePopUp();
-    this.dataManager.setData('editingIndex', null);
 
     this.uiElements.saveClumpButton.disabled = this.uiElements.clumpNameInput.value.trim() === '';
 
@@ -719,10 +734,10 @@ export default class AppSettings {
 
     // This map extrapolates in-use linkTo IDs so they are not
     // shown in the dropdown (because they're already linked to).
-    const tempClumpList = this.dataManager.getData('clumpList');
-    const linkedClumpIDs = tempClumpList.map(clump => clump.linkedToLeft);
     const editingIndex = this.dataManager.getData('editingIndex');
 
+    const tempClumpList = this.dataManager.getData('clumpList');
+    const linkedClumpIDs = tempClumpList.map(clump => clump.linkedToLeft);
     const linkedClumpID = editingIndex === null ? -2 : tempClumpList[editingIndex].linkedToLeft;
 
     tempClumpList.forEach((clump, index) => {
@@ -807,12 +822,19 @@ export default class AppSettings {
     this.uiElements.linkedToLeft.checked = clumpIsLinkedLeft;
     this.uiElements.linkedToAbove.checked = clump.linkedToAbove !== -1;
 
-    // All existing clumps are linked, either 'left' or 'above'.
+    // All existing clumps are linked, either 'left' or 'above' (and index: 0 cannot be moved).
     // The 'column select' dropdown will re-enable when a 'linkTo' is set to 'None'.
-    this.uiElements.columnSelect.disabled = index !== 0 ;
+    this.uiElements.columnSelect.disabled = true; // index !== 0 ;
 
-    this.updateLinkToDropdownOptions(); // Updates list and toggles disabled.
-    this.updateColumnSelectDropdownOptions(); // Toggles disabled.
+    if (index === 0) {
+      // Disable 'linkTo' dropdown and radios:
+      this.enableDisableLinkToFields(true); // disabled == true => disable
+    } else {
+      // Enable 'linkTo' dropdown and radios:
+      this.enableDisableLinkToFields(false); // disabled == false => enable
+      this.updateLinkToDropdownOptions(); // Updates list and toggles disabled.
+      this.updateColumnSelectDropdownOptions(); // Toggles disabled.
+    }
 
     this.updateDataInHtml();
     this.selectClumpNode(event.target);
