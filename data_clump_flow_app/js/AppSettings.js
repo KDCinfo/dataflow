@@ -155,6 +155,9 @@ export default class AppSettings {
       // function(event) => if (event.target.checked) { }
       this.updateLinkToDropdownOptions();
     });
+    this.uiElements.linkedToAbove.addEventListener('change', () => {
+      this.updateLinkToDropdownOptions();
+    });
     this.uiElements.columnSelect.addEventListener('change', () => {
       if (this.uiElements.clumpNameInput.value.trim() !== '') {
         this.uiElements.saveClumpButton.disabled = false;
@@ -725,12 +728,12 @@ export default class AppSettings {
         // If 'linkToLeft' is checked, only show clumps that are not already linked to.
         // Otherwise, all clumps can be linked to 'above', even those with an existing link
         // (in which case, the existing link will be moved to the new clump's ID; i.e. pushed down).
-        if (this.isLinkToLeftSelected && !linkedClumpIDs.includes(clump.id)) {
+        if (this.uiElements.linkedToLeft.checked && !linkedClumpIDs.includes(clump.id)) {
           const option = document.createElement('option');
           option.value = clump.id;
           option.textContent = clump.clumpName;
           this.uiElements.linkToId.appendChild(option);
-        } else if (!this.isLinkToLeftSelected) {
+        } else if (!this.uiElements.linkedToLeft.checked) {
           const option = document.createElement('option');
           option.value = clump.id;
           option.textContent = clump.clumpName;
