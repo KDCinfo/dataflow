@@ -42,7 +42,7 @@ export default class AppSettings {
   constructor(uiSelectors) {
     this.uiElements = this.resolveSelectors(uiSelectors);
 
-    this.appSettingsInfo = this.getJsonSettingsFromStorageOrDefaults();
+    this.appSettingsInfo = AppStorage.getJsonSettingsFromStorageOrDefaults();
 
     // This will override the 'Appsettings.storageIndex' with the 'sessionStorage' value,
     //   if present, else it falls back to using the 'localStorage' value.
@@ -80,16 +80,6 @@ export default class AppSettings {
       }
     }
     return resolved;
-  }
-
-  getJsonSettingsFromStorageOrDefaults() {
-    const dataFromStorage = AppStorage.appStorageGetItem(AppConstants.localStorageSettingsKey);
-    const dataFromDefaults = JSON.stringify(
-      DataDefaultMaps.dataDefaultMap().defaultAppSettings
-    );
-    return JSON.parse(
-      dataFromStorage || dataFromDefaults
-    );
   }
 
   // Adding the '.popped' class to 'clump-form-form' will pop out the form.
@@ -303,12 +293,10 @@ export default class AppSettings {
     this.uiElements.crossTabWarning.classList.add('hidden');
   }
 
+  // Check if 'AppSettingsInfo.storageIndex' reflects the same name as the currently active
+  // storage name. If not, return. We DO NOT want to update a storage that doesn't exist, else
+  // it will overwrite all the data in the next storage in the list and replace it with this data.
   checkIfStorageNameStillExists() {
-    // Check if AppSettingsInfo.storageIndex reflects
-    // the same name as the currently active storage name.
-    // If not, return. We DO NOT want to update a storage that
-    // doesn't exist, else it will overwrite all the data in the
-    // next storage in the list and replace it with this data.
     const currentStorageName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex].toLowerCase();
     const storageNameLabelTrimmed = this.uiElements.storageNameLabelCurrent.textContent.trim().toLowerCase();
     if (currentStorageName !== storageNameLabelTrimmed) {

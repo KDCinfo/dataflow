@@ -1,4 +1,5 @@
 import AppConstants from "./AppConstants.js";
+import DataDefaultMaps from './DataDefaultMaps.js';
 
 export default class AppStorage {
   //
@@ -61,5 +62,16 @@ export default class AppStorage {
   // Retrieve the settings from local storage.
   static appStorageGetItem(key) {
     return localStorage.getItem(key);
+  }
+
+
+  static getJsonSettingsFromStorageOrDefaults() {
+    const dataFromStorage = AppStorage.appStorageGetItem(AppConstants.localStorageSettingsKey);
+    const dataFromDefaults = JSON.stringify(
+      DataDefaultMaps.dataDefaultMap().defaultAppSettings
+    );
+    return JSON.parse(
+      dataFromStorage || dataFromDefaults
+    );
   }
 }
