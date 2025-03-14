@@ -754,6 +754,18 @@ export default class AppSettings {
   // @TODO: Extract these to a 'UIInterface' class for dropdowns.
   //
 
+  collectSubtreeIdsFullTail = (linkedToId) => {
+    let ids = [];
+    this.dataManager.getData('clumpList').forEach(clump => {
+      if (clump.linkedToLeft === linkedToId || clump.linkedToAbove === linkedToId) {
+        ids.push(clump.id);
+        ids = ids.concat(this.collectSubtreeIdsFullTail(clump.id));
+        console.log('[AppSettings] [ids]', ids);
+      }
+    });
+    return ids;
+  };
+
   updateLinkToDropdownOptions() {
     this.uiElements.linkToId.innerHTML = '<option value="">None</option>';
 
@@ -762,6 +774,7 @@ export default class AppSettings {
     const editingIndex = this.dataManager.getData('editingIndex');
 
     const tempClumpList = this.dataManager.getData('clumpList');
+    const fullTail = editingIndex === null ? [] : this.collectSubtreeIdsFullTail(tempClumpList[editingIndex].id);
     const linkedClumpIDs = tempClumpList.map(clump => clump.linkedToLeft);
     const linkedClumpID = editingIndex === null ? -2 : tempClumpList[editingIndex].linkedToLeft;
 
@@ -776,6 +789,7 @@ export default class AppSettings {
           //   the clump is either the currently linked clump, or already linked to.
           (
             this.uiElements.linkedToLeft.checked &&
+            !fullTail.includes(clump.id) &&
             (clump.id === linkedClumpID || !linkedClumpIDs.includes(clump.id))
           ) ||
           // else, 'isAbove' can link to any clump.
