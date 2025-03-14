@@ -310,85 +310,90 @@ export default class AppSettings {
     // clumpFormId.onsubmit = (event) => {
     event.preventDefault();
 
-    // Check if the currently active storage name has been deleted.
+    // Ensure the currently active storage name is valid (prevent updating a non-existent storage).
     if (!this.checkIfStorageNameStillExists()) {
       return;
     }
 
-    const columnRawValue = this.uiElements.columnSelect.options[this.uiElements.columnSelect.selectedIndex].value;
-
-    const linkObject = this.getLinkInfo(columnRawValue);
-    const isLinkedLeft = linkObject.isLinkedLeft;
-    const linkId = linkObject.linkId;
+    // Determine linking info based on the selected "Add to Column" option and link inputs.
+    const columnRawValue = this.uiElements.columnSelect.options[
+      this.uiElements.columnSelect.selectedIndex
+    ].value;
+    const { isLinkedLeft, linkId } = this.getLinkInfo(columnRawValue);
 
     if (this.dataManager.getData('editingIndex') === null) {
       //
-      // ADDING A NEW CLUMP
+      // **ADDING A NEW CLUMP**
       //
       const newClumpID = this.dataManager.getData('lastAddedClumpId') + 1;
+      const newClump = new ClumpInfo();
+      newClump.id = newClumpID;
+      newClump.clumpName = this.uiElements.clumpNameInput.value;
+      newClump.clumpCode = this.uiElements.clumpCodeInput.value;
 
-      const addNewClump = new ClumpInfo();
-      addNewClump.id = newClumpID;
-      addNewClump.clumpName = this.uiElements.clumpNameInput.value;
-      addNewClump.clumpCode = this.uiElements.clumpCodeInput.value;
-
+      // Assign the parent link based on selection (linkedToLeft or linkedToAbove).
       if (isLinkedLeft) {
-        addNewClump.linkedToLeft = linkId;
+        newClump.linkedToLeft = linkId;
+        newClump.linkedToAbove = -1;  // Ensure the alternate link field is cleared
       } else {
-        addNewClump.linkedToAbove = linkId;
+        newClump.linkedToAbove = linkId;
+        newClump.linkedToLeft = -1;   // Clear the unused link field
       }
 
-      // Add the new clump to the end of the 'clumps' 1D array.
-      const clumpListToAdd = [...this.dataManager.getData('clumpList')];
-      clumpListToAdd.push(addNewClump);
-      this.dataManager.setData('clumpList', clumpListToAdd);
-
-      // Inject the new clump to the 'clumpMatrix' 2D array.
-      this.dataManager.addClumpToMatrix(addNewClump);
-
-      // Update global variables.
-      this.dataManager.setData('lastAddedClumpId', newClumpID);
+      // Add the new clump to the clump list and matrix, and update global ID counter.
+      const currentClumpList = this.dataManager.getData('clumpList');
+      const updatedClumpList = [...currentClumpList, newClump]; // Append new clump immutably.
+      this.dataManager.setData('clumpList', updatedClumpList);  // Save new list to 1D clumpList.
+      this.dataManager.addClumpToMatrix(newClump);              // Inject new clump into 2D clumpMatrix.
+      this.dataManager.setData('lastAddedClumpId', newClumpID); // Update the last added clump ID tracker.
+      // (Note: lastAddedCol will be updated in renderMatrix based on the new matrix state.)
       //
     } else {
       //
-      // EDITING AN EXISTING CLUMP
+      // **EDITING AN EXISTING CLUMP**
       //
       AppConfig.debugConsoleLogs && console.log('clumpList before edit:', this.dataManager.getData('clumpList'));
 
-      const editedClumpIndex = this.dataManager.getData('editingIndex');
-      const editedClump = structuredClone(this.dataManager.getData('clumpList')[editedClumpIndex]);
+      const editIndex = this.dataManager.getData('editingIndex');
+      // Clone the targeted clump data to avoid mutating state directly, then apply form changes.
+      const originalClump = this.dataManager.getData('clumpList')[editIndex];
+      // > structuredClone | https://developer.mozilla.org/en-US/docs/Web/API/Window/structuredClone
+      const editedClump = structuredClone(originalClump);
       editedClump.clumpName = this.uiElements.clumpNameInput.value;
       editedClump.clumpCode = this.uiElements.clumpCodeInput.value;
 
+      // Determine new parent link based on user selection and update the edited clump.
       if (isLinkedLeft) {
         editedClump.linkedToLeft = linkId;
+        editedClump.linkedToAbove = -1; // Clear the above link if switching to a left link.
       } else {
         editedClump.linkedToAbove = linkId;
+        editedClump.linkedToLeft = -1;  // Clear the left link if switching to an above link.
       }
 
-      // Replace the clump in the array with the updated one.
-      const updatedClumpList = this.dataManager.getData('clumpList').map((clump, index) =>
-        index === editedClumpIndex ? editedClump : clump
-      );
+      // Handle repositioning logic if the link relationships changed (extract to helper for clarity).
+      const currentClumpList = this.dataManager.getData('clumpList');
+      const newClumpList = this.handleClumpMovement(currentClumpList, originalClump, editedClump);
+      // (The helper will adjust any other clumps as needed when the structure is changed.)
 
       AppConfig.debugConsoleLogs && console.log('clumpList after edit - before update:', this.dataManager.getData('clumpList'));
 
-      this.removePopUp();
-      this.dataManager.setData('editingIndex', null);
-      this.dataManager.setData('clumpList', updatedClumpList);
+      // Update the data store with the edited clump and refreshed list.
+      this.removePopUp();                                  // Close the edit form popup UI.
+      this.dataManager.setData('editingIndex', null);      // Clear editing mode.
+      this.dataManager.setData('clumpList', newClumpList); // Save the modified clump list.
 
       AppConfig.debugConsoleLogs && console.log('clumpList after edit - after update:', this.dataManager.getData('clumpList'));
 
-      this.updateDataInHtml();
-      this.clearSelectedClumpNode();
+      // Refresh UI elements related to data and selection.
+      this.updateDataInHtml();            // Update debug info display (lastAddedClumpId, lastAddedCol, etc.)
+      this.clearSelectedClumpNode();      // Remove highlight from the previously selected clump node.
     }
 
-    this.dataManager.storeClumps();
-
-    // Reset the form fields.
-    this.resetFormFields();
-
-    this.renderMatrix();
+    // **Finalize: Persist data and refresh UI**
+    this.dataManager.storeClumps();       // Save the clumps data to local storage (or backend)
+    this.resetFormFields();               // Clear out the form inputs for next use
+    this.renderMatrix();                  // Re-render the clump matrix in the UI to reflect changes
 
     const howManyExpanded = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded').length;
     this.uiElements.outputContainer.style.marginBottom = howManyExpanded > 0 ? '260px' : '0';
@@ -396,6 +401,32 @@ export default class AppSettings {
       ? 'calc(100vh - 42px - 260px)'
       : 'calc(100vh - 42px)';
   };
+
+  /**
+   * Adjusts clump positions in the list when a clump's linkage (parent) changes.
+   * This function handles reassigning related clumps and reordering the clump list to maintain a valid structure.
+   * @param {Array} clumpList - The current list of all clump objects (before edit).
+   * @param {Object} originalClump - The original clump data (before edits).
+   * @param {Object} updatedClump - The clump data after edits (with updated link fields).
+   * @returns {Array} - A new clump list with the clump repositioned as needed.
+   */
+  handleClumpMovement(clumpList, originalClump, updatedClump) {
+    const movedClumpId = updatedClump.id;
+    const oldAbove = originalClump.linkedToAbove;
+    const oldLeft = originalClump.linkedToLeft;
+    const newAbove = updatedClump.linkedToAbove;
+    const newLeft = updatedClump.linkedToLeft;
+    let updatedClumpList = [];
+
+    // If the linkage hasn't changed (same parent as before), no reposition is needed.
+    const linkUnchanged = oldAbove === newAbove && oldLeft === newLeft;
+    if (linkUnchanged) {
+      // Simply replace the clump in the list with the updated data.
+      updatedClumpList = clumpList.map(clump => clump.id === movedClumpId ? updatedClump : clump);
+    }
+
+    return updatedClumpList;
+  }
 
   get getByLinkNotColumn() {
     const newLinkToIdFromUI = parseInt(this.uiElements.linkToId.value, 10) || -1;
