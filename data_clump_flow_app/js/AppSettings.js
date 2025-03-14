@@ -144,9 +144,11 @@ export default class AppSettings {
       // Refresh 'linkToId' dropdown options.
       // function(event) => if (event.target.checked) { }
       this.updateLinkToDropdownOptions();
+      this.updateColumnSelectDropdownOptions();
     });
     this.uiElements.linkedToAbove.addEventListener('change', () => {
       this.updateLinkToDropdownOptions();
+      this.updateColumnSelectDropdownOptions();
     });
     this.uiElements.columnSelect.addEventListener('change', () => {
       if (this.uiElements.clumpNameInput.value.trim() !== '') {
@@ -492,6 +494,12 @@ export default class AppSettings {
     this.uiElements.linkedToAbove.disabled = onOrOff;
   }
 
+  enableDisableColumnSelect() {
+    this.uiElements.columnSelect.disabled =
+        this.uiElements.linkToId.value !== '' ||
+        this.dataManager.getData('editingIndex') === 0;
+  }
+
   resetFormFields() {
     // This will reset the form fields, regardless of any nesting.
     // clumpFormId.reset();
@@ -504,13 +512,11 @@ export default class AppSettings {
       }
     });
 
-    // Enable 'columnSelect' dropdown:
-    this.uiElements.columnSelect.disabled =
-        this.uiElements.linkToId.value !== '' ||
-        this.dataManager.getData('editingIndex') === 0;
-
     // Enable 'linkTo' dropdown and radios: | disabled => editingIndex == 0
     this.enableDisableLinkToFields(this.dataManager.getData('editingIndex') === 0);
+
+    // Enable 'columnSelect' dropdown:
+    this.enableDisableColumnSelect();
   }
 
   // When canceling an edit, reset the 'editingIndex' to null, and remove the
@@ -802,6 +808,8 @@ export default class AppSettings {
       this.uiElements.columnSelect.appendChild(option);
     });
 
+    this.enableDisableColumnSelect();
+
     // We can now edit 'column' (now 'linkedToLeft') and 'linkTo' (now 'linkedToAbove') properties.
     // this.uiElements.columnSelect.disabled = this.dataManager.getData('editingIndex') !== null;
   }
@@ -859,6 +867,9 @@ export default class AppSettings {
     this.selectClumpNode(event.target);
 
     this.uiElements.linkToId.value = clumpIsLinkedLeft ? clump.linkedToLeft : clump.linkedToAbove;
+
+    // This needs to be run after the 'linkTo' dropdown value is updated.
+    this.enableDisableColumnSelect();
 
     // Set focus to the 'clump name' input field.
     this.uiElements.clumpNameInput.focus();
