@@ -694,7 +694,8 @@ export default class AppData {
           //     ~ Place the clump's ID in the last column.
           let lastRow = -1;
           for (let r = rowCount; r > 0; r--) {
-            if (this.clumpMatrix[r - 1][colCount - 1] !== 0) {
+            // this.clumpMatrix[r - 1][colCount - 1] !== 0
+            if (this.clumpMatrix[r - 1][colCount - 1] === newClump.linkedToAbove) {
               lastRow = r;
               break;
             }
@@ -727,7 +728,8 @@ export default class AppData {
 
           for (let r = rowCount; r > 0; r--) {
             // Record the bottommost row of the new clump's column.
-            if (this.clumpMatrix[r - 1][newClumpColumn - 1] !== 0) {
+            // if (this.clumpMatrix[r - 1][newClumpColumn - 1] !== 0) {
+            if (this.clumpMatrix[r - 1][newClumpColumn - 1] === newClump.linkedToAbove) {
               newClumpBottomRow = r;
               break;
             }
@@ -738,7 +740,8 @@ export default class AppData {
             // Record the lowest clump, that is lower than the new clump, in all the columns to the right.
             for (let c = newClumpColumn; c < colCount; c++) {
               // We're using [c] instead of [c - 1] because we're looking to the right of the new clump's column.
-              if (this.clumpMatrix[r - 1][c] !== 0) {
+              // if (this.clumpMatrix[r - 1][c] !== 0) {
+              if (this.clumpMatrix[r - 1][c] === newClump.linkedToAbove) {
                 // rightmostCol = c;
                 rightmostRow = r;
                 break rowColumnLoop;

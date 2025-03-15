@@ -852,7 +852,6 @@ export default class AppSettings {
       }
     });
 
-    // We can now edit 'column' (now 'linkedToLeft') and 'linkTo' (now 'linkedToAbove') properties.
     const fragmentNotInTail = document.createDocumentFragment();
     optionsNotInTail.forEach(option => fragmentNotInTail.appendChild(option));
     this.uiElements.linkToId.appendChild(fragmentNotInTail);
