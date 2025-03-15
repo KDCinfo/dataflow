@@ -966,7 +966,7 @@ export default class AppSettings {
   //   what happens when you delete a clump that has a clump linked to it from its right?
   // And the shifting involved for cells below, left and right, will require some complexity.
   // For now, we'll just provide the ability to remove the last clump added (an undo).
-  deleteLastClump(event) {
+  deleteLastClump(event, clumpIndex) {
     event.stopPropagation();
 
     // Check if the currently active storage name has been deleted.
@@ -993,14 +993,26 @@ export default class AppSettings {
 
       const getClumpList = this.dataManager.getData('clumpList');
 
-      if (this.dataManager.getData('editingIndex') === getClumpList.length - 1) {
+      if (this.dataManager.getData('editingIndex') === clumpIndex) {
         this.dataManager.setData('editingIndex', null);
       }
 
-      // Remove the clump from the clumps array.
-      const clumpListToPop = [...getClumpList];
-      clumpListToPop.pop();
-      this.dataManager.setData('clumpList', clumpListToPop);
+      const clumpListSpliced = [...getClumpList];
+
+      const clumpFound = getClumpList[clumpIndex];
+      const clumpBelowIndex = getClumpList.findIndex(clump => clump.linkedToAbove === clumpFound.id);
+
+      if (clumpBelowIndex !== -1) {
+        // Replace the clump below with links from the clump above.
+        const clumpBelow = getClumpList[clumpBelowIndex];
+        clumpBelow.linkedToAbove = clumpFound.linkedToAbove;
+        clumpBelow.linkedToLeft = clumpFound.linkedToLeft;
+        clumpListSpliced[clumpBelowIndex] = clumpBelow;
+      }
+
+      // Now we can remove the clump from the list.
+      clumpListSpliced.splice(clumpIndex, 1);
+      this.dataManager.setData('clumpList', clumpListSpliced);
 
       // Clear matrix and re-add all clumps.
       this.dataManager.resetClumpListConverted();
@@ -1314,10 +1326,10 @@ export default class AppSettings {
           this.uiElements.clumpContainer.appendChild(emptyCell);
           continue;
         }
-
-        const clumpFound = getClumpList.find(clump => clump.id === curClumpId);
         const clumpCell = document.createElement('div');
-        clumpListIndex = getClumpList.indexOf(clumpFound);
+
+        clumpListIndex = getClumpList.findIndex(clump => clump.id === curClumpId);
+        const clumpFound = getClumpList[clumpListIndex];
 
         clumpCell.className = `clump-node collapsed clump-list-index-${clumpListIndex}`;
 
@@ -1345,13 +1357,17 @@ export default class AppSettings {
         iconSpan.appendChild(editIcon);
 
         // Conditionally create and append the delete icon
-        if (getClumpList[getClumpList.length - 1].id === clumpFound.id) {
+        if (
+          getClumpList[0].id !== clumpFound.id &&
+          getClumpList.find(clump => clump.linkedToLeft === clumpFound.id) === undefined
+        ) {
           const deleteIcon = document.createElement('div');
           deleteIcon.className = 'delete-icon';
           deleteIcon.textContent = '❌';
           deleteIcon.onclick = (event) => {
             event.stopPropagation(); // Prevent toggle when clicking delete
-            this.deleteLastClump(event);
+            clumpListIndex = getClumpList.findIndex(clump => clump.id === curClumpId);
+            this.deleteLastClump(event, clumpListIndex);
           };
           iconSpan.appendChild(deleteIcon);
         }
