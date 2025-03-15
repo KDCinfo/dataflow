@@ -259,16 +259,16 @@ handleClumpMovement(clumpList, originalClump, updatedClump) {
 - When Editing:
   - Exists in clumpList, with a possible tail
 
-[X] Case 1: C1R1 | First Cell
-			- No movement
-[X] Case 2: C1R3 | Cell linked to from right =>
-			- Need full right tail, and below tail
-[X] Case 3: C1R2 | Cell linked to from below
-			- Only need below tail
-[X] Case 4: C2R1 | Cell that is linkedToLeft > 0
-			- Can only be moved to a cell that is not being left-linked to
-[ ] Case 5: C1R2 | Cell that is linkedToAbove >0
+[X] Case _: C1R3 | Cell linked to from right =>
+    - Need full right tail, and below tail
+[X] Case _: C1R2 | Cell linked to from below
+    - Only need below tail
 
+[X] Case 1: C1R1 | First Cell
+    - No movement
+[X] Case 2: C2R1 | Cell that is linkedToLeft > 0
+    - Can only be moved to a cell that is not being left-linked to
+[ ] Case 3: C1R2 | Cell that is linkedToAbove >0
 		- Below Tail
 			- The below tail will follow any right-linked cells in the below tail, adhering to these two Below Tail rules
    [X]  1) If in 1st column, below tail will flow to end of column 1

@@ -434,16 +434,19 @@ export default class AppSettings {
 
     let updatedClumpList = [];
 
-    // If editing, and the linkage hasn't changed (same parent as before), no reposition is needed.
+    // CASE 1: C1R1 | First Cell | No movement
+    //         If editing, and the linkage hasn't changed
+    //         (same parent as before), no reposition is needed.
     const linkUnchanged = !isAdd && oldAbove === newAbove && oldLeft === newLeft;
     if (linkUnchanged) {
       // Simply replace the clump in the list with the updated data.
       updatedClumpList = clumpList.map(clump => clump.id === insertionClumpId ? clumpToInsert : clump);
     }
 
-    // We only need tails when editing a cell.
     const subtreeBothTails = isAdd ? [] : this.collectSubtreeIdsFullTail(insertionClumpId);
 
+    // CASE 2: C2R1 | Cell that is linkedToLeft > 0
+    //         Can only be moved to a cell that is not already linked to another cell.
     if (newLeft !== -1) {
       // If linkedToLeft,
       //   1) remove the full tail, if any, from the list, then
@@ -503,7 +506,7 @@ export default class AppSettings {
       // clump.linkedToLeft = newLinkToIdFromUI;
     } else {
       // We need to determine the ID of the clump to link to.
-      const isLinkedAbove = this.getByLinkNotColumn && this.uiElements.linkedToLAbove.checked;
+      const isLinkedAbove = this.getByLinkNotColumn && this.uiElements.linkedToAbove.checked;
       const columnValue = parseInt(columnRawValue, 10) || this.dataManager.getData('lastAddedCol');
 
       // The parent cell ID to link to (above) is either:
