@@ -253,31 +253,37 @@ handleClumpMovement(clumpList, originalClump, updatedClump) {
 		- Skeleton: Dataflow
 				Working through Use Cases for moving cells.
 
-		Case 1: C1R1 | First Cell
+- When Adding:
+  - Not in clumpList
+
+- When Editing:
+  - Exists in clumpList, with a possible tail
+
+[X] Case 1: C1R1 | First Cell
 			- No movement
-		Case 2: C1R3 | Cell linked to from right =>
-			- If cell is linked to from right, need full right tail, and below tail
-		Case 3: C1R2 | Cell linked to from below
-			- If cell is linked to from below, only need below tail
-		Case 4: C2R1 | Cell that is linkedToLeft > 0
+[X] Case 2: C1R3 | Cell linked to from right =>
+			- Need full right tail, and below tail
+[X] Case 3: C1R2 | Cell linked to from below
+			- Only need below tail
+[X] Case 4: C2R1 | Cell that is linkedToLeft > 0
 			- Can only be moved to a cell that is not being left-linked to
-		Case 5: C1R2 | Cell that is linkedToAbove >0
+[ ] Case 5: C1R2 | Cell that is linkedToAbove >0
 
 		- Below Tail
 			- The below tail will follow any right-linked cells in the below tail, adhering to these two Below Tail rules
-			1) If in 1st column, below tail will flow to end of column 1
-			2) If in column > 1, below tail will flow until a cell has a linkedToLeft > 0
+   [X]  1) If in 1st column, below tail will flow to end of column 1
+   [X]  2) If in column > 1, below tail will flow until a cell has a linkedToLeft > 0
 		- Moving
-			- Cells with linkedToLeft > 0 cannot be moved to a cell within either of its tails
-				^ This is a UI change
+   [X] - Cells with linkedToLeft > 0 cannot be moved to a cell within either of its tails
+   [X]   ^ This is a UI change
 			- Cells with linkedToAbove > 0
         - UI dropdown should distinguish between cells above and below the edited cell
-				- If moved down
+				[ ] If moved down
 					- Cell below it moves up (replace it with the moved cell's linkedToAbove)
 					- Change linkedToAbove from target cell to the moved cell
 					- If a cell is below the target cell, its linkedToAbove will become the last cell's ID in the column,
 						given the rule of stopping short of any cell with a linkedToLeft
-				- If moved up
+				[ ] If moved up
 					- Entire below tail moves up, and any existing cells below the move-to cell will be
             moved to the bottom of the moved cell's below tail
 
@@ -321,6 +327,8 @@ const clumpList = [
 ];
 const movedClumpId = 3;
 
+// Helper function to recursively collect all descendant clump IDs.
+// For a 'below tail', if a clump is directly below the root, include it.
 const collectSubtreeIdsBelow = (rootId) => {
   let idsBelow = [];
 	console.log('idsBelow: ', idsBelow);
@@ -345,6 +353,9 @@ const getlLastCell = (lastClumpId) => {
 const cellLast = getlLastCell(subtreeBelowTailLastId) || -1;
 console.log('cellLast: ', cellLast); // cellLastId === -1 ? [] :
 
+// For a 'right tail', if a clump is being linked to from the right, use
+//   that linked cell as the rootId. If following clumps are directly
+//   below or to the right of the root, include it and its subtree.
 const collectAllSubtreeIds = (linkedToId) => {
   let ids = [];
   clumpList.forEach((clump) => {
