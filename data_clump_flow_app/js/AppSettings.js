@@ -423,19 +423,42 @@ export default class AppSettings {
    * @param {Object} originalClump - The original clump data (before edits).
    * @returns {Array} - A new clump list with clumps repositioned as needed.
    */
-    const movedClumpId = updatedClump.id;
-    const oldAbove = originalClump.linkedToAbove;
-    const oldLeft = originalClump.linkedToLeft;
-    const newAbove = updatedClump.linkedToAbove;
-    const newLeft = updatedClump.linkedToLeft;
   handleClumpMovement(clumpList, clumpToInsert, originalClump) {
+    const insertionClumpId = clumpToInsert.id;
+    const newAbove = clumpToInsert.linkedToAbove;
+    const newLeft = clumpToInsert.linkedToLeft;
+
+    const isAdd = typeof originalClump === 'undefined' || originalClump === null;
+    const oldAbove = isAdd ? -1 : originalClump.linkedToAbove;
+    const oldLeft = isAdd ? -1 : originalClump.linkedToLeft;
+
     let updatedClumpList = [];
 
-    // If the linkage hasn't changed (same parent as before), no reposition is needed.
-    const linkUnchanged = oldAbove === newAbove && oldLeft === newLeft;
+    // If editing, and the linkage hasn't changed (same parent as before), no reposition is needed.
+    const linkUnchanged = !isAdd && oldAbove === newAbove && oldLeft === newLeft;
     if (linkUnchanged) {
       // Simply replace the clump in the list with the updated data.
-      updatedClumpList = clumpList.map(clump => clump.id === movedClumpId ? updatedClump : clump);
+      updatedClumpList = clumpList.map(clump => clump.id === insertionClumpId ? clumpToInsert : clump);
+    }
+
+    // We only need tails when editing a cell.
+    const subtreeBothTails = isAdd ? [] : this.collectSubtreeIdsFullTail(insertionClumpId);
+
+    if (newLeft !== -1) {
+      // If linkedToLeft,
+      //   1) remove the full tail, if any, from the list, then
+      //   2) inject new clump, and its full subtree (if any), to the right of the linked clump.
+      const leftClumpIndex = clumpList.findIndex(clump => clump.id === newLeft);
+      updatedClumpList = [
+        ...clumpList.slice(0, leftClumpIndex + 1).filter(clump =>
+          !subtreeBothTails.includes(clump.id) && clump.id !== insertionClumpId
+        ),
+        clumpToInsert,
+        ...subtreeBothTails,
+        ...clumpList.slice(leftClumpIndex + 1).filter(clump =>
+          !subtreeBothTails.includes(clump.id) && clump.id !== insertionClumpId
+        )
+      ];
     }
 
     return updatedClumpList;
@@ -765,6 +788,10 @@ export default class AppSettings {
   // @TODO: Extract these to a 'UIInterface' class for dropdowns.
   //
 
+  // For a 'right tail': If a clump is being linked to from the right, use
+  //   that cell to the right as the rootId. Any clumps directly below
+  //   the root, or to the right of those below, will be included.
+  // const subtreeRightFullTail = collectSubtreeIdsFullTail(rightClumpId);
   collectSubtreeIdsFullTail = (linkedToId) => {
     let ids = [];
     this.dataManager.getData('clumpList').forEach(clump => {
