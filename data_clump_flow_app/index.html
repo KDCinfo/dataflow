@@ -58,7 +58,16 @@
 
           <div class="clump-form-div-wrapper-inside bgcolor2">
             <div class="clump-form-div">
-              <label for="linkToId">Or &mdash; Link to Clump:</label>
+              <!-- // An asterisk (*) indicates the clump is in the tail of the clump being edited. -->
+              <!-- // When moving a clump into its own tail, the tail will not be moved (recursive). -->
+              <!-- // Instead, only the clump being moved will be moved. -->
+              <!-- // A tail, if any, will be shifted up to fill the gap. -->
+              <label
+                for="linkToId"
+                title="An asterisk (*) indicates the clump is in the tail of the clump being edited.
+
+When moving a clump into its own tail, the tail will not be moved (recursive). Instead, only the clump being moved will be moved. A tail, if any, will be shifted up (or left) to fill the gap.">
+              Or &mdash; Link to Clump:<sup>*</sup></label>
               <select id="linkToId">
                 <option value="">None</option>
               </select>

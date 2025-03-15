@@ -816,6 +816,8 @@ export default class AppSettings {
     const linkedClumpIDs = tempClumpList.map(clump => clump.linkedToLeft);
     const linkedClumpID = editingIndex === null ? -2 : tempClumpList[editingIndex].linkedToLeft;
 
+    const optionsInTail = [];
+    const optionsNotInTail = [];
     tempClumpList.forEach((clump, index) => {
       // You can't link a clump to itself.
       if (editingIndex !== index) {
@@ -835,13 +837,32 @@ export default class AppSettings {
         ) {
           const option = document.createElement('option');
           option.value = clump.id;
-          option.textContent = clump.clumpName;
-          this.uiElements.linkToId.appendChild(option);
+          // An asterisk (*) indicates the clump is in the tail of the clump being edited.
+          // When moving a clump into its own tail, the tail will not be moved (recursive).
+          // Instead, only the clump being moved will be moved.
+          // A tail, if any, will be shifted up to fill the gap.
+          if (fullTail.includes(clump.id)) {
+            option.textContent = `(*) ${clump.clumpName}`;
+            optionsInTail.push(option);
+          } else {
+            option.textContent = clump.clumpName;
+            optionsNotInTail.push(option);
+          }
         }
       }
     });
 
     // We can now edit 'column' (now 'linkedToLeft') and 'linkTo' (now 'linkedToAbove') properties.
+    const fragmentNotInTail = document.createDocumentFragment();
+    optionsNotInTail.forEach(option => fragmentNotInTail.appendChild(option));
+    this.uiElements.linkToId.appendChild(fragmentNotInTail);
+
+    const fragmentInTail = document.createDocumentFragment();
+    optionsInTail.forEach(option => fragmentInTail.appendChild(option));
+    this.uiElements.linkToId.appendChild(fragmentInTail);
+
+    // The following is commented because we can now
+    // edit 'column' (now 'linkedToLeft') and 'linkTo' (now 'linkedToAbove') properties.
     // this.uiElements.linkToId.disabled = this.dataManager.getData('editingIndex') !== null;
   }
 
