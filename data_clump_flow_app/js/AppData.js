@@ -15,6 +15,7 @@ export default class AppData {
   // are never reused within the 'clumpMatrix' array. Ergo, IDs should
   // always be in order, even when a hole is left from a deletion.
   lastAddedClumpId; // = 0;
+  highestClumpId; // = 0;
 
   // DATA: [clumpList] A 1D list of data clumps are stored in the browser's local storage.
   // The clumpMatrix, below, is used to render the clumps in their correct 2D positions.
@@ -93,6 +94,7 @@ export default class AppData {
     this.editingIndex = DataDefaultMaps.dataDefaultMap().editingIndex; // null;
     this.lastAddedCol = DataDefaultMaps.dataDefaultMap().lastAddedCol; // 1;
     this.lastAddedClumpId = DataDefaultMaps.dataDefaultMap().lastAddedClumpId; // 0;
+    this.highestClumpId = DataDefaultMaps.dataDefaultMap().highestClumpId; // 0;
 
     // The clumpList is parsed from local storage using the 'active storage key' from 'appSettingsInfo'.
     this.clumpList = [];
@@ -335,6 +337,7 @@ export default class AppData {
     this.clumpMatrix.length = 0;
     this.clumpList.forEach(clump => {
       this.lastAddedClumpId = clump.id;
+      this.highestClumpId = clump.id > this.highestClumpId ? clump.id : this.highestClumpId;
       this.addClumpToMatrix(clump);
     });
 
@@ -436,7 +439,8 @@ export default class AppData {
     importedClumps,
     updatedEditingIndex,
     updatedLastAddedCol,
-    updatedLastAddedClumpId
+    updatedLastAddedClumpId,
+    updatedHighestClumpId
   ) {
     // Update and store clumps.
     this.setClumpList(importedClumps);
@@ -446,6 +450,7 @@ export default class AppData {
     this.editingIndex = updatedEditingIndex;
     this.lastAddedCol = updatedLastAddedCol;
     this.lastAddedClumpId = updatedLastAddedClumpId;
+    this.highestClumpId = updatedHighestClumpId;
 
     // Clear matrix and re-add all clumps.
     this.resetClumpListConverted();

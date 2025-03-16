@@ -331,7 +331,7 @@ export default class AppSettings {
       //
       // **ADDING A NEW CLUMP**
       //
-      const newClumpID = this.dataManager.getData('lastAddedClumpId') + 1;
+      const newClumpID = this.dataManager.getData('highestClumpId') + 1;
 
       newClump = new ClumpInfo();
       newClump.id = newClumpID;
@@ -352,8 +352,9 @@ export default class AppSettings {
       // const newClumpList = [...currentClumpList, newClump]; // Append new clump immutably.
       newClumpList = this.handleClumpMovement(currentClumpList, newClump);
 
-      this.dataManager.setData('lastAddedClumpId', newClumpID); // Update the last added clump ID tracker.
-      // (Note: lastAddedCol will be updated in renderMatrix based on the new matrix state.)
+      // Note: lastAddedCol will be updated in renderMatrix based on the new matrix state.
+      this.dataManager.setData('lastAddedClumpId', newClumpID);
+      this.dataManager.setData('highestClumpId', newClumpID);
       //
     } else {
       //
@@ -621,7 +622,8 @@ export default class AppSettings {
         null, // updatedEditingIndex
         // @TODO: Replace this with static map.
         DataDefaultMaps.dataDefaultMap().lastAddedCol,
-        DataDefaultMaps.dataDefaultMap().lastAddedClumpId
+        DataDefaultMaps.dataDefaultMap().lastAddedClumpId,
+        DataDefaultMaps.dataDefaultMap().highestClumpId,
       );
 
       // Update UI.
@@ -1025,6 +1027,12 @@ export default class AppSettings {
           ? getClumpList[getClumpList.length - 1].id
           : 0
       );
+      this.dataManager.setData(
+        'highestClumpId',
+        getClumpList.length > 0
+          ? getClumpList.reduce((max, clump) => Math.max(max, clump.id), 0)
+          : 0
+      );
 
       // Cycle through 'clumpMatrix' in reverse by rows, then columns,
       // looking for the Column that the new last clump ID is in.
@@ -1160,6 +1168,7 @@ export default class AppSettings {
       this.dataManager.setData('editingIndex', null);
       this.dataManager.setData('lastAddedCol', DataDefaultMaps.dataDefaultMap().lastAddedCol);
       this.dataManager.setData('lastAddedClumpId', DataDefaultMaps.dataDefaultMap().lastAddedClumpId);
+      this.dataManager.setData('highestClumpId', DataDefaultMaps.dataDefaultMap().highestClumpId);
       this.dataManager.setClumpList(); // Default: getStorageNameFromSettings()
 
       // Clear matrix and re-add all clumps.
