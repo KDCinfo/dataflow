@@ -317,15 +317,17 @@ export default class AppSettings {
       return;
     }
 
+    const currentClumpList = this.dataManager.getData('clumpList');
+    let newClumpList = [];
+    let newClump;
+
     // Determine linking info based on the selected "Add to Column" option and link inputs.
     const columnRawValue = this.uiElements.columnSelect.options[
       this.uiElements.columnSelect.selectedIndex
     ].value;
-    const { isLinkedLeft, linkId } = this.getLinkInfo(columnRawValue);
-
-    const currentClumpList = this.dataManager.getData('clumpList');
-    let newClumpList = [];
-    let newClump;
+    const { isLinkedLeft, linkId } = currentClumpList.length === 0
+        ? { isLinkedLeft: false, linkId: -1 }
+        : this.getLinkInfo(columnRawValue);
 
     if (this.dataManager.getData('editingIndex') === null) {
       //
@@ -351,6 +353,9 @@ export default class AppSettings {
       // The helper will adjust any other clumps as needed when the structure is changed.
       // const newClumpList = [...currentClumpList, newClump]; // Append new clump immutably.
       newClumpList = this.handleClumpMovement(currentClumpList, newClump);
+
+      this.dataManager.setData('clumpList', newClumpList);  // Save new list to 1D clumpList.
+      this.dataManager.addClumpToMatrix(newClump);
 
       // Note: lastAddedCol will be updated in renderMatrix based on the new matrix state.
       this.dataManager.setData('lastAddedClumpId', newClumpID);
@@ -389,7 +394,7 @@ export default class AppSettings {
       // Update the data store with the edited clump and refreshed list.
       this.removePopUp();                                  // Close the edit form popup UI.
       this.dataManager.setData('editingIndex', null);      // Clear editing mode.
-      // this.dataManager.setData('clumpList', newClumpList); // Save the modified clump list.
+      this.dataManager.setData('clumpList', newClumpList);  // Save new list to 1D clumpList.
 
       AppConfig.debugConsoleLogs && console.log('clumpList after edit - after update:', this.dataManager.getData('clumpList'));
 
@@ -397,12 +402,6 @@ export default class AppSettings {
       this.updateDataInHtml();       // Update debug info display (lastAddedClumpId, lastAddedCol, etc.)
       this.clearSelectedClumpNode(); // Remove highlight from the previously selected clump node.
     }
-
-    this.dataManager.setData('clumpList', newClumpList);  // Save new list to 1D clumpList.
-
-    // @TODO: After clumpList
-    // this.dataManager.addClumpToMatrix(newClump);
-    this.dataManager.updateClumpMatrix(newClump);         // Inject new clump into 2D clumpMatrix.
 
     // **Finalize: Persist data and refresh UI**
     this.dataManager.storeClumps(); // Save the clumps data to local storage (or backend)
@@ -435,18 +434,71 @@ export default class AppSettings {
 
     let updatedClumpList = [];
 
-    // CASE 1: C1R1 | First Cell | No movement
+    // CASE 1: C1R1 | First cell | Add and return
+    const isFirstCell = clumpList.length === 0;
+    if (isFirstCell) {
+      updatedClumpList = [clumpToInsert];
+      return updatedClumpList;
+    }
+
+    // CASE 2: C1R2 | Second cell | No movement
     //         If editing, and the linkage hasn't changed
     //         (same parent as before), no reposition is needed.
     const linkUnchanged = !isAdd && oldAbove === newAbove && oldLeft === newLeft;
     if (linkUnchanged) {
       // Simply replace the clump in the list with the updated data.
       updatedClumpList = clumpList.map(clump => clump.id === insertionClumpId ? clumpToInsert : clump);
+      return updatedClumpList;
     }
 
+    const cellToRightId = isAdd ? -1 : this.cellIdToRight(insertionClumpId);
+    const subtreeRightTail = cellToRightId === -1 ? [] : this.collectSubtreeIdsBelow(cellToRightId);
+    const subtreeFullRightTail = isAdd ? [] : [cellToRightId, ...subtreeRightTail];
+    const subtreeBelowTail = isAdd ? [] : this.collectSubtreeIdsBelow(insertionClumpId);
     const subtreeBothTails = isAdd ? [] : this.collectSubtreeIdsFullTail(insertionClumpId);
 
-    // CASE 2: C2R1 | Cell that is linkedToLeft > 0
+    // CASE 3: C1R2 | Add a cell below the linkedToAbove ID
+    //   - If a cell exists below the target cell, its linkedToAbove will change
+    //       from the target cell to the last cell in the below tail.
+    if (newAbove !== -1) {
+      const targetClumpIndex = clumpList.findIndex(clump => clump.id === newAbove);
+
+      const cellBelowTarget = clumpList.find(clump => clump.linkedToAbove === newAbove);
+      const subtreeBelowTailLastId = subtreeBelowTail[subtreeBelowTail.length - 1];
+      if (cellBelowTarget !== undefined) {
+        cellBelowTarget.linkedToAbove = subtreeBelowTailLastId;
+      }
+
+      updatedClumpList = [
+        ...clumpList.slice(0, targetClumpIndex + 1).filter(clump =>
+          !subtreeBothTails.includes(clump.id)
+            && clump.id !== insertionClumpId
+            && clump.id !== cellBelowTarget?.id
+        ),
+        clumpToInsert,
+        ...subtreeBelowTail,
+        cellBelowTarget,
+        ...subtreeFullRightTail,
+        ...clumpList.slice(targetClumpIndex + 1).filter(clump =>
+          !subtreeBothTails.includes(clump.id)
+            && clump.id !== insertionClumpId
+            && clump.id !== cellBelowTarget?.id
+        )
+      ].filter(clump => clump !== undefined);
+      return updatedClumpList;
+    }
+
+    // CASE 4: C1R3 | Edit a cell's vertical position
+    //   [ ] If moved down
+    //   	   - Cell below it moves up (replace it with the moved cell's linkedToAbove)
+    //   	   - Change linkedToAbove from target cell to the moved cell
+    //   	   - If a cell is below the target cell, its linkedToAbove will become the
+    //         last cell's ID in the column.
+    //   [ ] If moved up
+    //   	   - Entire below tail moves up, and any existing cells below the move-to cell will be
+    //       moved to the bottom of the moved cell's below tail
+
+    // CASE 5: C2R1 | Cell that is linkedToLeft > 0
     //         Can only be moved to a cell that is not already linked to another cell.
     if (newLeft !== -1) {
       // If linkedToLeft,
@@ -463,9 +515,11 @@ export default class AppSettings {
           !subtreeBothTails.includes(clump.id) && clump.id !== insertionClumpId
         )
       ];
+      return updatedClumpList;
     }
 
-    return updatedClumpList;
+    // If no cases above are met, return the original clump list.
+    return clumpList;
   }
 
   get getByLinkNotColumn() {
@@ -793,10 +847,28 @@ export default class AppSettings {
   // @TODO: Extract these to a 'UIInterface' class for dropdowns.
   //
 
+  // We only need tails when editing a cell.
+  cellIdToRight = (clumpId) => {
+    return this.dataManager.getData('clumpList').find(clump => clump.linkedToLeft === clumpId)?.id || -1;
+  };
+
+  // Helper function to recursively collect all descendant clump IDs.
+  // For a 'below tail', if a clump is directly below the root, include it.
+  // > const subtreeBelowTail = collectSubtreeIdsBelow(movedClumpId);
+  collectSubtreeIdsBelow = (rootId) => {
+    let idsBelow = [];
+    clumpList.forEach(clump => {
+      if (clump.linkedToAbove === rootId) {
+        idsBelow = idsBelow.concat(collectSubtreeIdsBelow(clump.id));
+      }
+    });
+    return idsBelow;
+  };
+
   // For a 'right tail': If a clump is being linked to from the right, use
   //   that cell to the right as the rootId. Any clumps directly below
   //   the root, or to the right of those below, will be included.
-  // const subtreeRightFullTail = collectSubtreeIdsFullTail(rightClumpId);
+  // > const subtreeRightFullTail = collectSubtreeIdsFullTail(rightClumpId);
   collectSubtreeIdsFullTail = (linkedToId) => {
     let ids = [];
     this.dataManager.getData('clumpList').forEach(clump => {
