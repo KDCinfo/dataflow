@@ -457,7 +457,7 @@ export default class AppSettings {
     const cellToRightId = isAdd ? -1 : this.cellIdToRight(insertionClumpId);
     const cellToRightClump = clumpList.find(clump => clump.id === cellToRightId);
     const subtreeRightTail = cellToRightId === -1 ? [] : this.collectSubtreeIdsBelow(cellToRightId);
-    const subtreeFullRightTail = isAdd ? [] : [cellToRightClump, ...subtreeRightTail];
+    const subtreeFullRightTail = isAdd || cellToRightClump === undefined ? [] : [cellToRightClump, ...subtreeRightTail];
     const subtreeBelowTail = this.collectSubtreeIdsBelow(isAdd ? (newLeft !== -1 ? newLeft : newAbove) : insertionClumpId);
     const subtreeBelowTailClumps = subtreeBelowTail.map(id => clumpList.find(clump => clump.id === id));
     const subtreeBothTails = this.collectSubtreeIdsFullTail(isAdd ? (newLeft !== -1 ? newLeft : newAbove) : insertionClumpId);
@@ -470,8 +470,10 @@ export default class AppSettings {
       const targetClumpIndex = clumpList.findIndex(clump => clump.id === newAbove);
 
       const cellBelowTarget = clumpList.find(clump => clump.linkedToAbove === newAbove);
-      const subtreeBelowTailLastId = subtreeBelowTail[subtreeBelowTail.length - 1];
       if (cellBelowTarget !== undefined) {
+        const subtreeBelowTailLastId = subtreeBelowTail.length === 0
+            ? insertionClumpId
+            : subtreeBelowTail[subtreeBelowTail.length - 1];
         // If we're adding, the 'insertionClumpId' is the cell being linked to
         //   (because a new clump has no tail, but where it's being inserted might).
         // If we're editing, the 'insertionClumpId' is the cell being edited
