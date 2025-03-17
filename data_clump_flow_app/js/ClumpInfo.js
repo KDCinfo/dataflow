@@ -51,4 +51,24 @@ export default class ClumpInfo {
   static logError(errMsg) {
     console.error(`ClumpInfo Error: ${errMsg}`);
   }
+
+  static jsonToClumpInfo(jsonData) {
+    const clumpInfo = new ClumpInfo();
+    Object.keys(clumpInfo).forEach((key) => {
+      if (key in jsonData) {
+        clumpInfo[key] = jsonData[key];
+      }
+    });
+    return clumpInfo;
+  }
+  static clumpInfoToJson(clumpInfo) {
+    const jsonData = {};
+    Object.keys(clumpInfo).forEach((key) => {
+      jsonData[key] = clumpInfo[key];
+    });
+    return jsonData;
+  }
+  static clumpInfoToString(clumpInfo) {
+    return `ClumpInfo: ${JSON.stringify(clumpInfo)}`;
+  }
 }

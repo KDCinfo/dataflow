@@ -1,5 +1,6 @@
 import AppConfig from './AppConfig.js';
 import AppHelpers from './AppHelper.js';
+import ClumpInfo from './ClumpInfo.js';
 import DataDefaultMaps from './DataDefaultMaps.js';
 
 export default class AppData {
@@ -147,7 +148,9 @@ export default class AppData {
     this.clumpList = [...newClumpList];
   }
   parseClumpListFromStorage() {
-    return JSON.parse(localStorage.getItem(this.localStorageKeyForClumps()) || '[]');
+    const jsonClumps = JSON.parse(localStorage.getItem(this.localStorageKeyForClumps()) || '[]');
+    const clumpInfoClumps = jsonClumps.map((clump) => ClumpInfo.jsonToClumpInfo(clump));
+    return clumpInfoClumps;
   }
 
   getClumpAboveId(oldClumpId, oldClumpColumn, oldClumpLinkTo, index, columnTracker) {
