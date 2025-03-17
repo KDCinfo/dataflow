@@ -372,7 +372,8 @@ export default class AppSettings {
       const originalClump = this.dataManager.getData('clumpList')[editIndex];
 
       // > structuredClone | https://developer.mozilla.org/en-US/docs/Web/API/Window/structuredClone
-      newClump = structuredClone(originalClump);
+      const newClumpObj = structuredClone(originalClump);
+      newClump = ClumpInfo.jsonToClumpInfo(newClumpObj);
       newClump.clumpName = this.uiElements.clumpNameInput.value;
       newClump.clumpCode = this.uiElements.clumpCodeInput.value;
 
@@ -395,6 +396,8 @@ export default class AppSettings {
       this.removePopUp();                                  // Close the edit form popup UI.
       this.dataManager.setData('editingIndex', null);      // Clear editing mode.
       this.dataManager.setData('clumpList', newClumpList);  // Save new list to 1D clumpList.
+      this.dataManager.resetClumpListConverted();
+      this.dataManager.addClumpsToMatrix();
 
       AppConfig.debugConsoleLogs && console.log('clumpList after edit - after update:', this.dataManager.getData('clumpList'));
 
@@ -458,6 +461,7 @@ export default class AppSettings {
     const subtreeBelowTail = this.collectSubtreeIdsBelow(isAdd ? (newLeft !== -1 ? newLeft : newAbove) : insertionClumpId);
     const subtreeBelowTailClumps = subtreeBelowTail.map(id => clumpList.find(clump => clump.id === id));
     const subtreeBothTails = this.collectSubtreeIdsFullTail(isAdd ? (newLeft !== -1 ? newLeft : newAbove) : insertionClumpId);
+    const subtreeBothTailsClumps = subtreeBothTails.map(id => clumpList.find(clump => clump.id === id));
 
     // CASE 3: C1R2 | Add a cell below the linkedToAbove ID
     //   - If a cell exists below the target cell, its linkedToAbove will change
@@ -476,22 +480,26 @@ export default class AppSettings {
         cellBelowTarget.linkedToAbove = isAdd ? insertionClumpId : subtreeBelowTailLastId;
       }
 
+      const clumpListSliceStart = clumpList.slice(0, targetClumpIndex + 1).filter(clump =>
+        !subtreeBothTails.includes(clump.id)
+          && clump.id !== insertionClumpId
+          && clump.id !== cellBelowTarget?.id);
+      const clumpListSliceEnd = clumpList.slice(targetClumpIndex + 1).filter(clump =>
+        !subtreeBothTails.includes(clump.id)
+          && clump.id !== insertionClumpId
+          && clump.id !== cellBelowTarget?.id
+      );
+      const cellBelowTargetClump = isAdd ? undefined : cellBelowTarget;
+
       updatedClumpList = [
-        ...clumpList.slice(0, targetClumpIndex + 1).filter(clump =>
-          !subtreeBothTails.includes(clump.id)
-            && clump.id !== insertionClumpId
-            && clump.id !== cellBelowTarget?.id
-        ),
+        ...clumpListSliceStart,
         clumpToInsert,
         ...subtreeBelowTailClumps,
-        isAdd ? undefined : cellBelowTarget,
+        cellBelowTargetClump,
         ...subtreeFullRightTail,
-        ...clumpList.slice(targetClumpIndex + 1).filter(clump =>
-          !subtreeBothTails.includes(clump.id)
-            && clump.id !== insertionClumpId
-            && clump.id !== cellBelowTarget?.id
-        )
+        ...clumpListSliceEnd
       ].filter(clump => clump !== undefined);
+
       return updatedClumpList;
     }
 
@@ -512,20 +520,29 @@ export default class AppSettings {
       //   1) remove the full tail, if any, from the list, then
       //   2) inject new clump, and its full subtree (if any), to the right of the linked clump.
       const leftClumpIndex = clumpList.findIndex(clump => clump.id === newLeft);
+
+      const clumpListSliceStart = clumpList.slice(0, leftClumpIndex + 1).filter(clump =>
+        !subtreeBothTails.includes(clump.id) && clump.id !== insertionClumpId
+      );
+      const clumpListSliceEnd = clumpList.slice(leftClumpIndex + 1).filter(clump =>
+        !subtreeBothTails.includes(clump.id) && clump.id !== insertionClumpId
+      );
+
       updatedClumpList = [
-        ...clumpList.slice(0, leftClumpIndex + 1).filter(clump =>
-          !subtreeBothTails.includes(clump.id) && clump.id !== insertionClumpId
-        ),
+        ...clumpListSliceStart,
         clumpToInsert,
-        ...subtreeBothTails,
-        ...clumpList.slice(leftClumpIndex + 1).filter(clump =>
-          !subtreeBothTails.includes(clump.id) && clump.id !== insertionClumpId
-        )
+        ...subtreeBothTailsClumps,
+        ...clumpListSliceEnd
       ];
+
       return updatedClumpList;
     }
 
     // If no cases above are met, return the original clump list.
+    alert('Debug error: No cases met for clump movement. Please notify the developer.');
+    console.error('DEBUG ERROR: ***** ***** ***** ***** *****.');
+    console.error('DEBUG ERROR: NO CASES MET FOR CLUMP MOVEMENT. Please notify the developer.');
+    console.error('DEBUG ERROR: ***** ***** ***** ***** *****.');
     return clumpList;
   }
 
