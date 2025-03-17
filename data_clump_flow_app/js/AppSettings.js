@@ -452,10 +452,12 @@ export default class AppSettings {
     }
 
     const cellToRightId = isAdd ? -1 : this.cellIdToRight(insertionClumpId);
+    const cellToRightClump = clumpList.find(clump => clump.id === cellToRightId);
     const subtreeRightTail = cellToRightId === -1 ? [] : this.collectSubtreeIdsBelow(cellToRightId);
-    const subtreeFullRightTail = isAdd ? [] : [cellToRightId, ...subtreeRightTail];
-    const subtreeBelowTail = isAdd ? [] : this.collectSubtreeIdsBelow(insertionClumpId);
-    const subtreeBothTails = isAdd ? [] : this.collectSubtreeIdsFullTail(insertionClumpId);
+    const subtreeFullRightTail = isAdd ? [] : [cellToRightClump, ...subtreeRightTail];
+    const subtreeBelowTail = this.collectSubtreeIdsBelow(isAdd ? (newLeft !== -1 ? newLeft : newAbove) : insertionClumpId);
+    const subtreeBelowTailClumps = subtreeBelowTail.map(id => clumpList.find(clump => clump.id === id));
+    const subtreeBothTails = this.collectSubtreeIdsFullTail(isAdd ? (newLeft !== -1 ? newLeft : newAbove) : insertionClumpId);
 
     // CASE 3: C1R2 | Add a cell below the linkedToAbove ID
     //   - If a cell exists below the target cell, its linkedToAbove will change
@@ -466,7 +468,12 @@ export default class AppSettings {
       const cellBelowTarget = clumpList.find(clump => clump.linkedToAbove === newAbove);
       const subtreeBelowTailLastId = subtreeBelowTail[subtreeBelowTail.length - 1];
       if (cellBelowTarget !== undefined) {
-        cellBelowTarget.linkedToAbove = subtreeBelowTailLastId;
+        // If we're adding, the 'insertionClumpId' is the cell being linked to
+        //   (because a new clump has no tail, but where it's being inserted might).
+        // If we're editing, the 'insertionClumpId' is the cell being edited
+        //   (because we need its tail).
+        // Might could have split out add from edit, but there's more in common than not.
+        cellBelowTarget.linkedToAbove = isAdd ? insertionClumpId : subtreeBelowTailLastId;
       }
 
       updatedClumpList = [
@@ -476,8 +483,8 @@ export default class AppSettings {
             && clump.id !== cellBelowTarget?.id
         ),
         clumpToInsert,
-        ...subtreeBelowTail,
-        cellBelowTarget,
+        ...subtreeBelowTailClumps,
+        isAdd ? undefined : cellBelowTarget,
         ...subtreeFullRightTail,
         ...clumpList.slice(targetClumpIndex + 1).filter(clump =>
           !subtreeBothTails.includes(clump.id)
@@ -857,9 +864,10 @@ export default class AppSettings {
   // > const subtreeBelowTail = collectSubtreeIdsBelow(movedClumpId);
   collectSubtreeIdsBelow = (rootId) => {
     let idsBelow = [];
-    clumpList.forEach(clump => {
+    this.dataManager.getData('clumpList').forEach(clump => {
       if (clump.linkedToAbove === rootId) {
-        idsBelow = idsBelow.concat(collectSubtreeIdsBelow(clump.id));
+        idsBelow.push(clump.id);
+        idsBelow = idsBelow.concat(this.collectSubtreeIdsBelow(clump.id));
       }
     });
     return idsBelow;
