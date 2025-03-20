@@ -456,14 +456,14 @@ export default class AppSettings {
       return updatedClumpList;
     }
 
-    const cellToRightId = isAdd ? -1 : this.cellIdToRight(insertionClumpId);
+    const cellToRightId = isAdd ? -1 : this.dataManager.cellIdToRight(insertionClumpId);
     const cellToRightClump = isAdd ? undefined : clumpList.find(clump => clump.id === cellToRightId);
-    const subtreeRightTail = cellToRightId === -1 ? [] : this.collectSubtreeIdsBelow(cellToRightId);
+    const subtreeRightTail = cellToRightId === -1 ? [] : this.dataManager.collectSubtreeIdsBelow(cellToRightId);
     const subtreeFullRightTail = cellToRightClump === undefined ? [] : [cellToRightClump, ...subtreeRightTail];
-    const subtreeBelowTail = isAdd ? [] : this.collectSubtreeIdsBelow(insertionClumpId);
+    const subtreeBelowTail = isAdd ? [] : this.dataManager.collectSubtreeIdsBelow(insertionClumpId);
     const subtreeBelowTailClumps = subtreeBelowTail.map(id => clumpList.find(clump => clump.id === id));
     // If we're adding a cell with a linkedToAbove, we only need the bottom tail.
-    const subtreeBothTails = isAdd ? [] : this.collectSubtreeIdsFullTail(insertionClumpId);
+    const subtreeBothTails = isAdd ? [] : this.dataManager.collectSubtreeIdsFullTail(insertionClumpId);
     const subtreeBothTailsClumps = subtreeBothTails.map(id => clumpList.find(clump => clump.id === id));
 
     // CASE 3: C1R2 | Add a cell below the linkedToAbove ID
@@ -876,41 +876,6 @@ export default class AppSettings {
   // @TODO: Extract these to a 'UIInterface' class for dropdowns.
   //
 
-  // We only need tails when editing a cell.
-  cellIdToRight = (clumpId) => {
-    return this.dataManager.getData('clumpList').find(clump => clump.linkedToLeft === clumpId)?.id || -1;
-  };
-
-  // Helper function to recursively collect all descendant clump IDs.
-  // For a 'below tail', if a clump is directly below the root, include it.
-  // > const subtreeBelowTail = collectSubtreeIdsBelow(movedClumpId);
-  collectSubtreeIdsBelow = (rootId) => {
-    let idsBelow = [];
-    this.dataManager.getData('clumpList').forEach(clump => {
-      if (clump.linkedToAbove === rootId) {
-        idsBelow.push(clump.id);
-        idsBelow = idsBelow.concat(this.collectSubtreeIdsBelow(clump.id));
-      }
-    });
-    return idsBelow;
-  };
-
-  // For a 'right tail': If a clump is being linked to from the right, use
-  //   that cell to the right as the rootId. Any clumps directly below
-  //   the root, or to the right of those below, will be included.
-  // > const subtreeRightFullTail = collectSubtreeIdsFullTail(rightClumpId);
-  collectSubtreeIdsFullTail = (linkedToId) => {
-    let ids = [];
-    this.dataManager.getData('clumpList').forEach(clump => {
-      if (clump.linkedToLeft === linkedToId || clump.linkedToAbove === linkedToId) {
-        ids.push(clump.id);
-        ids = ids.concat(this.collectSubtreeIdsFullTail(clump.id));
-        console.log('[AppSettings] [ids]', ids);
-      }
-    });
-    return ids;
-  };
-
   updateLinkToDropdownOptions() {
     this.uiElements.linkToId.innerHTML = '<option value="">None</option>';
 
@@ -919,7 +884,7 @@ export default class AppSettings {
     const editingIndex = this.dataManager.getData('editingIndex');
 
     const tempClumpList = this.dataManager.getData('clumpList');
-    const fullTail = editingIndex === null ? [] : this.collectSubtreeIdsFullTail(tempClumpList[editingIndex].id);
+    const fullTail = editingIndex === null ? [] : this.dataManager.collectSubtreeIdsFullTail(tempClumpList[editingIndex].id);
     const linkedClumpIDs = tempClumpList.map(clump => clump.linkedToLeft);
     const linkedClumpID = editingIndex === null ? -2 : tempClumpList[editingIndex].linkedToLeft;
 

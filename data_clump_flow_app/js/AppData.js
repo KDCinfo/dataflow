@@ -409,6 +409,42 @@ export default class AppData {
     return this.clumpMatrix.length > 0 ? this.clumpMatrix[0].length : 1;
   }
 
+  // We only need tails when editing a cell.
+  cellIdToRight = (clumpId) => {
+    return this.getData('clumpList').find(clump => clump.linkedToLeft === clumpId)?.id || -1;
+  };
+
+  // Helper function to recursively collect all descendant clump IDs.
+  // For a 'below tail', if a clump is directly below the root, include it.
+  // > const subtreeBelowTail = collectSubtreeIdsBelow(movedClumpId);
+  collectSubtreeIdsBelow = (rootId) => {
+    let idsBelow = [];
+    this.getData('clumpList').forEach(clump => {
+      if (clump.linkedToAbove === rootId) {
+        idsBelow.push(clump.id);
+        idsBelow = idsBelow.concat(this.collectSubtreeIdsBelow(clump.id));
+        console.log('[AppSettings] [idsBelow]', idsBelow);
+      }
+    });
+    return idsBelow;
+  };
+
+  // For a 'right tail': If a clump is being linked to from the right, use
+  //   that cell to the right as the rootId. Any clumps directly below
+  //   the root, or to the right of those below, will be included.
+  // > const subtreeRightFullTail = collectSubtreeIdsFullTail(rightClumpId);
+  collectSubtreeIdsFullTail = (linkedToId) => {
+    let ids = [];
+    this.getData('clumpList').forEach(clump => {
+      if (clump.linkedToLeft === linkedToId || clump.linkedToAbove === linkedToId) {
+        ids.push(clump.id);
+        ids = ids.concat(this.collectSubtreeIdsFullTail(clump.id));
+        console.log('[AppSettings] [ids]', ids);
+      }
+    });
+    return ids;
+  };
+
   // const clumpMatrix = [
   //   #1 #2 #3   // Columns
   //   [1, 0, 0], // Row 1 | When 1: A non-link is added, nothing happens.
