@@ -690,50 +690,26 @@ export default class AppData {
       // Answer: No, because the matrix is initialized with at least one row.
       if (rowCount === 0 || colCount === 0) {
         // Case: First clump, so add to first row in first column
-        if (rowCount === 0) {
-          // clumpMatrix.push([id]);
-          const newMatrix = this.clumpMatrix.toSpliced(0, 0, [id]);
-          this.clumpMatrix = [...newMatrix];
-          // clumpMatrix = updateClumpMatrix(clumpMatrix, 0, 0, id);
-        } else {
-          // Reality check: is this else a valid condition?
-          // Answer: Yes, because rowCount is not 0, so there is at least one row.
-          // But even if colCount can never be 0 if rowCount isn't 0, and the 'if' already matched the rowCount logic?
-          // Answer: Yes, because the 'if' is checking if the rowCount is 0, and the 'else' is checking if the colCount is 0.
-          // But the outer 'if' is checking if rowCount is 0, so the 'else' will never be reached if rowCount is 0, correct?
-          // Answer: Yes, but the 'else' is also checking if colCount is 0, which is a separate condition from rowCount.
-          // But as confirmed, colCount can never be 0 if rowCount isn't 0, so the 'else' will never be reached if rowCount is 0, correct?
-          // Answer: Yes, but the 'else' is also checking if colCount is 0, which is a separate condition from rowCount.
-          // It is a separate condition, but it's a condition that can never be met because rowCount is not 0, ergo, colCount can never be 0, correct?
-          // Answer: Yes, but the 'else' is also checking if colCount is 0, which is a separate condition from rowCount.
-          // Please state the definition of insanity.
-          // Answer: Doing the same thing over and over again and expecting different results.
-          // So again, if colCount can never be 0 if rowCount isn't 0, and rowCount is not 0, then the 'else' will never be reached, correct?
-          // Answer: Yes, but the 'else' is also checking if colCount is 0, which is a separate condition from rowCount.
-          // Lol
-          // Answer: Yes, but the 'else' is also checking if colCount is 0, which is a separate condition from rowCount.
-          // Okay, you win
-          // Answer: Yes, but the 'else' is also checking if colCount is 0, which is a separate condition from rowCount.
-
-          // clumpMatrix[0][0] = id;
-          this.clumpMatrix = this.updateClumpMatrix(0, 0, id);
-          this.lastAddedCol = 1;
-        }
+        // Technical note: The first clump is set to -1 for both linkedToLeft and linkedToAbove,
+        //   but we're in an 'else' block, which allows the nuance
+        //   that this is not a 'linked above' cell to be ignored.
+        // clumpMatrix.push([id]);
+        const newMatrix = this.clumpMatrix.toSpliced(0, 0, [id]);
+        this.clumpMatrix = [...newMatrix];
+        this.lastAddedCol = 1;
+        //
       } else {
         //
-        // In this block we can assume there is at least one cell in the matrix.
+        // In this block we can assume there is at least one cell in the matrix,
+        //   and that we are linking to an existing clump (above).
         //
+        /*
         if (newClumpColumn === 1) {
-          // X-- Is the new clump's column the first column (Col 1)?
-          //     ~ Push a new 0-padded Row (same length as other rows) to the matrix.
-          //     ~ Place the clump's ID in the first cell/column.
-          this.addPaddedRowToMatrix();
-          // clumpMatrix[rowCount][0] = id;
-          this.clumpMatrix = this.updateClumpMatrix(rowCount, 0, id);
-          this.lastAddedCol = 1;
         } else if (newClumpColumn === colCount) {
+        */
+        if (newClumpColumn === colCount) {
           // X-- Is the new clump's column the last column?
-          //     ~ Find the last non-0 cell/row in the new clump's column and record that row.
+          //     ~ Find the parent cell (linkedToAbove) in the new clump's column and record that row.
           //     ~ Insert a 0-padded row at the recorded row.
           //     ~ Place the clump's ID in the last column.
           let lastRow = -1;
@@ -745,7 +721,8 @@ export default class AppData {
             }
           }
           if (lastRow === -1) {
-            console.error("No clumps found in last column");
+            console.error("***** ***** ***** Parent clump not found in last column. ***** ***** *****");
+            // alert("Parent clump not found in last column.");
             return;
           }
           this.insertPaddedRowToMatrix(lastRow);
@@ -753,47 +730,56 @@ export default class AppData {
           this.clumpMatrix = this.updateClumpMatrix(lastRow, colCount - 1, id);
           this.lastAddedCol = colCount;
         } else {
-          // --- Is the new clump's column neither the first nor last (in the middle)?
-          //     ~ Find the lowest column to the right of the new clump's column (all cells to the right should not be affected).
+          // --- Is the new clump's column not the last?
+          //     ~ Find the lowest cell in the 'right tail' from the new clump's linkedToAbove
+          //         (all cells to the right that are in the tail should not be affected).
           //     ~ Record that 'to-the-right' bottommost row.
-          //     ~ Record the new clump's column's bottommost "occupied" (non-0) row.
-          //     Is the new clump's bottommost recording greater than the bottommost 'to-the-right' recording?
+          //     ~ Record the row of the new clump's linkedToAbove cell.
+          //     Is there a 'right tail', and if so, is it lower than the new clump's linkedToAbove row?
           // ---- Yes:
-          //      ~ Add +1 to the new clump's bottommost recording and record it as the 'rowToAddTo'.
-          // ---- No:
           //      ~ Add +1 to the bottommost 'to-the-right' recording and record it as the 'rowToAddTo'.
-          // ---- Either/both:
+          // ---- No:
+          //      ~ Add +1 to the new clump's linkedToAbove row and record it as the 'rowToAddTo'.
+          // ---- Either:
           //      ~ Insert a 0-padded row at 'rowToAddTo'.
           //      ~ Insert the new clump's ID in the new clump's column.
           //
-          // let rightmostCol = -1;
           let rightmostRow = -1;
-          let newClumpBottomRow = -1;
+          let newClumpAboveRow = -1;
 
+          // Record the row of the newClump's linkedToAbove cell.
           for (let r = rowCount; r > 0; r--) {
-            // Record the bottommost row of the new clump's column.
-            // if (this.clumpMatrix[r - 1][newClumpColumn - 1] !== 0) {
-            if (this.clumpMatrix[r - 1][newClumpColumn - 1] !== 0) {
-              newClumpBottomRow = r;
+            if (this.clumpMatrix[r - 1][newClumpColumn - 1] === newClump.linkedToAbove) {
+              newClumpAboveRow = r;
               break;
             }
           }
 
-          rowColumnLoop:
-          for (let r = rowCount; r > 0; r--) {
-            // Record the lowest clump, that is lower than the new clump, in all the columns to the right.
-            for (let c = newClumpColumn; c < colCount; c++) {
-              // We're using [c] instead of [c - 1] because we're looking to the right of the new clump's column.
-              // if (this.clumpMatrix[r - 1][c] !== 0) {
-              if (this.clumpMatrix[r - 1][c] !== 0) {
-                // rightmostCol = c;
-                rightmostRow = r;
-                break rowColumnLoop;
+          // Record the lowest clump in the 'right tail' of the new clump's 'linkedToAbove' cell.
+          const aboveCellToRightId = this.cellIdToRight(newClump.linkedToAbove);
+          const aboveCellToRightClump = aboveCellToRightId === -1 ? undefined : clumpList.find(clump => clump.id === aboveCellToRightId);
+          const subtreeRightTail = aboveCellToRightId === -1 ? [] : this.collectSubtreeIdsBelow(aboveCellToRightId);
+          const subtreeFullRightTail = aboveCellToRightClump === undefined ? [] : [aboveCellToRightClump, ...subtreeRightTail];
+
+          if (aboveCellToRightId === -1) {
+            // No right tail, so we can use the new clump's linkedToAbove row.
+            rightmostRow = newClumpAboveRow;
+          } else {
+            // We have a right tail, so we need to find the lowest row in the right tail.
+            rowColumnLoop:
+            for (let r = rowCount; r > 0; r--) {
+              for (let c = newClumpColumn; c < colCount; c++) {
+                // We're using [c] instead of [c - 1] because
+                // we're looking to the right of the new clump's column.
+                if (subtreeFullRightTail.contains(this.clumpMatrix[r - 1][c])) {
+                  rightmostRow = r;
+                  break rowColumnLoop;
+                }
               }
             }
           }
 
-          if (newClumpBottomRow === -1) {
+          if (newClumpAboveRow === -1) {
             console.error("No clumps found in new clump's column");
             return;
           }
@@ -804,7 +790,7 @@ export default class AppData {
           }
 
           // Record the row to add the new clump to (note: the row == index + 1).
-          const rowToAddTo = newClumpBottomRow > rightmostRow ? newClumpBottomRow : rightmostRow;
+          const rowToAddTo = newClumpAboveRow > rightmostRow ? newClumpAboveRow : rightmostRow;
           this.insertPaddedRowToMatrix(rowToAddTo);
           // clumpMatrix[rowToAddTo][column - 1] = id;
           this.clumpMatrix = this.updateClumpMatrix(rowToAddTo, newClumpColumn - 1, id);
