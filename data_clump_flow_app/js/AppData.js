@@ -765,7 +765,7 @@ export default class AppData {
               : this.collectSubtreeIdsBelow(aboveCellToRightId);
           const subtreeFullRightTail = aboveCellToRightClump === undefined
               ? []
-              : [aboveCellToRightClump, ...subtreeRightTail];
+              : [aboveCellToRightClump.id, ...subtreeRightTail];
 
           if (aboveCellToRightId === -1) {
             // No right tail, so we can use the new clump's linkedToAbove row.
