@@ -1191,7 +1191,8 @@ export default class AppSettings {
       this.uiElements.storageNameTag.value !== this.appSettingsInfo.storageIndex
     ) {
       if (confirm(`\nAre you sure you want to delete this storage?
-            \nAny data within this storage will be lost.
+            \nStorage name: ${this.appSettingsInfo.storageNames[this.uiElements.storageNameTag.value]}
+            \nAny data within this storage WILL BE LOST.
             \nClick 'Cancel' and switch to this storage to export your data.\n`)) {
 
         this.hideStorageError();
@@ -1201,12 +1202,19 @@ export default class AppSettings {
 
         const newList = this.appSettingsInfo.storageNames.toSpliced(selectedStorageIndex, 1);
         this.appSettingsInfo.storageNames = [...newList];
+
+        // If 'selectedStorageIndex' < 'this.appSettingsInfo.storageIndex' reduce the index by 1.
+        if (selectedStorageIndex < this.appSettingsInfo.storageIndex) {
+          this.appSettingsInfo.storageIndex--;
+          AppStorage.updateSessionStorageIndex(this.appSettingsInfo.storageIndex);
+        }
+
         this.storeSettings();
 
         // Remove from local storage.
         AppStorage.appStorageRemoveItem(selectedStorageName);
 
-        this.renderMatrix();
+        this.updateStorageNameDropdownOptions();
       }
     } else {
       // This should never be hit because the button should be disabled when not allowed.

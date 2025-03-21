@@ -761,6 +761,7 @@ datalist {
 
 .storage-name-label-current {
   color: #b0e000;
+  margin-left: 5px;
 }
 
 /* Responsive layout: stack labels and inputs vertically */
@@ -794,6 +795,7 @@ datalist {
 
   .export-import-storage-name>div.storage-button-actions {
     flex-direction: column-reverse;
+    margin-top: 0;
     min-height: auto;
   }
   .export-import-storage-name>div.storage-button-actions .storage-button-action {
