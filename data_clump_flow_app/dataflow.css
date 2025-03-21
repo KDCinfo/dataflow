@@ -732,16 +732,21 @@ datalist {
   padding: 5px 10px;
 }
 
-/* .export-import-storage-name -> all first level divs -> 2nd html element -> width: 40% */
-.export-import-storage-name>div> :nth-child(1),
-.export-import-storage-name>div> :nth-child(2) {
-  width: 49%;
-}
-
 .export-import-storage-name>div {
   align-items: center;
   display: flex;
   margin: 8px auto;
+}
+
+.export-import-storage-name>div.storage-button-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+.export-import-storage-name>div.storage-button-actions .storage-button-action {
+  min-height: 42px;
+  width: 100%;
 }
 
 .storage-create-name input {
@@ -785,6 +790,14 @@ datalist {
   .storage-buttons,
   .storage-name-wrapper {
     flex-direction: column;
+  }
+
+  .export-import-storage-name>div.storage-button-actions {
+    flex-direction: column-reverse;
+    min-height: auto;
+  }
+  .export-import-storage-name>div.storage-button-actions .storage-button-action {
+    min-height: auto;
   }
 
   .export-import-storage-name>div> :nth-child(1),
