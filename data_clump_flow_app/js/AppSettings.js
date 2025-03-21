@@ -40,6 +40,9 @@ export default class AppSettings {
   dataManager;
 
   constructor(uiSelectors) {
+    const date = new Date();
+    console.log('AppSettings initialized on:', date.toLocaleString());
+
     this.uiElements = this.resolveSelectors(uiSelectors);
 
     this.appSettingsInfo = AppStorage.getJsonSettingsFromStorageOrDefaults();
@@ -1442,8 +1445,11 @@ export default class AppSettings {
 
         // Conditionally create and append the delete icon
         if (
-          getClumpList[0].id !== clumpFound.id &&
-          getClumpList.find(clump => clump.linkedToLeft === clumpFound.id) === undefined
+          (getClumpList.length === 1) ||
+          (
+            getClumpList[0].id !== clumpFound.id &&
+            getClumpList.find(clump => clump.linkedToLeft === clumpFound.id) === undefined
+          )
         ) {
           const deleteIcon = document.createElement('div');
           deleteIcon.className = 'delete-icon';
