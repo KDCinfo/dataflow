@@ -757,9 +757,15 @@ export default class AppData {
 
           // Record the lowest clump in the 'right tail' of the new clump's 'linkedToAbove' cell.
           const aboveCellToRightId = this.cellIdToRight(newClump.linkedToAbove);
-          const aboveCellToRightClump = aboveCellToRightId === -1 ? undefined : clumpList.find(clump => clump.id === aboveCellToRightId);
-          const subtreeRightTail = aboveCellToRightId === -1 ? [] : this.collectSubtreeIdsBelow(aboveCellToRightId);
-          const subtreeFullRightTail = aboveCellToRightClump === undefined ? [] : [aboveCellToRightClump, ...subtreeRightTail];
+          const aboveCellToRightClump = aboveCellToRightId === -1
+              ? undefined
+              : this.getData('clumpList').find(clump => clump.id === aboveCellToRightId);
+          const subtreeRightTail = aboveCellToRightId === -1
+              ? []
+              : this.collectSubtreeIdsBelow(aboveCellToRightId);
+          const subtreeFullRightTail = aboveCellToRightClump === undefined
+              ? []
+              : [aboveCellToRightClump, ...subtreeRightTail];
 
           if (aboveCellToRightId === -1) {
             // No right tail, so we can use the new clump's linkedToAbove row.
@@ -771,7 +777,7 @@ export default class AppData {
               for (let c = newClumpColumn; c < colCount; c++) {
                 // We're using [c] instead of [c - 1] because
                 // we're looking to the right of the new clump's column.
-                if (subtreeFullRightTail.contains(this.clumpMatrix[r - 1][c])) {
+                if (subtreeFullRightTail.includes(this.clumpMatrix[r - 1][c])) {
                   rightmostRow = r;
                   break rowColumnLoop;
                 }
