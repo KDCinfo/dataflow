@@ -357,13 +357,13 @@ export default class AppSettings {
       // const newClumpList = [...currentClumpList, newClump]; // Append new clump immutably.
       newClumpList = this.handleClumpMovement(currentClumpList, newClump);
 
-      this.dataManager.setData('clumpList', newClumpList);  // Save new list to 1D clumpList.
-      this.dataManager.resetClumpListConverted();
-      this.dataManager.addClumpsToMatrix();
-
       // Note: lastAddedCol will be updated in renderMatrix based on the new matrix state.
       this.dataManager.setData('lastAddedClumpId', newClumpID);
       this.dataManager.setData('highestClumpId', newClumpID);
+
+      this.dataManager.setData('clumpList', newClumpList);  // Save new list to 1D clumpList.
+      this.dataManager.resetClumpListConverted();
+      this.dataManager.addClumpsToMatrix();
       //
     } else {
       //

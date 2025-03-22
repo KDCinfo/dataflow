@@ -153,6 +153,30 @@ export default class AppData {
     return clumpInfoClumps;
   }
 
+  // This will set both the 'lastAddedClumpId' and 'lastAddedCol'.
+  // - The 'lastAddedClumpId' should only be changed when a clump is added,
+  //   or more generally on initial load, when a new list is loaded such as when changing
+  //   storage or importing data, or when a clump is deleted (if said clump was the last added).
+  // - The 'lastAddedCol' is then set to the column of the last added clump ID.
+  setLastAdded() {
+    // If a 'lastAddedClumpId' is set, use it.
+    // If not, use the last clump in the list
+    //   (which would be the last cell added to the clumpMatrix).
+    this.lastAddedClumpId =
+        this.lastAddedClumpId > 0
+            ? this.lastAddedClumpId
+            : this.clumpList.length > 0
+                ? this.clumpList[this.clumpList.length - 1].id
+                : 0;
+    AppConfig.debugConsoleLogs && console.log('*** [AppData] [Last Added Clump ID]', this.lastAddedClumpId);
+
+    // Get the column from the last added clump ID.
+    const lastAddedClumpColumn = this.clumpColumnMap.get(this.lastAddedClumpId) || this.lastAddedCol;
+    AppConfig.debugConsoleLogs && console.log('*** [AppData] [Last Added Clump Column]', lastAddedClumpColumn);
+
+    this.lastAddedCol = lastAddedClumpColumn;
+  }
+
   getClumpAboveId(oldClumpId, oldClumpColumn, oldClumpLinkTo, index, columnTracker) {
     // When converting a legacy clumpInfo object, we need to convert the 'column' property.
     //
@@ -339,10 +363,13 @@ export default class AppData {
     this.clearClumpColumnMap();
     this.clumpMatrix.length = 0;
     this.clumpList.forEach(clump => {
-      this.lastAddedClumpId = clump.id;
       this.highestClumpId = clump.id > this.highestClumpId ? clump.id : this.highestClumpId;
       this.addClumpToMatrix(clump);
     });
+
+    // If 'lastAddedClumpId' is not already set, this will set
+    // both 'lastAddedClumpId' and 'lastAddedCol' to the last clump in the list.
+    this.setLastAdded();
 
     // Checking the first clump for legacy properties to determine if a conversion is needed.
     if (this.clumpList.length > 0 && this.clumpList[0].hasOwnProperty('column')) {
@@ -680,7 +707,6 @@ export default class AppData {
 
       // clumpMatrix[linkedRowIndex][linkedCol] = id;
       this.clumpMatrix = this.updateClumpMatrix(linkedRowIndex, linkedCol, id);
-      this.lastAddedCol = linkedCol + 1;
 
     } else {
       //
@@ -696,7 +722,6 @@ export default class AppData {
         // clumpMatrix.push([id]);
         const newMatrix = this.clumpMatrix.toSpliced(0, 0, [id]);
         this.clumpMatrix = [...newMatrix];
-        this.lastAddedCol = 1;
         //
       } else {
         //
@@ -728,7 +753,7 @@ export default class AppData {
           this.insertPaddedRowToMatrix(lastRow);
           // clumpMatrix[lastRow][colCount - 1] = id;
           this.clumpMatrix = this.updateClumpMatrix(lastRow, colCount - 1, id);
-          this.lastAddedCol = colCount;
+
         } else {
           // --- Is the new clump's column not the last?
           //     ~ Find the lowest cell in the 'right tail' from the new clump's linkedToAbove
@@ -800,7 +825,6 @@ export default class AppData {
           this.insertPaddedRowToMatrix(rowToAddTo);
           // clumpMatrix[rowToAddTo][column - 1] = id;
           this.clumpMatrix = this.updateClumpMatrix(rowToAddTo, newClumpColumn - 1, id);
-          this.lastAddedCol = newClumpColumn;
         }
       }
     }
