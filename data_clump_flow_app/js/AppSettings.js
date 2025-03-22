@@ -1038,7 +1038,7 @@ export default class AppSettings {
   //   what happens when you delete a clump that has a clump linked to it from its right?
   // And the shifting involved for cells below, left and right, will require some complexity.
   // For now, we'll just provide the ability to remove the last clump added (an undo).
-  deleteLastClump(event, clumpIndex) {
+  deleteLastClump(event, clumpId) {
     event.stopPropagation();
 
     // Check if the currently active storage name has been deleted.
@@ -1065,6 +1065,8 @@ export default class AppSettings {
 
       const getClumpList = this.dataManager.getData('clumpList');
 
+      const clumpIndex = getClumpList.findIndex(clump => clump.id === clumpId);
+
       if (this.dataManager.getData('editingIndex') === clumpIndex) {
         this.dataManager.setData('editingIndex', null);
       }
@@ -1086,17 +1088,11 @@ export default class AppSettings {
       clumpListSpliced.splice(clumpIndex, 1);
       this.dataManager.setData('clumpList', clumpListSpliced);
 
-      // Clear matrix and re-add all clumps.
-      this.dataManager.resetClumpListConverted();
-      this.dataManager.addClumpsToMatrix();
-
       // Update global variables.
-      this.dataManager.setData(
-        'lastAddedClumpId',
-        getClumpList.length > 0
-          ? getClumpList[getClumpList.length - 1].id
-          : 0
-      );
+      if (clumpFound.id === this.dataManager.getData('lastAddedClumpId')) {
+        this.dataManager.setData('lastAddedClumpId', clumpListSpliced[clumpListSpliced.length - 1].id);
+        this.dataManager.setLastAdded();
+      }
       this.dataManager.setData(
         'highestClumpId',
         getClumpList.length > 0
@@ -1104,18 +1100,12 @@ export default class AppSettings {
           : 0
       );
 
-      // Cycle through 'clumpMatrix' in reverse by rows, then columns,
-      // looking for the Column that the new last clump ID is in.
-      // This will be the new 'lastAddedCol'.
-      findLastAddedColLoop:
-      for (let c = this.dataManager.getColumnCount() - 1; c >= 0; c--) {
-        for (let r = this.dataManager.getRowCount() - 1; r >= 0; r--) {
-          if (this.dataManager.getData('clumpMatrix')[r][c] === this.dataManager.getData('lastAddedClumpId')) {
-            this.dataManager.setData('lastAddedCol', c + 1);
-            break findLastAddedColLoop;
-          }
-        }
-      }
+      // Remove the clump from the clumpColumnMap.
+      this.dataManager.removeClumpInClumpColumnMap(clumpFound.id);
+
+      // Clear matrix and re-add all clumps.
+      this.dataManager.resetClumpListConverted();
+      this.dataManager.addClumpsToMatrix();
 
       this.dataManager.storeClumps();
       this.updateDataInHtml();
@@ -1456,8 +1446,7 @@ export default class AppSettings {
           deleteIcon.textContent = '❌';
           deleteIcon.onclick = (event) => {
             event.stopPropagation(); // Prevent toggle when clicking delete
-            clumpListIndex = getClumpList.findIndex(clump => clump.id === curClumpId);
-            this.deleteLastClump(event, clumpListIndex);
+            this.deleteLastClump(event, curClumpId);
           };
           iconSpan.appendChild(deleteIcon);
         }

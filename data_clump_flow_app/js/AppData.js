@@ -347,6 +347,9 @@ export default class AppData {
     // this.clumpColumnMap = new Map(); // {id: 1, column: 1};
     this.clumpColumnMap.set(id, column);
   }
+  removeClumpInClumpColumnMap(id) {
+    this.clumpColumnMap.delete(id);
+  }
   clearClumpColumnMap() {
     this.clumpColumnMap.clear();
   }
