@@ -149,9 +149,14 @@ export default class AppData {
     this.clumpList = [...newClumpList];
   }
   parseClumpListFromStorage(localStorageKeyForClumps = this.localStorageKeyForClumps()) {
-    const jsonClumps = JSON.parse(localStorage.getItem(localStorageKeyForClumps) || '[]');
-    const clumpInfoClumps = jsonClumps.map((clump) => ClumpInfo.jsonToClumpInfo(clump));
-    return clumpInfoClumps;
+    return JSON.parse(localStorage.getItem(localStorageKeyForClumps) || '[]');
+
+    // The below prematurely converts the clumps to have the new 'linkedTo' properties, but
+    // sets them all to -1. When not converting here, the conversion in 'addClumpToMatrix' works.
+    //
+    // const jsonClumps = JSON.parse(localStorage.getItem(localStorageKeyForClumps) || '[]');
+    // const clumpInfoClumps = jsonClumps.map((clump) => ClumpInfo.jsonToClumpInfo(clump));
+    // return clumpInfoClumps;
   }
 
   // This will set both the 'lastAddedClumpId' and 'lastAddedCol'.
