@@ -70,6 +70,35 @@ export default class AppSettings {
 
     // Initial render call
     this.renderMatrix();
+
+    // Show the welcome alert only once.
+    this.showOneTimeAlert();
+  }
+
+  showOneTimeAlert() {
+    const alertText = `Welcome to the Data Clump Flow App!\n
+    NOTE: Important Update for 2025\n
+TL;DR: Please EXPORT ALL YOUR STORAGE FLOWS\n
+There was a major refactor to this app in March
+that allows for clump movement, as well as more
+clump deletions (other than just the last cell).\n
+Due to the complexities of the update, although
+tested extensively, in the chance an edge-case
+was missed, please take a second to export all
+your flows as soon as you dimiss this dialog.\n
+There is an 'Export All' button to help with this.\n
+There is also a new 'one-step-back' auto-
+backup/restore feature to help mitigate any
+potential data issues. Also to note this app
+is open source and PRs are welcome. Thank you
+for visiting, and I hope the app is helpful!\n
+P.S. This dialog will not show again.`;
+
+    const getInitMessage = AppStorage.appStorageGetItem('initMessage');
+    if (getInitMessage === null) {
+      alert(alertText);
+      AppStorage.appStorageSetItem('initMessage', 'seen');
+    }
   }
 
   resolveSelectors(selectors) {
@@ -1305,7 +1334,8 @@ export default class AppSettings {
           this.dataManager.setClumpList(backupData);
           this.dataManager.resetClumpListConverted();
           this.dataManager.addClumpsToMatrix();
-          this.dataManager.storeClumps(false); // Don't store the backup.
+          // this.dataManager.storeClumps(false); // Don't store the backup.
+          this.dataManager.storeClumps(); // Allow a 'redo' after an 'undo'.
 
           // Update UI.
           this.uiElements.clumpFormId.reset();
