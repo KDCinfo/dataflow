@@ -913,11 +913,11 @@ export default class AppSettings {
           const option = document.createElement('option');
           option.value = clump.id;
           // An asterisk (*) indicates the clump is in the tail of the clump being edited.
-          // When moving a clump into its own tail, the tail will not be moved (recursive).
-          // Instead, only the clump being moved will be moved.
-          // A tail, if any, will be shifted up to fill the gap.
+          // Moving a clump into its own tail is not currently supported.
           if (fullTail.includes(clump.id)) {
             option.textContent = `(*) ${clump.clumpName}`;
+            option.disabled = true;
+            option.style.color = 'gray';
             optionsInTail.push(option);
           } else {
             option.textContent = clump.clumpName;
