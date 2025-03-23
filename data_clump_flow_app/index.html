@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Data Clump Flow Analysis Tool</title>
-  <link rel="stylesheet" href="./dataflow.css">
+  <link rel="stylesheet" href="./dataflow.css?v=0002">
   <meta name="description" content="A tool to map and visualize branching data flows.">
   <meta name="keywords" content="data clumps, data flow, data mapping, data visualization">
   <link rel="icon" type="image/x-icon" href="./favicon.ico">
@@ -142,20 +142,24 @@ Moving a clump into its own tail is not currently supported.">
           </div>
 
           <!-- Two-button wrapper -->
-          <div class="storage-buttons storage-button-actions form-buttons">
+          <div class="storage-buttons form-buttons storage-button-actions">
             <!-- Storage: Delete Selected -->
-            <button id="storageButtonDelete" class="storage-button-action storage-button-delete">
-              <strong>Delete</strong> Selected
-            </button>
+            <button id="storageButtonDelete" class="storage-button-action storage-button-delete">Delete Selected</button>
 
             <!-- Storage: Use Selected; force wrap text -->
-            <button id="storageButtonUse" class="storage-button-action storage-button-use">
-            <strong>Activate</strong> Selected
-            </button>
+            <button id="storageButtonUse" class="storage-button-action storage-button-use"><strong>Activate Selected</strong></button>
           </div>
 
+          <!-- One-button wrapper -->
+          <div class="storage-buttons form-buttons storage-button-restore">
+            <!-- Storage: Restore Backup -->
+            <button id="restoreBackupButton" class="short">Restore <span class="no-wrap">Auto-Backup</span></button>
+          </div>
+        </div>
+
+        <div class="export-import-block export-import-storage-name">
           <!-- Create name wrapper -->
-          <div class="storage-create-name storage-buttons form-buttons">
+          <div class="storage-create-name form-buttons storage-buttons">
             <!-- Storage: Create New -->
             <input type="text" id="newStorageNameInput" placeholder="newFlowName">
             <button id="newStorageNameButton">New Flow</button>

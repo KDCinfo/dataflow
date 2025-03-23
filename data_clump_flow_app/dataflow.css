@@ -745,8 +745,19 @@ datalist {
   padding: 0 10px;
 }
 .export-import-storage-name>div.storage-button-actions .storage-button-action {
+  display: block;
   min-height: 42px;
+  text-align: center;
   width: 100%;
+}
+
+.export-import-storage-name>div.storage-button-restore {
+  margin: 0 auto;
+}
+
+button#restoreBackupButton {
+  display: block;
+  text-align: center;
 }
 
 .storage-create-name input {

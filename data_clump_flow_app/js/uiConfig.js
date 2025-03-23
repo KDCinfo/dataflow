@@ -23,7 +23,8 @@ export const uiConfig = {
   settings: {
     gridRepeatRangeInput: '#gridRepeatRangeInput',
     gridRepeatHtmlSpan: '#gridRepeatHtmlSpan',
-    gridRepeatSliderMarkers: '#gridRepeatSliderMarkers'
+    gridRepeatSliderMarkers: '#gridRepeatSliderMarkers',
+    restoreBackupButton: '#restoreBackupButton'
   },
   storage: {
     exportDataButton: '#exportDataButton',

@@ -23,6 +23,8 @@ export default class AppConstants {
           <li>Start with a lowercase character.</li>
           <li>Use either 'camelCase' or 'snake_case'.</li>
         </ul>`;
+  static storageNameErrRestoreText = `There was an issue with this backup.
+Ensure the active storage is selected, and a backup exists.`;
   static storageNameErrDelText = `Cannot delete the default or currently active storage names.`;
   static storageNameErrUseText = `Cannot load an already active storage name.`;
 

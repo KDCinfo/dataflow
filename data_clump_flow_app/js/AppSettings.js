@@ -189,6 +189,9 @@ export default class AppSettings {
     // id="storageButtonUse"
     // onclick="useSelectedStorage()"
     this.uiElements.storageButtonUse.addEventListener('click', this.useSelectedStorage.bind(this));
+    // id="restoreBackupButton"
+    // onclick="restoreSelectedStorage()"
+    this.uiElements.restoreBackupButton.addEventListener('click', this.restoreSelectedStorage.bind(this));
     // id="newStorageNameButton"
     // onclick="createNewStorage()"
     this.uiElements.newStorageNameButton.addEventListener('click', this.createNewStorage.bind(this));
@@ -813,9 +816,11 @@ export default class AppSettings {
 
     const isDefault = selectedStorageName === AppConstants.defaultStorageName;
     const isActive = selectedIndex === this.appSettingsInfo.storageIndex;
+    const isRestorable = AppStorage.appStorageCheckItemExists(`${selectedStorageName}_backup`);
 
-    this.uiElements.storageButtonDelete.disabled = isDefault || isActive;
     this.uiElements.storageButtonUse.disabled = isActive;
+    this.uiElements.storageButtonDelete.disabled = isDefault || isActive;
+    this.uiElements.restoreBackupButton.disabled = !isRestorable;
   }
 
   //
@@ -1204,7 +1209,8 @@ export default class AppSettings {
 
         this.storeSettings();
 
-        // Remove from local storage.
+        // Remove selected clumpList from localStorage.
+        // This will also remove its backup, if one exists.
         AppStorage.appStorageRemoveItem(selectedStorageName);
 
         this.updateStorageNameDropdownOptions();
@@ -1251,6 +1257,62 @@ export default class AppSettings {
         this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
       this.updateDataInHtml();
       this.renderMatrix();
+    }
+  }
+
+  // Button: id="restoreBackupButton"
+  restoreSelectedStorage() {
+    const selectedStorageIndex = parseInt(this.uiElements.storageNameTag.value, 10);
+
+    AppConfig.debugConsoleLogs &&
+      console.log('Restore backup for current storage:', selectedStorageIndex);
+
+    if (this.uiElements.storageNamingError.classList.contains('error-visible')) {
+      this.hideStorageError();
+    }
+
+    const selectedStorageName = isNaN(selectedStorageIndex) ? '' : this.appSettingsInfo.storageNames[selectedStorageIndex];
+    const selectedStorageNameBackup = `${selectedStorageName}_backup`;
+    if (
+      selectedStorageName !== '' &&
+      selectedStorageIndex === this.appSettingsInfo.storageIndex &&
+      AppStorage.appStorageCheckItemExists(selectedStorageNameBackup)
+    ) {
+      if (confirm(`\n!!! WARNING !!! All current data WILL BE LOST!
+            \nStorage name: ${this.appSettingsInfo.storageNames[this.uiElements.storageNameTag.value]}
+            \nThis is meant to be used in the case of data corruption.
+            \nYou can also consider using the import/export options.\n`)) {
+
+        this.hideStorageError();
+
+        // Replace the current storage with its backup.
+        const backupData = this.dataManager.parseClumpListFromStorage(selectedStorageNameBackup);
+        if (backupData !== null) {
+          // Update data.
+          this.dataManager.setData('editingIndex', null);
+          this.dataManager.setData('lastAddedCol', DataDefaultMaps.dataDefaultMap().lastAddedCol);
+          this.dataManager.setData('lastAddedClumpId', DataDefaultMaps.dataDefaultMap().lastAddedClumpId);
+          this.dataManager.setData('highestClumpId', DataDefaultMaps.dataDefaultMap().highestClumpId);
+
+          // Clear matrix and re-add all clumps.
+          this.dataManager.setClumpList(backupData);
+          this.dataManager.resetClumpListConverted();
+          this.dataManager.addClumpsToMatrix();
+          this.dataManager.storeClumps();
+
+          // Update UI.
+          this.uiElements.clumpFormId.reset();
+          this.uiElements.outputContainer.style.marginBottom = '0';
+          this.uiElements.outputContainer.style.height = 'calc(100vh - 42px)';
+          this.updateDataInHtml();
+          this.renderMatrix();
+        } else {
+          this.showStorageError(AppConstants.storageNameErrRestoreText);
+        }
+      }
+    } else {
+      // This should never be hit because the button should be disabled when not allowed.
+      this.showStorageError(AppConstants.storageNameErrRestoreText);
     }
   }
 

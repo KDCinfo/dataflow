@@ -1,5 +1,6 @@
 import AppConfig from './AppConfig.js';
 import AppHelpers from './AppHelper.js';
+import AppStorage from './AppStorage.js';
 import ClumpInfo from './ClumpInfo.js';
 import DataDefaultMaps from './DataDefaultMaps.js';
 
@@ -147,8 +148,8 @@ export default class AppData {
     this.clumpList.length = 0;
     this.clumpList = [...newClumpList];
   }
-  parseClumpListFromStorage() {
-    const jsonClumps = JSON.parse(localStorage.getItem(this.localStorageKeyForClumps()) || '[]');
+  parseClumpListFromStorage(localStorageKeyForClumps = this.localStorageKeyForClumps()) {
+    const jsonClumps = JSON.parse(localStorage.getItem(localStorageKeyForClumps) || '[]');
     const clumpInfoClumps = jsonClumps.map((clump) => ClumpInfo.jsonToClumpInfo(clump));
     return clumpInfoClumps;
   }
@@ -335,10 +336,16 @@ export default class AppData {
     return JSON.parse(localStorage.getItem(storageNameToGet) || '[]');
   }
 
+  // Backups occur:
+  //   - AppSettings: When [adding], [updating], or [deleting] clumps.
+  //   - AppSettings: When [deleting] a storage.
+  //   - AppData: [After conversion] when adding to matrix.
+  //   - AppData: [After importing] data.
   storeClumps() {
-    localStorage.setItem(
+    AppStorage.appStorageSetItem(
       this.localStorageKeyForClumps(),
-      JSON.stringify(this.clumpList)
+      JSON.stringify(this.clumpList),
+      true, // Create a backup.
     );
   }
 
