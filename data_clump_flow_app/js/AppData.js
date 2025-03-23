@@ -341,11 +341,11 @@ export default class AppData {
   //   - AppSettings: When [deleting] a storage.
   //   - AppData: [After conversion] when adding to matrix.
   //   - AppData: [After importing] data.
-  storeClumps() {
+  storeClumps(createBackup = true) {
     AppStorage.appStorageSetItem(
       this.localStorageKeyForClumps(),
       JSON.stringify(this.clumpList),
-      true, // Create a backup.
+      createBackup
     );
   }
 

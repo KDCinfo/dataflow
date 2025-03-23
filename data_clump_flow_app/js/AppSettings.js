@@ -813,14 +813,19 @@ export default class AppSettings {
   toggleStorageButtons() {
     const selectedIndex = this.uiElements.storageNameTag.selectedIndex;
     const selectedStorageName = this.appSettingsInfo.storageNames[selectedIndex];
+    const selectedStorageNameBackup = `${selectedStorageName}_backup`;
+
+    const currentList = this.dataManager.getData('clumpList');
+    const backupData = this.dataManager.parseClumpListFromStorage(selectedStorageNameBackup);
+    const listMatch = currentList.length === backupData.length &&
+        currentList.every((clump, index) => clump.id === backupData[index].id);
 
     const isDefault = selectedStorageName === AppConstants.defaultStorageName;
     const isActive = selectedIndex === this.appSettingsInfo.storageIndex;
-    const isRestorable = AppStorage.appStorageCheckItemExists(`${selectedStorageName}_backup`);
 
     this.uiElements.storageButtonUse.disabled = isActive;
     this.uiElements.storageButtonDelete.disabled = isDefault || isActive;
-    this.uiElements.restoreBackupButton.disabled = !isRestorable;
+    this.uiElements.restoreBackupButton.disabled = backupData.length === 0 || listMatch;
   }
 
   //
@@ -1278,8 +1283,10 @@ export default class AppSettings {
       selectedStorageIndex === this.appSettingsInfo.storageIndex &&
       AppStorage.appStorageCheckItemExists(selectedStorageNameBackup)
     ) {
-      if (confirm(`\n!!! WARNING !!! All current data WILL BE LOST!
-            \nStorage name: ${this.appSettingsInfo.storageNames[this.uiElements.storageNameTag.value]}
+      const storageName = this.appSettingsInfo.storageNames[this.uiElements.storageNameTag.value];
+      const backupName = `${storageName}_backup`;
+      if (confirm(`\n!!! WARNING !!! All current data WILL BE REPLACED!
+            \nBackup storage name: ${backupName}
             \nThis is meant to be used in the case of data corruption.
             \nYou can also consider using the import/export options.\n`)) {
 
@@ -1298,7 +1305,7 @@ export default class AppSettings {
           this.dataManager.setClumpList(backupData);
           this.dataManager.resetClumpListConverted();
           this.dataManager.addClumpsToMatrix();
-          this.dataManager.storeClumps();
+          this.dataManager.storeClumps(false); // Don't store the backup.
 
           // Update UI.
           this.uiElements.clumpFormId.reset();
