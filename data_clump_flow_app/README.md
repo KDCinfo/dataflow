@@ -213,22 +213,17 @@ Part 3
 ## @TODO:
 
 - Moderate changes:
-  - Add pop-up link for empty page message (so it is available after data is added).
   - Add color picker for cells
-  - When expanding clumps, add to a queue that can be stored and reapplied after repainting the matrix, so cells can stay open after adding or updating.
-  - Allow storage names to be descriptive; use a join table to track descriptive names with the actual storage key names.
-  - Add ability to delete any unlinked cell.
-  - Add ability to add cells under any bottommost group in a column.
-    - It currently adds cells to the last cell for the selected column, even if a previously added cell was linked/placed above existing sequenced cells.
+  - Add a queue for expanded clumps that can be reapplied after repainting the matrix (so cells can stay open after adding or updating).
+  - Allow storage names to be descriptive; use a 'join table' to track descriptive names with the actual storage key names.
   - Swap IDs for `data-` attributes
     - Leave IDs for labels
     - Add all `data-` selectors to config file
     - Swap out all query selectors for `data-` attribute selectors
     - Question: Is it worth the change?
+  - ~~Add pop-up link for empty page message (so it is available after data is added).~~
+    ^ No idea what this meant | 2025-03-23
 - Potentially big changes:
-  - Add ability to delete any linked cell.
-  - Add ability to change links.
-  - Add ability to unlink.
   - Add ability to move cells, perhaps make it a drag-and-drop feature.
 - Bug: Sometimes 'Import Data' will fail silently*.
   - *An error is shown in the dev tools console.
@@ -282,5 +277,16 @@ Part 3
   - Any open Data Clump Flow apps in other open tabs can't change the currently active storage.
 - Added cross-tab add/edit/delete protection when an active storage is deleted in another open tab.
 
+> 2025-03
+
+- Added ability to delete any non-left-linked cells.
+  - It used to only allow the last-added clump to be deleted.
+- Added ability to add or move cells under any cell in a column.
+  - It used to only add new cells to the bottom of a selected column.
+- Added ability to move 'linked to left' links (e.g. move cells; same as above).
+- ~~Add ability to unlink.~~ N/A (Can now switch between 'above' and 'left' links.)
+- Added an auto-backup/restore feature (basically an "undo" that overwrites 'clumpList' with a backup).
+- Bug fixes.
+- Added a one-time alert with a note to export all storage flows.
 
 _
