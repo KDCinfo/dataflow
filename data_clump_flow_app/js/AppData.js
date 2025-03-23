@@ -590,12 +590,15 @@ export default class AppData {
     const id = newClump.id;
     let newClumpColumn;
     let linkedToLeft;
-    // let linkedToAbove;
+    let linkedToAbove;
     if (newClump.hasOwnProperty('column')) {
       if (newClump.hasOwnProperty('linkedTo')) {
+        // Get last cell in column.
+        linkedToAbove = this.lastIdFromColumn(newClump.column);
         linkedToLeft = newClump.linkedTo;
         newClumpColumn = newClump.column;
       } else if (newClump.hasOwnProperty('linkedClumpID')) {
+        linkedToAbove = this.lastIdFromColumn(newClump.column);
         linkedToLeft = newClump.linkedClumpID;
         newClumpColumn = newClump.column;
       } else {
@@ -623,7 +626,7 @@ export default class AppData {
             ? this.clumpColumnMap.get(newClump.linkedToLeft) + 1
             : this.clumpColumnMap.get(newClump.linkedToAbove);
       linkedToLeft = newClump.linkedToLeft;
-      // linkedToAbove = newClump.linkedToAbove;
+      linkedToAbove = newClump.linkedToAbove;
     }
     AppConfig.debugConsoleLogs && console.log('*** [AppData] [New Clump Column]', newClumpColumn);
 
@@ -743,7 +746,7 @@ export default class AppData {
           let lastRow = -1;
           for (let r = rowCount; r > 0; r--) {
             // this.clumpMatrix[r - 1][colCount - 1] !== 0
-            if (this.clumpMatrix[r - 1][colCount - 1] === newClump.linkedToAbove) {
+            if (this.clumpMatrix[r - 1][colCount - 1] === linkedToAbove) {
               lastRow = r;
               break;
             }
@@ -777,14 +780,14 @@ export default class AppData {
 
           // Record the row of the newClump's linkedToAbove cell.
           for (let r = rowCount; r > 0; r--) {
-            if (this.clumpMatrix[r - 1][newClumpColumn - 1] === newClump.linkedToAbove) {
+            if (this.clumpMatrix[r - 1][newClumpColumn - 1] === linkedToAbove) {
               newClumpAboveRow = r;
               break;
             }
           }
 
           // Record the lowest clump in the 'right tail' of the new clump's 'linkedToAbove' cell.
-          const aboveCellToRightId = this.cellIdToRight(newClump.linkedToAbove);
+          const aboveCellToRightId = this.cellIdToRight(linkedToAbove);
           const aboveCellToRightClump = aboveCellToRightId === -1
               ? undefined
               : this.getData('clumpList').find(clump => clump.id === aboveCellToRightId);
