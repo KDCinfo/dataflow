@@ -289,4 +289,9 @@ Part 3
 - Bug fixes.
 - Added a one-time alert with a note to export all storage flows.
 
+- Fixed a few 'ClumpInfo' legacy property bugs.
+- Fixed bug when deleting the last clump.
+- Renamed storage key for: 'dataflowInitMessage'
+- New feature: Added a checkbox toggle in the Settings panel for showing IDs.
+
 _
