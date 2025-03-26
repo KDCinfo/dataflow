@@ -264,14 +264,15 @@ li ol>li:before {
 }
 
 .content-span,
-.icon-span {
+.edit-icon,
+.delete-icon {
   cursor: pointer;
 }
 
 .content-span {
   overflow: hidden;
   padding-left: 10px;
-  padding-right: 32px;
+  margin-right: 60px;
   text-align: left;
   text-overflow: ellipsis;
   width: 100%;
@@ -288,17 +289,26 @@ li ol>li:before {
   box-shadow: 0px 0px 5px #00ff00;
   cursor: pointer;
   font-size: 12px;
-  padding: 2px;
+  height: 22px;
+  width: 22px;
   position: absolute;
-  top: 5px;
 }
 
 .edit-icon {
+  outline: 1px dashed lightsalmon;
+  margin: 6px 0 0;
+  padding: 4px 2px 0px 2px;
   right: 5px;
+  top: 0;
 }
 
 .delete-icon {
-  right: 27px;
+  height: 14px;
+  margin: 6px 2px 0;
+  padding: 1px 2px 3px 2px;
+  right: 36px;
+  top: 5px;
+  width: 14px;
 }
 
 .collapsed {
@@ -308,8 +318,10 @@ li ol>li:before {
 }
 
 .expanded {
+  background-color: #cceeee;
   height: auto;
   min-height: 60px;
+  outline: 2px solid #33ff33;
   white-space: normal;
   /* Span 2 rows to push content below */
   /* grid-row-end: span 2; */
@@ -434,34 +446,82 @@ li ol>li:before {
   z-index: 5;
 }
 
-.clump-form-div {
+.clump-form-div-wrapper {
+  background-color: #00330033;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.clump-form-div label {
+.clump-form-div-wrapper-inside {
+  border: 1px solid #b0e00055;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 8px 10px 5px;
+}
+
+.bgcolor1 {
+  border-style: dashed;
+}
+.bgcolor2 {
+  border-style: dotted;
+}
+
+.clump-form-div {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+}
+
+.clump-form-div > label {
   display: inline-block;
   font-size: 14px;
   margin-right: 10px;
   text-align: right;
-  width: 125px;
+  min-width: 125px;
 }
 
-.clump-form-div input,
-.clump-form-div textarea,
-.clump-form-div select {
+.clump-form-div > input[type='text'],
+.clump-form-div > select,
+.clump-form-div > textarea {
   flex: 1;
   padding: 5px;
   font-size: 14px;
 }
 
-.clump-form-div input,
-.clump-form-div textarea {
+.clump-form-div > input[type='text'],
+.clump-form-div > select,
+.clump-form-div > textarea,
+.clump-form-div > div {
+  max-width: 235px;
   min-width: 120px;
+  width: 90%;
+}
+
+.clump-form-div > select {
   width: 100%;
 }
 
-.clump-form-div select {
+.clump-form-div-inline {
+  display: inline-flex;
+  font-size: 12px;
+  text-align: left;
+  align-items: normal;
+  height: 24px;
+  line-height: 28px;
+  padding: 0 10px 0 5px;
+}
+
+.clump-form-div-radios {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  max-width: 150px !important;
+}
+
+.clump-form-div > select {
   min-width: 120px;
 }
 
@@ -477,7 +537,7 @@ li ol>li:before {
 }
 
 /* Responsive layout: stack labels and inputs vertically */
-@media (max-width: 900px) {
+@media (max-width: 1185px) {
   .clump-form-form {
     padding: 15px;
   }
@@ -487,15 +547,15 @@ li ol>li:before {
     align-items: flex-start;
   }
 
-  .clump-form-div label {
+  .clump-form-div > label {
     text-align: left;
     margin-right: 0;
     margin-bottom: 5px;
     width: auto;
   }
 
-  .clump-form-div input,
-  .clump-form-div textarea {
+  .clump-form-div > input,
+  .clump-form-div > textarea {
     width: 90%;
   }
 
@@ -608,7 +668,33 @@ li ol>li:before {
 }
 
 
-/* Layout for Slider Block */
+/* Layout for Show IDs and Slider blocks */
+.settings-show-ids {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  margin: 5px 0 5px;
+  padding: 0 0 15px;
+  width: 100%;
+}
+
+.show-ids-label {
+  flex: 1;
+  font-size: 14px;
+  text-align: center;
+  white-space: normal;
+  width: 100%;
+}
+
+/* bottom border for all but the last element */
+.settings-show-ids:not(:last-child) {
+  border-bottom: 1px solid #003300;
+}
+
+.show-ids-checkbox {
+  vertical-align: middle;
+}
+
 .settings-slider {
   align-items: center;
   display: flex;
@@ -678,16 +764,32 @@ datalist {
   padding: 5px 10px;
 }
 
-/* .export-import-storage-name -> all first level divs -> 2nd html element -> width: 40% */
-.export-import-storage-name>div> :nth-child(1),
-.export-import-storage-name>div> :nth-child(2) {
-  width: 49%;
-}
-
 .export-import-storage-name>div {
   align-items: center;
   display: flex;
   margin: 8px auto;
+}
+
+.export-import-storage-name>div.storage-button-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+.export-import-storage-name>div.storage-button-actions .storage-button-action {
+  display: block;
+  min-height: 42px;
+  text-align: center;
+  width: 100%;
+}
+
+.export-import-storage-name>div.storage-button-restore {
+  margin: 0 auto;
+}
+
+button#restoreBackupButton {
+  display: block;
+  text-align: center;
 }
 
 .storage-create-name input {
@@ -702,6 +804,7 @@ datalist {
 
 .storage-name-label-current {
   color: #b0e000;
+  margin-left: 5px;
 }
 
 /* Responsive layout: stack labels and inputs vertically */
@@ -731,6 +834,15 @@ datalist {
   .storage-buttons,
   .storage-name-wrapper {
     flex-direction: column;
+  }
+
+  .export-import-storage-name>div.storage-button-actions {
+    flex-direction: column-reverse;
+    margin-top: 0;
+    min-height: auto;
+  }
+  .export-import-storage-name>div.storage-button-actions .storage-button-action {
+    min-height: auto;
   }
 
   .export-import-storage-name>div> :nth-child(1),

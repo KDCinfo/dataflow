@@ -11,16 +11,21 @@ export const uiConfig = {
     clumpFormId: '#clumpFormId',
     clumpNameInput: '#clumpNameInput',
     clumpCodeInput: '#clumpCodeInput',
-    linkTo: '#linkTo',
     columnSelect: '#columnSelect',
+    linkToId: '#linkToId',
+    linkedToLeft: '#linkedToLeft',
+    // 'linkedToAbove' used to be named 'column'.
+    linkedToAbove: '#linkedToAbove',
     saveClumpButton: '#clumpFormButtonSubmit'
     // Not used
     // resetClumpButton: '#clumpFormButtonReset'
   },
   settings: {
+    showIdsCheckbox: '#showIdsCheckbox',
     gridRepeatRangeInput: '#gridRepeatRangeInput',
     gridRepeatHtmlSpan: '#gridRepeatHtmlSpan',
-    gridRepeatSliderMarkers: '#gridRepeatSliderMarkers'
+    gridRepeatSliderMarkers: '#gridRepeatSliderMarkers',
+    restoreBackupButton: '#restoreBackupButton'
   },
   storage: {
     exportDataButton: '#exportDataButton',

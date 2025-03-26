@@ -20,7 +20,9 @@ export default class DataDefaultMMaps {
     ],
     lastAddedCol: -1,
     lastAddedClumpId: -1,
+    highestClumpId: 0,
     defaultAppSettings: {
+      showIds: false,
       gridRepeatRangeValue: 0,
       storageNames: ['error'], // camelCase or snake_case.
       storageIndex: 0
@@ -54,8 +56,10 @@ export default class DataDefaultMMaps {
     // DATA: [lastAddedClumpId] Unlinked clumps are placed under the last clump that was added,
     // let lastAddedClumpId = 0;
     lastAddedClumpId: 0,
+    highestClumpId: 0,
 
     defaultAppSettings: {
+      showIds: false,
       gridRepeatRangeValue: 2,
       storageNames: [AppConstants.defaultStorageName], // camelCase or snake_case.
       storageIndex: 0

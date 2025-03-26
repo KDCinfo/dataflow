@@ -19,6 +19,7 @@ export default class AppSettings {
   // These are the overall app settings, which allow for the retrieval of individual clumpLists.
   //
   // defaultAppSettings: {
+  //   showIds: false,
   //   gridRepeatRangeValue: 2,
   //   storageNames: ['default'], // camelCase or snake_case.
   //   storageIndex: 0
@@ -40,9 +41,12 @@ export default class AppSettings {
   dataManager;
 
   constructor(uiSelectors) {
+    const date = new Date();
+    console.log('AppSettings initialized on:', date.toLocaleString());
+
     this.uiElements = this.resolveSelectors(uiSelectors);
 
-    this.appSettingsInfo = this.getJsonSettingsFromStorageOrDefaults();
+    this.appSettingsInfo = AppStorage.getJsonSettingsFromStorageOrDefaults();
 
     // This will override the 'Appsettings.storageIndex' with the 'sessionStorage' value,
     //   if present, else it falls back to using the 'localStorage' value.
@@ -67,6 +71,37 @@ export default class AppSettings {
 
     // Initial render call
     this.renderMatrix();
+
+    // Show the welcome alert only once.
+    this.showOneTimeAlert();
+  }
+
+  showOneTimeAlert() {
+    const alertText = `Welcome to the Data Clump Flow App!\n
+    NOTE: Important Update for 2025\n
+TL;DR: Please EXPORT ALL YOUR STORAGE FLOWS\n
+There was a major refactor to this app in March
+that allows for clump movement, as well as more
+clump deletions (other than just the last cell).\n
+Due to the complexities of the update, although
+tested extensively, in the chance an edge-case
+was missed, please take a second to export all
+your flows as soon as you dimiss this dialog.\n
+There is an 'Export All' button to help with this.\n
+There is also a new 'one-step-back' auto-
+backup/restore feature to help mitigate any
+potential data issues. Also to note this app
+is open source and PRs are welcome. Thank you
+for visiting, and I hope the app is helpful!\n
+P.S. This dialog will not show again.`;
+
+    const getInitMessageOriginal = AppStorage.appStorageGetItem('initMessage');
+    const getInitMessage = AppStorage.appStorageGetItem('dataflowInitMessage');
+    // If one OR the other isn't null, don't show the alert.
+    if (getInitMessageOriginal === null && getInitMessage === null) {
+      alert(alertText);
+      AppStorage.appStorageSetItem('dataflowInitMessage', 'seen');
+    }
   }
 
   resolveSelectors(selectors) {
@@ -80,17 +115,6 @@ export default class AppSettings {
       }
     }
     return resolved;
-  }
-
-  getJsonSettingsFromStorageOrDefaults() {
-    const dataFromStorage = AppStorage.appStorageGetItem(AppConstants.localStorageSettingsKey);
-    const dataFromDefaults = JSON.stringify(
-      DataDefaultMaps.dataDefaultMap().defaultAppSettings
-    );
-    return JSON.parse(
-      dataFromStorage || dataFromDefaults
-
-    );
   }
 
   // Adding the '.popped' class to 'clump-form-form' will pop out the form.
@@ -136,7 +160,7 @@ export default class AppSettings {
         this.uiElements.saveClumpButton.disabled = true;
       }
     });
-    this.uiElements.linkTo.addEventListener('change', (evt) => {
+    this.uiElements.linkToId.addEventListener('change', (evt) => {
       if (this.uiElements.clumpNameInput.value.trim() !== '') {
         this.uiElements.saveClumpButton.disabled = false;
       } else {
@@ -150,6 +174,16 @@ export default class AppSettings {
       } else {
         this.uiElements.columnSelect.disabled = false;
       }
+    });
+    this.uiElements.linkedToLeft.addEventListener('change', () => {
+      // Refresh 'linkToId' dropdown options.
+      // function(event) => if (event.target.checked) { }
+      this.updateLinkToDropdownOptions();
+      this.updateColumnSelectDropdownOptions();
+    });
+    this.uiElements.linkedToAbove.addEventListener('change', () => {
+      this.updateLinkToDropdownOptions();
+      this.updateColumnSelectDropdownOptions();
     });
     this.uiElements.columnSelect.addEventListener('change', () => {
       if (this.uiElements.clumpNameInput.value.trim() !== '') {
@@ -175,20 +209,19 @@ export default class AppSettings {
     this.uiElements.clumpFormId.addEventListener('reset', this.handleFormReset.bind(this));
 
     // this.uiElements.settingsPanelToggle
-    // onclick="togglePanel(event)"
     this.uiElements.settingsPanelToggle.addEventListener('click', this.togglePanel.bind(this));
     this.uiElements.exportPanelToggle.addEventListener('click', this.togglePanel.bind(this));
-    // id="gridRepeatRangeInput"
-    // oninput="updateGridRepeat(event)"
+    // id="showIdsCheckbox"
+    this.uiElements.showIdsCheckbox.addEventListener('change', this.toggleShowIds.bind(this));
+    // id="gridRepeatRangeInput" | Slider
     this.uiElements.gridRepeatRangeInput.addEventListener('input', this.updateGridRepeat.bind(this));
     // id="storageButtonDelete"
-    // onclick="deleteSelectedStorage()"
     this.uiElements.storageButtonDelete.addEventListener('click', this.deleteSelectedStorage.bind(this));
     // id="storageButtonUse"
-    // onclick="useSelectedStorage()"
     this.uiElements.storageButtonUse.addEventListener('click', this.useSelectedStorage.bind(this));
+    // id="restoreBackupButton"
+    this.uiElements.restoreBackupButton.addEventListener('click', this.restoreSelectedStorage.bind(this));
     // id="newStorageNameButton"
-    // onclick="createNewStorage()"
     this.uiElements.newStorageNameButton.addEventListener('click', this.createNewStorage.bind(this));
 
     window.addEventListener('storage', (event) => {
@@ -296,12 +329,10 @@ export default class AppSettings {
     this.uiElements.crossTabWarning.classList.add('hidden');
   }
 
+  // Check if 'AppSettingsInfo.storageIndex' reflects the same name as the currently active
+  // storage name. If not, return. We DO NOT want to update a storage that doesn't exist, else
+  // it will overwrite all the data in the next storage in the list and replace it with this data.
   checkIfStorageNameStillExists() {
-    // Check if AppSettingsInfo.storageIndex reflects
-    // the same name as the currently active storage name.
-    // If not, return. We DO NOT want to update a storage that
-    // doesn't exist, else it will overwrite all the data in the
-    // next storage in the list and replace it with this data.
     const currentStorageName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex].toLowerCase();
     const storageNameLabelTrimmed = this.uiElements.storageNameLabelCurrent.textContent.trim().toLowerCase();
     if (currentStorageName !== storageNameLabelTrimmed) {
@@ -315,96 +346,105 @@ export default class AppSettings {
     // clumpFormId.onsubmit = (event) => {
     event.preventDefault();
 
-    // Check if the currently active storage name has been deleted.
+    // Ensure the currently active storage name is valid (prevent updating a non-existent storage).
     if (!this.checkIfStorageNameStillExists()) {
       return;
     }
 
-    // Clump cell placement has 3 options:
-    //
-    // [Linked]: 'Column to Add To' dropdown is irrelevant.
-    // 1. Add to the same row as the linked clump, in the next column.
-    //
-    // [Unlinked]: 'Link to Clump' dropdown should be set to 'None'.
-    // 2. When 'Last' is selected, add new clump to the last column that had a clump added to it.
-    // 3. Add to a specific column.
-    //
-    const newLinkTo = parseInt(this.uiElements.linkTo.value, 10) || -1;
-    const isLinked = !isNaN(newLinkTo) && newLinkTo > 0;
-    let columnToAddTo;
+    const currentClumpList = this.dataManager.getData('clumpList');
+    let newClumpList = [];
+    let newClump;
 
-    const columnRawValue = this.uiElements.columnSelect.options[this.uiElements.columnSelect.selectedIndex].value;
+    // Determine linking info based on the selected "Add to Column" option and link inputs.
+    const columnRawValue = this.uiElements.columnSelect.options[
+      this.uiElements.columnSelect.selectedIndex
+    ].value;
+    const { isLinkedLeft, linkId } = currentClumpList.length === 0
+        ? { isLinkedLeft: false, linkId: -1 }
+        : this.getLinkInfo(columnRawValue);
 
     if (this.dataManager.getData('editingIndex') === null) {
       //
-      // ADDING A NEW CLUMP
+      // **ADDING A NEW CLUMP**
       //
-      const newClumpID = this.dataManager.getData('lastAddedClumpId') + 1;
+      const newClumpID = this.dataManager.getData('highestClumpId') + 1;
 
-      const addNewClump = new ClumpInfo();
-      addNewClump.id = newClumpID;
-      addNewClump.clumpName = this.uiElements.clumpNameInput.value;
-      addNewClump.clumpCode = this.uiElements.clumpCodeInput.value;
+      newClump = new ClumpInfo();
+      newClump.id = newClumpID;
+      newClump.clumpName = this.uiElements.clumpNameInput.value;
+      newClump.clumpCode = this.uiElements.clumpCodeInput.value;
 
-      // Populate either the 'linkedClumpId' (if linked), or the given 'Column' (if not linked).
-      //
-      if (isLinked) {
-        // [Linked]
-        // columnToAddTo = this.dataManager.getData('lastAddedCol') + 1; // Not used?
-        addNewClump.linkedClumpID = newLinkTo;
+      // Assign the parent link based on selection (linkedToLeft or linkedToAbove).
+      if (isLinkedLeft) {
+        newClump.linkedToLeft = linkId;
+        newClump.linkedToAbove = -1;  // Ensure the alternate link field is cleared
       } else {
-        // [Unlinked]
-        columnToAddTo = columnRawValue === 'last'
-          ? this.dataManager.getData('lastAddedCol')
-          : parseInt(columnRawValue, 10);
-        addNewClump.column = columnToAddTo;
+        newClump.linkedToAbove = linkId;
+        newClump.linkedToLeft = -1;   // Clear the unused link field
       }
 
-      // Add the new clump to the end of the 'clumps' 1D array.
-      const clumpListToAdd = [...this.dataManager.getData('clumpList')];
-      clumpListToAdd.push(addNewClump);
-      this.dataManager.setData('clumpList', clumpListToAdd);
+      // Handle cell insertion logic.
+      // The helper will adjust any other clumps as needed when the structure is changed.
+      // const newClumpList = [...currentClumpList, newClump]; // Append new clump immutably.
+      newClumpList = this.handleClumpMovement(currentClumpList, newClump);
 
-      // Inject the new clump to the 'clumpMatrix' 2D array.
-      this.dataManager.addClumpToMatrix(addNewClump);
-
-      // Update global variables.
+      // Note: lastAddedCol will be updated in renderMatrix based on the new matrix state.
       this.dataManager.setData('lastAddedClumpId', newClumpID);
+      this.dataManager.setData('highestClumpId', newClumpID);
+
+      this.dataManager.setData('clumpList', newClumpList);  // Save new list to 1D clumpList.
+      this.dataManager.resetClumpListConverted();
+      this.dataManager.addClumpsToMatrix();
       //
     } else {
       //
-      // EDITING AN EXISTING CLUMP
+      // **EDITING AN EXISTING CLUMP**
       //
       AppConfig.debugConsoleLogs && console.log('clumpList before edit:', this.dataManager.getData('clumpList'));
 
-      const editedClumpIndex = this.dataManager.getData('editingIndex');
-      const editedClump = structuredClone(this.dataManager.getData('clumpList')[editedClumpIndex]);
-      editedClump.clumpName = this.uiElements.clumpNameInput.value;
-      editedClump.clumpCode = this.uiElements.clumpCodeInput.value;
+      const editIndex = this.dataManager.getData('editingIndex');
+      // Clone the targeted clump data to avoid mutating state directly, then apply form changes.
+      const originalClump = this.dataManager.getData('clumpList')[editIndex];
 
-      // Replace the clump in the array with the updated one.
-      const updatedClumpList = this.dataManager.getData('clumpList').map((clump, index) =>
-        index === editedClumpIndex ? editedClump : clump
-      );
+      // > structuredClone | https://developer.mozilla.org/en-US/docs/Web/API/Window/structuredClone
+      const newClumpObj = structuredClone(originalClump);
+      newClump = ClumpInfo.jsonToClumpInfo(newClumpObj);
+      newClump.clumpName = this.uiElements.clumpNameInput.value;
+      newClump.clumpCode = this.uiElements.clumpCodeInput.value;
+
+      // Determine new parent link based on user selection and update the edited clump.
+      if (isLinkedLeft) {
+        newClump.linkedToLeft = linkId;
+        newClump.linkedToAbove = -1; // Clear the above link if switching to a left link.
+      } else {
+        newClump.linkedToAbove = linkId;
+        newClump.linkedToLeft = -1;  // Clear the left link if switching to an above link.
+      }
+
+      // Handle re-insertion logic if the link relationships changed.
+      // The helper will adjust any other clumps as needed when the structure is changed.
+      newClumpList = this.handleClumpMovement(currentClumpList, newClump, originalClump);
 
       AppConfig.debugConsoleLogs && console.log('clumpList after edit - before update:', this.dataManager.getData('clumpList'));
 
-      this.removePopUp();
-      this.dataManager.setData('editingIndex', null);
-      this.dataManager.setData('clumpList', updatedClumpList);
+      // Update the data store with the edited clump and refreshed list.
+      this.removePopUp();                                  // Close the edit form popup UI.
+      this.dataManager.setData('editingIndex', null);      // Clear editing mode.
+      this.dataManager.setData('clumpList', newClumpList);  // Save new list to 1D clumpList.
+      this.dataManager.resetClumpListConverted();
+      this.dataManager.addClumpsToMatrix();
 
       AppConfig.debugConsoleLogs && console.log('clumpList after edit - after update:', this.dataManager.getData('clumpList'));
 
-      this.updateDataInHtml();
-      this.clearSelectedClumpNode();
+      // Refresh UI elements related to data and selection.
+      this.updateDataInHtml();       // Update debug info display (lastAddedClumpId, lastAddedCol, etc.)
+      this.clearSelectedClumpNode(); // Remove highlight from the previously selected clump node.
     }
 
-    this.dataManager.storeClumps();
-
-    // Reset the form fields.
-    this.resetFormFields();
-
-    this.renderMatrix();
+    // **Finalize: Persist data and refresh UI**
+    this.dataManager.storeClumps(); // Save the clumps data to local storage (or backend)
+    this.resetFormFields();         // Clear out the form inputs for next use
+    this.renderMatrix();            // Re-render the clump matrix in the UI to reflect changes
 
     const howManyExpanded = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded').length;
     this.uiElements.outputContainer.style.marginBottom = howManyExpanded > 0 ? '260px' : '0';
@@ -412,6 +452,208 @@ export default class AppSettings {
       ? 'calc(100vh - 42px - 260px)'
       : 'calc(100vh - 42px)';
   };
+
+  /**
+   * Adjusts clump positions in the list when a clump's linkage (parent) changes.
+   * This function handles reassigning related clumps and reordering the clump list to maintain a valid structure.
+   * @param {Array} clumpList - The current list of all clump objects (before edit).
+   * @param {Object} clumpToInsert - The clump data; either new or after edits (with updated link fields).
+   * @param {Object} originalClump - The original clump data (before edits).
+   * @returns {Array} - A new clump list with clumps repositioned as needed.
+   */
+  handleClumpMovement(clumpList, clumpToInsert, originalClump) {
+    const insertionClumpId = clumpToInsert.id;
+    const newAbove = clumpToInsert.linkedToAbove;
+    const newLeft = clumpToInsert.linkedToLeft;
+
+    const isAdd = typeof originalClump === 'undefined' || originalClump === null;
+    const oldAbove = isAdd ? -1 : originalClump.linkedToAbove;
+    const oldLeft = isAdd ? -1 : originalClump.linkedToLeft;
+
+    let updatedClumpList = [];
+
+    // CASE 1: C1R1 | First cell | Add and return
+    const isFirstCell = clumpList.length === 0 ||
+        (clumpToInsert.linkedToAbove === -1 && clumpToInsert.linkedToLeft === -1);
+    if (isFirstCell) {
+      updatedClumpList = [clumpToInsert];
+      return updatedClumpList;
+    }
+
+    // CASE 2: C1R2 | Second cell | No movement
+    //         If editing, and the linkage hasn't changed
+    //         (same parent as before), no reposition is needed.
+    const linkUnchanged = !isAdd && oldAbove === newAbove && oldLeft === newLeft;
+    if (linkUnchanged) {
+      // Simply replace the clump in the list with the updated data.
+      updatedClumpList = clumpList.map(clump => clump.id === insertionClumpId ? clumpToInsert : clump);
+      return updatedClumpList;
+    }
+
+    const cellToRightId = isAdd ? -1 : this.dataManager.cellIdToRight(insertionClumpId);
+    const cellToRightClump = isAdd ? undefined : clumpList.find(clump => clump.id === cellToRightId);
+    const subtreeRightTail = cellToRightId === -1 ? [] : this.dataManager.collectSubtreeIdsBelow(cellToRightId);
+    const subtreeFullRightTail = cellToRightClump === undefined ? [] : [cellToRightClump, ...subtreeRightTail];
+    const subtreeBelowTail = isAdd ? [] : this.dataManager.collectSubtreeIdsBelow(insertionClumpId);
+    const subtreeBelowTailClumps = subtreeBelowTail.map(id => clumpList.find(clump => clump.id === id));
+    // If we're adding a cell with a linkedToAbove, we only need the bottom tail.
+    const subtreeBothTails = isAdd ? [] : this.dataManager.collectSubtreeIdsFullTail(insertionClumpId);
+    const subtreeBothTailsClumps = subtreeBothTails.map(id => clumpList.find(clump => clump.id === id));
+
+    // CASE 3: C1R2 | Add a cell below the linkedToAbove ID
+    //   - If a cell exists below the target cell, its linkedToAbove will change
+    //       from the target cell to the last cell in the below tail.
+    if (newAbove !== -1) {
+      const targetClumpIndex = clumpList.findIndex(clump => clump.id === newAbove);
+
+      const clumpListSliceStart = clumpList.slice(0, targetClumpIndex + 1).filter(clump =>
+        !subtreeBelowTail.includes(clump.id)
+          && clump.id !== insertionClumpId);
+      const clumpListSliceEnd = clumpList.slice(targetClumpIndex + 1).filter(clump =>
+        !subtreeBelowTail.includes(clump.id)
+          && clump.id !== insertionClumpId
+      );
+
+      const cellBelowTargetClump = clumpList.find(clump => clump.linkedToAbove === newAbove);
+      if (cellBelowTargetClump !== undefined) {
+        const subtreeBelowTailLastId = subtreeBelowTail.length === 0
+            ? insertionClumpId
+            : subtreeBelowTail[subtreeBelowTail.length - 1];
+        // If we're adding, the 'insertionClumpId' is the cell being linked to
+        //   (because a new clump has no tail, but where it's being inserted might).
+        // If we're editing, the 'insertionClumpId' is the cell being edited
+        //   (because we need its tail).
+        cellBelowTargetClump.linkedToAbove = isAdd ? insertionClumpId : subtreeBelowTailLastId;
+
+        // Update 'clumpListSliceEnd' with the updated 'cellBelowTargetClump'.
+        const clumpListSliceEndIndex = clumpListSliceEnd.findIndex(clump => clump.id === cellBelowTargetClump.id);
+        clumpListSliceEnd[clumpListSliceEndIndex] = cellBelowTargetClump;
+      }
+
+
+      updatedClumpList = [
+        ...clumpListSliceStart,
+        clumpToInsert,
+        ...subtreeBelowTailClumps,
+        ...subtreeFullRightTail,
+        ...clumpListSliceEnd
+      ].filter(clump => clump !== undefined);
+
+      return updatedClumpList;
+    }
+
+    // CASE 4: C1R3 | Edit a cell's vertical position
+    //   [ ] If moved down
+    //   	   - Cell below it moves up (replace it with the moved cell's linkedToAbove)
+    //   	   - Change linkedToAbove from target cell to the moved cell
+    //   	   - If a cell is below the target cell, its linkedToAbove will become the
+    //         last cell's ID in the column.
+    //   [ ] If moved up
+    //   	   - Entire below tail moves up, and any existing cells below the move-to cell will be
+    //       moved to the bottom of the moved cell's below tail
+
+    // CASE 5: C2R1 | Cell that is linkedToLeft > 0
+    //         Can only be moved to a cell that is not already linked to another cell.
+    if (newLeft !== -1) {
+      // If linkedToLeft,
+      //   1) remove the full tail, if any, from the list, then
+      //   2) inject new clump, and its full subtree (if any), to the right of the linked clump.
+      const leftClumpIndex = clumpList.findIndex(clump => clump.id === newLeft);
+
+      const clumpListSliceStart = clumpList.slice(0, leftClumpIndex + 1).filter(clump =>
+        !subtreeBothTails.includes(clump.id) && clump.id !== insertionClumpId
+      );
+      const clumpListSliceEnd = clumpList.slice(leftClumpIndex + 1).filter(clump =>
+        !subtreeBothTails.includes(clump.id) && clump.id !== insertionClumpId
+      );
+
+      updatedClumpList = [
+        ...clumpListSliceStart,
+        clumpToInsert,
+        ...subtreeBothTailsClumps,
+        ...clumpListSliceEnd
+      ];
+
+      return updatedClumpList;
+    }
+
+    // If no cases above are met, return the original clump list.
+    alert('Debug error: No cases met for clump movement. Please notify the developer.');
+    console.error('DEBUG ERROR: ***** ***** ***** ***** *****.');
+    console.error('DEBUG ERROR: NO CASES MET FOR CLUMP MOVEMENT. Please notify the developer.');
+    console.error('DEBUG ERROR: ***** ***** ***** ***** *****.');
+    return clumpList;
+  }
+
+  get getByLinkNotColumn() {
+    const newLinkToIdFromUI = parseInt(this.uiElements.linkToId.value, 10) || -1;
+    // const getByLinkNotColumn = !isNaN(newLinkToIdFromUI) && newLinkToIdFromUI > 0;
+    return !isNaN(newLinkToIdFromUI) && newLinkToIdFromUI > 0;
+  }
+
+  get isLinkToLeftSelected() {
+    // const isLinkedLeft = getByLinkNotColumn && this.uiElements.linkedToLeft.checked;
+    return this.getByLinkNotColumn && this.uiElements.linkedToLeft.checked;
+  }
+
+  getLinkInfo(columnRawValue) {
+    const returnObject = {
+      isLinkedLeft: false,
+      linkId: -1,
+    };
+
+    const newLinkToIdFromUI = parseInt(this.uiElements.linkToId.value, 10) || -1;
+
+    // Clump cell placement has 2 options:
+    //
+    // [Linked][toLeft]
+    // 1. Add to the same row as the linked clump, in the next column.
+    //
+    // [Linked][toAbove]
+    // 2. When 'Last' is selected, add new clump to the last column that had a clump added to it.
+    // 3. Add to a specific column.
+    //
+    // The 'Add to Column' dropdown is a shortcut to linking the cell
+    //   to either the 'Last Added' clump, or the last clump in a
+    //   specific column using the 'above' option.
+    //   This dropdown is disabled (irrelevant) when the 'Link to Clump' is not 'None'.
+    //
+    if (this.isLinkToLeftSelected) {
+      returnObject.isLinkedLeft = true;
+      returnObject.linkId = newLinkToIdFromUI;
+      // clump.linkedToLeft = newLinkToIdFromUI;
+    } else {
+      // We need to determine the ID of the clump to link to.
+      const isLinkedAbove = this.getByLinkNotColumn && this.uiElements.linkedToAbove.checked;
+      const columnValue = parseInt(columnRawValue, 10) || this.dataManager.getData('lastAddedCol');
+
+      // The parent cell ID to link to (above) is either:
+      // - a selected link ID from the UI (with the 'above' option selected),
+      // - the last added clump ID (from the 'column select' dropdown), or
+      // - the last ID from a selected column.
+      const linkToAboveId = isLinkedAbove
+          ? newLinkToIdFromUI
+          : columnRawValue === 'last'
+              ? this.dataManager.getData('lastAddedClumpId')
+              : this.dataManager.lastIdFromColumn(columnValue);
+      returnObject.isLinkedLeft = false;
+      returnObject.linkId = linkToAboveId;
+      // clump.linkedToAbove = linkToAboveId;
+    }
+    return returnObject;
+  }
+
+  enableDisableLinkToFields(onOrOff) {
+    this.uiElements.linkToId.disabled = onOrOff;
+    this.uiElements.linkedToLeft.disabled = onOrOff;
+    this.uiElements.linkedToAbove.disabled = onOrOff;
+  }
+
+  enableDisableColumnSelect() {
+    this.uiElements.columnSelect.disabled =
+        this.uiElements.linkToId.value !== '' ||
+        this.dataManager.getData('editingIndex') === 0;
+  }
 
   resetFormFields() {
     // This will reset the form fields, regardless of any nesting.
@@ -424,6 +666,12 @@ export default class AppSettings {
         field.value = field.defaultValue;
       }
     });
+
+    // Enable 'linkTo' dropdown and radios: | disabled => editingIndex == 0
+    this.enableDisableLinkToFields(this.dataManager.getData('editingIndex') === 0);
+
+    // Enable 'columnSelect' dropdown:
+    this.enableDisableColumnSelect();
   }
 
   // When canceling an edit, reset the 'editingIndex' to null, and remove the
@@ -431,12 +679,13 @@ export default class AppSettings {
   handleFormReset(event) {
     event.preventDefault();
 
+    this.dataManager.setData('editingIndex', null);
+
     // Reset the form fields.
     this.resetFormFields();
 
     // Leaving the form popped open for additional adds, but will close for edits.
     this.removePopUp();
-    this.dataManager.setData('editingIndex', null);
 
     this.uiElements.saveClumpButton.disabled = this.uiElements.clumpNameInput.value.trim() === '';
 
@@ -490,7 +739,8 @@ export default class AppSettings {
         null, // updatedEditingIndex
         // @TODO: Replace this with static map.
         DataDefaultMaps.dataDefaultMap().lastAddedCol,
-        DataDefaultMaps.dataDefaultMap().lastAddedClumpId
+        DataDefaultMaps.dataDefaultMap().lastAddedClumpId,
+        DataDefaultMaps.dataDefaultMap().highestClumpId,
       );
 
       // Update UI.
@@ -591,12 +841,19 @@ export default class AppSettings {
   toggleStorageButtons() {
     const selectedIndex = this.uiElements.storageNameTag.selectedIndex;
     const selectedStorageName = this.appSettingsInfo.storageNames[selectedIndex];
+    const selectedStorageNameBackup = `${selectedStorageName}_backup`;
+
+    const currentList = this.dataManager.getData('clumpList');
+    const backupData = this.dataManager.parseClumpListFromStorage(selectedStorageNameBackup);
+    const listMatch = currentList.length === backupData.length &&
+        currentList.every((clump, index) => clump.id === backupData[index].id);
 
     const isDefault = selectedStorageName === AppConstants.defaultStorageName;
     const isActive = selectedIndex === this.appSettingsInfo.storageIndex;
 
-    this.uiElements.storageButtonDelete.disabled = isDefault || isActive;
     this.uiElements.storageButtonUse.disabled = isActive;
+    this.uiElements.storageButtonDelete.disabled = isDefault || isActive;
+    this.uiElements.restoreBackupButton.disabled = backupData.length === 0 || listMatch;
   }
 
   //
@@ -614,6 +871,13 @@ export default class AppSettings {
     AppConfig.debugConsoleLogs && console.log('curGridRepeatRangeValue:', curGridRepeatRangeValue);
 
     return curGridRepeatRangeValue;
+  }
+
+  toggleShowIds(event) {
+    AppConfig.debugConsoleLogs && console.log('Checkbox is checked:', event.target.checked);
+    this.appSettingsInfo.showIds = event.target.checked;
+    this.storeSettings();
+    this.renderMatrix();
   }
 
   // HTML Slider with options that will update the grid repeat:
@@ -661,28 +925,68 @@ export default class AppSettings {
   //
 
   updateLinkToDropdownOptions() {
-    this.uiElements.linkTo.innerHTML = '<option value="">None</option>';
+    this.uiElements.linkToId.innerHTML = '<option value="">None</option>';
 
-    // This loop extrapolates in-use linkTo IDs so they are not
+    // This map extrapolates in-use linkTo IDs so they are not
     // shown in the dropdown (because they're already linked to).
-    const linkedClumpIDs = this.dataManager.getData('clumpList').map(clump => clump.linkedClumpID);
-    this.dataManager.getData('clumpList').forEach((clump, index) => {
-      // If the clump is not the one being edited, and it is not already linked.
-      const isNotLinkedClump = !linkedClumpIDs.includes(clump.id);
-      const isEditingThisClump = this.dataManager.getData('editingIndex') !== index;
+    const editingIndex = this.dataManager.getData('editingIndex');
 
-      if (isEditingThisClump && isNotLinkedClump) {
-        const option = document.createElement('option');
-        option.value = clump.id;
-        option.textContent = clump.clumpName;
-        this.uiElements.linkTo.appendChild(option);
+    const tempClumpList = this.dataManager.getData('clumpList');
+    const fullTail = editingIndex === null ? [] : this.dataManager.collectSubtreeIdsFullTail(tempClumpList[editingIndex].id);
+    const linkedClumpIDs = tempClumpList.map(clump => clump.linkedToLeft);
+    const linkedClumpID = editingIndex === null ? -2 : tempClumpList[editingIndex].linkedToLeft;
+
+    const optionsInTail = [];
+    const optionsNotInTail = [];
+    tempClumpList.forEach((clump, index) => {
+      // You can't link a clump to itself.
+      if (editingIndex !== index) {
+        // If 'linkToLeft' is checked, only show clumps that are not already linked to.
+        // Otherwise, all clumps can be linked to 'above', even those with an existing link
+        // (in which case, the existing link will be moved to the new clump's ID; i.e. pushed down).
+        if (
+          // If 'isLeft' is checked, and
+          //   the clump is either the currently linked clump, or already linked to.
+          (
+            this.uiElements.linkedToLeft.checked &&
+            !fullTail.includes(clump.id) &&
+            (clump.id === linkedClumpID || !linkedClumpIDs.includes(clump.id))
+          ) ||
+          // else, 'isAbove' can link to any clump.
+          !this.uiElements.linkedToLeft.checked
+        ) {
+          const option = document.createElement('option');
+          option.value = clump.id;
+          // An asterisk (*) indicates the clump is in the tail of the clump being edited.
+          // Moving a clump into its own tail is not currently supported.
+          if (fullTail.includes(clump.id)) {
+            option.textContent = `(*) ${clump.clumpName}`;
+            option.disabled = true;
+            option.style.color = 'gray';
+            optionsInTail.push(option);
+          } else {
+            option.textContent = clump.clumpName;
+            optionsNotInTail.push(option);
+          }
+        }
       }
     });
-    this.uiElements.linkTo.disabled = this.dataManager.getData('editingIndex') !== null;
+
+    const fragmentNotInTail = document.createDocumentFragment();
+    optionsNotInTail.forEach(option => fragmentNotInTail.appendChild(option));
+    this.uiElements.linkToId.appendChild(fragmentNotInTail);
+
+    const fragmentInTail = document.createDocumentFragment();
+    optionsInTail.forEach(option => fragmentInTail.appendChild(option));
+    this.uiElements.linkToId.appendChild(fragmentInTail);
+
+    // The following is commented because we can now
+    // edit 'column' (now 'linkedToLeft') and 'linkTo' (now 'linkedToAbove') properties.
+    // this.uiElements.linkToId.disabled = this.dataManager.getData('editingIndex') !== null;
   }
 
   updateColumnSelectDropdownOptions() {
-    this.uiElements.columnSelect.innerHTML = '<option value="last">Last Column</option>';
+    this.uiElements.columnSelect.innerHTML = '<option value="last">Last Added</option>';
 
     // Using 'clumpMatrix', this will yield a list of available columns
     // (which the UI uses for the 'Column to Add To' dropdown).
@@ -695,7 +999,11 @@ export default class AppSettings {
       option.textContent = `Column ${column}`;
       this.uiElements.columnSelect.appendChild(option);
     });
-    this.uiElements.columnSelect.disabled = this.dataManager.getData('editingIndex') !== null;
+
+    this.enableDisableColumnSelect();
+
+    // We can now edit 'column' (now 'linkedToLeft') and 'linkTo' (now 'linkedToAbove') properties.
+    // this.uiElements.columnSelect.disabled = this.dataManager.getData('editingIndex') !== null;
   }
 
   updateStorageNameDropdownOptions() {
@@ -723,18 +1031,37 @@ export default class AppSettings {
       console.log('Editing clump:', this.dataManager.getData('clumpList')[index]);
 
     this.dataManager.setData('editingIndex', index);
-    this.updateLinkToDropdownOptions(); // Updates list and toggles disabled.
-    this.updateColumnSelectDropdownOptions(); // Toggles disabled.
-    this.updateDataInHtml();
-    this.selectClumpNode(event.target);
 
     const clump = this.dataManager.getData('clumpList')[index];
+    const clumpIsLinkedLeft = clump.linkedToLeft !== -1;
+
     this.uiElements.clumpNameInput.value = clump.clumpName;
     this.uiElements.clumpCodeInput.value = clump.clumpCode;
 
-    // Update value and disable.
-    this.uiElements.linkTo.value = isNaN(clump.linkedClumpID) ? '' : clump.linkedClumpID;
-    this.uiElements.columnSelect.value = clump.column === -1 ? 'last' : clump.column;
+    this.uiElements.linkedToLeft.checked = clumpIsLinkedLeft;
+    this.uiElements.linkedToAbove.checked = clump.linkedToAbove !== -1;
+
+    // All existing clumps are linked, either 'left' or 'above' (and index: 0 cannot be moved).
+    // The 'column select' dropdown will re-enable when a 'linkTo' is set to 'None'.
+    this.uiElements.columnSelect.disabled = true; // index !== 0 ;
+
+    if (index === 0) {
+      // Disable 'linkTo' dropdown and radios:
+      this.enableDisableLinkToFields(true); // disabled == true => disable
+    } else {
+      // Enable 'linkTo' dropdown and radios:
+      this.enableDisableLinkToFields(false); // disabled == false => enable
+      this.updateLinkToDropdownOptions(); // Updates list and toggles disabled.
+      this.updateColumnSelectDropdownOptions(); // Toggles disabled.
+    }
+
+    this.updateDataInHtml();
+    this.selectClumpNode(event.target);
+
+    this.uiElements.linkToId.value = clumpIsLinkedLeft ? clump.linkedToLeft : clump.linkedToAbove;
+
+    // This needs to be run after the 'linkTo' dropdown value is updated.
+    this.enableDisableColumnSelect();
 
     // Set focus to the 'clump name' input field.
     this.uiElements.clumpNameInput.focus();
@@ -756,7 +1083,7 @@ export default class AppSettings {
   //   what happens when you delete a clump that has a clump linked to it from its right?
   // And the shifting involved for cells below, left and right, will require some complexity.
   // For now, we'll just provide the ability to remove the last clump added (an undo).
-  deleteLastClump(event) {
+  deleteLastClump(event, clumpId) {
     event.stopPropagation();
 
     // Check if the currently active storage name has been deleted.
@@ -783,38 +1110,52 @@ export default class AppSettings {
 
       const getClumpList = this.dataManager.getData('clumpList');
 
-      if (this.dataManager.getData('editingIndex') === getClumpList.length - 1) {
+      const clumpIndex = getClumpList.findIndex(clump => clump.id === clumpId);
+
+      if (this.dataManager.getData('editingIndex') === clumpIndex) {
         this.dataManager.setData('editingIndex', null);
       }
 
-      // Remove the clump from the clumps array.
-      const clumpListToPop = [...getClumpList];
-      clumpListToPop.pop();
-      this.dataManager.setData('clumpList', clumpListToPop);
+      const clumpListSpliced = [...getClumpList];
 
-      // Clear matrix and re-add all clumps.
-      this.dataManager.addClumpsToMatrix();
+      const clumpFound = getClumpList[clumpIndex];
+      const clumpBelowIndex = getClumpList.findIndex(clump => clump.linkedToAbove === clumpFound.id);
+
+      if (clumpBelowIndex !== -1) {
+        // Replace the clump below with links from the clump above.
+        const clumpBelow = getClumpList[clumpBelowIndex];
+        clumpBelow.linkedToAbove = clumpFound.linkedToAbove;
+        clumpBelow.linkedToLeft = clumpFound.linkedToLeft;
+        clumpListSpliced[clumpBelowIndex] = clumpBelow;
+      }
+
+      // Now we can remove the clump from the list.
+      clumpListSpliced.splice(clumpIndex, 1);
+      this.dataManager.setData('clumpList', clumpListSpliced);
 
       // Update global variables.
+      if (clumpFound.id === this.dataManager.getData('lastAddedClumpId')) {
+        this.dataManager.setData(
+          'lastAddedClumpId',
+          clumpListSpliced.length > 0
+              ? clumpListSpliced[clumpListSpliced.length - 1].id
+              : DataDefaultMaps.dataDefaultMap().lastAddedClumpId
+        );
+        this.dataManager.setLastAdded();
+      }
       this.dataManager.setData(
-        'lastAddedClumpId',
+        'highestClumpId',
         getClumpList.length > 0
-          ? getClumpList[getClumpList.length - 1].id
+          ? getClumpList.reduce((max, clump) => Math.max(max, clump.id), 0)
           : 0
       );
 
-      // Cycle through 'clumpMatrix' in reverse by rows, then columns,
-      // looking for the Column that the new last clump ID is in.
-      // This will be the new 'lastAddedCol'.
-      findLastAddedColLoop:
-      for (let c = this.dataManager.getColumnCount() - 1; c >= 0; c--) {
-        for (let r = this.dataManager.getRowCount() - 1; r >= 0; r--) {
-          if (this.dataManager.getData('clumpMatrix')[r][c] === this.dataManager.getData('lastAddedClumpId')) {
-            this.dataManager.setData('lastAddedCol', c + 1);
-            break findLastAddedColLoop;
-          }
-        }
-      }
+      // Remove the clump from the clumpColumnMap.
+      this.dataManager.removeClumpInClumpColumnMap(clumpFound.id);
+
+      // Clear matrix and re-add all clumps.
+      this.dataManager.resetClumpListConverted();
+      this.dataManager.addClumpsToMatrix();
 
       this.dataManager.storeClumps();
       this.updateDataInHtml();
@@ -893,7 +1234,8 @@ export default class AppSettings {
       this.uiElements.storageNameTag.value !== this.appSettingsInfo.storageIndex
     ) {
       if (confirm(`\nAre you sure you want to delete this storage?
-            \nAny data within this storage will be lost.
+            \nStorage name: ${this.appSettingsInfo.storageNames[this.uiElements.storageNameTag.value]}
+            \nAny data within this storage WILL BE LOST.
             \nClick 'Cancel' and switch to this storage to export your data.\n`)) {
 
         this.hideStorageError();
@@ -903,12 +1245,20 @@ export default class AppSettings {
 
         const newList = this.appSettingsInfo.storageNames.toSpliced(selectedStorageIndex, 1);
         this.appSettingsInfo.storageNames = [...newList];
+
+        // If 'selectedStorageIndex' < 'this.appSettingsInfo.storageIndex' reduce the index by 1.
+        if (selectedStorageIndex < this.appSettingsInfo.storageIndex) {
+          this.appSettingsInfo.storageIndex--;
+          AppStorage.updateSessionStorageIndex(this.appSettingsInfo.storageIndex);
+        }
+
         this.storeSettings();
 
-        // Remove from local storage.
+        // Remove selected clumpList from localStorage.
+        // This will also remove its backup, if one exists.
         AppStorage.appStorageRemoveItem(selectedStorageName);
 
-        this.renderMatrix();
+        this.updateStorageNameDropdownOptions();
       }
     } else {
       // This should never be hit because the button should be disabled when not allowed.
@@ -937,9 +1287,11 @@ export default class AppSettings {
       this.dataManager.setData('editingIndex', null);
       this.dataManager.setData('lastAddedCol', DataDefaultMaps.dataDefaultMap().lastAddedCol);
       this.dataManager.setData('lastAddedClumpId', DataDefaultMaps.dataDefaultMap().lastAddedClumpId);
+      this.dataManager.setData('highestClumpId', DataDefaultMaps.dataDefaultMap().highestClumpId);
       this.dataManager.setClumpList(); // Default: getStorageNameFromSettings()
 
       // Clear matrix and re-add all clumps.
+      this.dataManager.resetClumpListConverted();
       this.dataManager.addClumpsToMatrix();
 
       // Update UI.
@@ -950,6 +1302,65 @@ export default class AppSettings {
         this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
       this.updateDataInHtml();
       this.renderMatrix();
+    }
+  }
+
+  // Button: id="restoreBackupButton"
+  restoreSelectedStorage() {
+    const selectedStorageIndex = parseInt(this.uiElements.storageNameTag.value, 10);
+
+    AppConfig.debugConsoleLogs &&
+      console.log('Restore backup for current storage:', selectedStorageIndex);
+
+    if (this.uiElements.storageNamingError.classList.contains('error-visible')) {
+      this.hideStorageError();
+    }
+
+    const selectedStorageName = isNaN(selectedStorageIndex) ? '' : this.appSettingsInfo.storageNames[selectedStorageIndex];
+    const selectedStorageNameBackup = `${selectedStorageName}_backup`;
+    if (
+      selectedStorageName !== '' &&
+      selectedStorageIndex === this.appSettingsInfo.storageIndex &&
+      AppStorage.appStorageCheckItemExists(selectedStorageNameBackup)
+    ) {
+      const storageName = this.appSettingsInfo.storageNames[this.uiElements.storageNameTag.value];
+      const backupName = `${storageName}_backup`;
+      if (confirm(`\n!!! WARNING !!! All current data WILL BE REPLACED!
+            \nBackup storage name: ${backupName}
+            \nThis is meant to be used in the case of data corruption.
+            \nYou can also consider using the import/export options.\n`)) {
+
+        this.hideStorageError();
+
+        // Replace the current storage with its backup.
+        const backupData = this.dataManager.parseClumpListFromStorage(selectedStorageNameBackup);
+        if (backupData !== null) {
+          // Update data.
+          this.dataManager.setData('editingIndex', null);
+          this.dataManager.setData('lastAddedCol', DataDefaultMaps.dataDefaultMap().lastAddedCol);
+          this.dataManager.setData('lastAddedClumpId', DataDefaultMaps.dataDefaultMap().lastAddedClumpId);
+          this.dataManager.setData('highestClumpId', DataDefaultMaps.dataDefaultMap().highestClumpId);
+
+          // Clear matrix and re-add all clumps.
+          this.dataManager.setClumpList(backupData);
+          this.dataManager.resetClumpListConverted();
+          this.dataManager.addClumpsToMatrix();
+          // this.dataManager.storeClumps(false); // Don't store the backup.
+          this.dataManager.storeClumps(); // Allow a 'redo' after an 'undo'.
+
+          // Update UI.
+          this.uiElements.clumpFormId.reset();
+          this.uiElements.outputContainer.style.marginBottom = '0';
+          this.uiElements.outputContainer.style.height = 'calc(100vh - 42px)';
+          this.updateDataInHtml();
+          this.renderMatrix();
+        } else {
+          this.showStorageError(AppConstants.storageNameErrRestoreText);
+        }
+      }
+    } else {
+      // This should never be hit because the button should be disabled when not allowed.
+      this.showStorageError(AppConstants.storageNameErrRestoreText);
     }
   }
 
@@ -998,7 +1409,7 @@ export default class AppSettings {
         './htmlh/empty-page.htmlh',
         this.uiElements.clumpContainer,
         (target) => {
-          console.log('Content injected into:', target);
+          AppConfig.debugConsoleLogs && console.log('Content injected into:', target);
           target.style.color = '#ffffff';
         }
       );
@@ -1030,11 +1441,18 @@ export default class AppSettings {
     // [4] Update the grid repeat slider label.
     this.uiElements.gridRepeatHtmlSpan.textContent = `[${this.appSettingsInfo.gridRepeatRangeValue}] ${cellWidth}`;
 
-    // [5] Update the 'storageName' dropdown from settings.storage
+    // [ SHOW IDS CHECKBOX ]
+
+    // [5] Show IDs | Listener event: 'toggleShowIds()'.
+    this.uiElements.showIdsCheckbox.checked = this.appSettingsInfo.showIds === true;
+
+    // [ STORAGE ]
+
+    // [6] Update the 'storageName' dropdown from settings.storage
     this.updateStorageNameDropdownOptions();
     this.uiElements.storageNameLabelCurrent.textContent = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
 
-    // [6] Enable/disable storage buttons.
+    // [7] Enable/disable storage buttons.
     this.toggleStorageButtons();
 
     // [ CLUMP NODE PLACEMENT ]
@@ -1102,22 +1520,27 @@ export default class AppSettings {
           this.uiElements.clumpContainer.appendChild(emptyCell);
           continue;
         }
-
-        const clumpFound = getClumpList.find(clump => clump.id === curClumpId);
         const clumpCell = document.createElement('div');
-        clumpListIndex = getClumpList.indexOf(clumpFound);
+
+        clumpListIndex = getClumpList.findIndex(clump => clump.id === curClumpId);
+        const clumpFound = getClumpList[clumpListIndex];
 
         clumpCell.className = `clump-node collapsed clump-list-index-${clumpListIndex}`;
 
         // Create content span for clump name and code
         const contentSpan = document.createElement('div');
-        contentSpan.className = 'content-span';
-        contentSpan.innerHTML = `<strong>${clumpFound.clumpName}</strong>
+        const clumpId = this.appSettingsInfo.showIds === true
+            ? `<span class="clump-id">[${clumpFound.id}]</span> `
+            : '';
+        const clumpName = `<small></small><strong>${clumpFound.clumpName}</strong>
               <br>${clumpFound.clumpCode.split('\n')[0]}`;
+        contentSpan.className = 'content-span';
+        contentSpan.innerHTML = `${clumpId}${clumpName}`;
+        contentSpan.setAttribute('data-clump-id', clumpFound.id);
         clumpCell.appendChild(contentSpan);
 
         // Apply linked/unlinked class based on the condition
-        clumpCell.classList.add(clumpFound.linkedClumpID !== -1 ? 'linked' : 'unlinked');
+        clumpCell.classList.add(clumpFound.linkedToLeft !== -1 ? 'linked' : 'unlinked');
 
         const iconSpan = document.createElement('div');
         iconSpan.className = 'icon-span';
@@ -1133,13 +1556,19 @@ export default class AppSettings {
         iconSpan.appendChild(editIcon);
 
         // Conditionally create and append the delete icon
-        if (getClumpList[getClumpList.length - 1].id === clumpFound.id) {
+        if (
+          (getClumpList.length === 1) ||
+          (
+            getClumpList[0].id !== clumpFound.id &&
+            getClumpList.find(clump => clump.linkedToLeft === clumpFound.id) === undefined
+          )
+        ) {
           const deleteIcon = document.createElement('div');
           deleteIcon.className = 'delete-icon';
           deleteIcon.textContent = '❌';
           deleteIcon.onclick = (event) => {
             event.stopPropagation(); // Prevent toggle when clicking delete
-            this.deleteLastClump(event);
+            this.deleteLastClump(event, curClumpId);
           };
           iconSpan.appendChild(deleteIcon);
         }

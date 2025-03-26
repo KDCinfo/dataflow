@@ -1,4 +1,5 @@
 import AppConstants from "./AppConstants.js";
+import DataDefaultMaps from './DataDefaultMaps.js';
 
 export default class AppStorage {
   //
@@ -48,10 +49,40 @@ export default class AppStorage {
   // Remove from local storage.
   static appStorageRemoveItem(key) {
     localStorage.removeItem(key);
+    localStorage.removeItem(`${key}_backup`);
+  }
+
+  // Check if the key exists in local storage.
+  static appStorageCheckItemExists(key) {
+    //
+    // Check if the key is valid.
+    if (!key.match(AppConstants.keyNamePattern)) {
+      throw new Error(`[AppStorage] Invalid key: ${key}`);
+    }
+    // Check if the key exists in local storage.
+    return localStorage.getItem(key) !== null;
   }
 
   // Store the settings in local storage.
-  static appStorageSetItem(key, value) {
+  // Backups are created for existing clumpLists.
+  static appStorageSetItem(key, value, isBackup = false) {
+    //
+    // Check if the key is valid.
+    if (!key.match(AppConstants.keyNamePattern)) {
+      throw new Error(`[AppStorage] Invalid key: ${key}`);
+    }
+    // Check if the value is valid.
+    if (typeof value !== 'string') {
+      throw new Error(`[AppStorage] Invalid value: ${value}`);
+    }
+    if (isBackup) {
+      // If the key exists, create a backup.
+      const existingValue = localStorage.getItem(key);
+      if (existingValue !== null) {
+        localStorage.setItem(`${key}_backup`, existingValue);
+      }
+    }
+    // Store the new value.
     localStorage.setItem(
       key,
       value
@@ -61,5 +92,19 @@ export default class AppStorage {
   // Retrieve the settings from local storage.
   static appStorageGetItem(key) {
     return localStorage.getItem(key);
+  }
+
+
+  static getJsonSettingsFromStorageOrDefaults() {
+    const dataFromStorage = AppStorage.appStorageGetItem(AppConstants.localStorageSettingsKey);
+    const dataFromDefaults = JSON.stringify(DataDefaultMaps.dataDefaultMap().defaultAppSettings);
+    const parsedData = JSON.parse(dataFromStorage || dataFromDefaults);
+
+    // The 'appSettingsInfo.showIds' property may not exist (added 2025-03).
+    if (!parsedData.hasOwnProperty('showIds')) {
+      parsedData.showIds = false;
+    }
+
+    return parsedData;
   }
 }

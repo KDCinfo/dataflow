@@ -6,14 +6,14 @@ export default class ClumpInfo {
     id = AppConstants.defaultClumpValues.id,
     clumpName = AppConstants.defaultClumpValues.clumpName,
     clumpCode = AppConstants.defaultClumpValues.clumpCode,
-    column = AppConstants.defaultClumpValues.column,
-    linkedClumpID = AppConstants.defaultClumpValues.linkedClumpID
+    linkedToAbove = AppConstants.defaultClumpValues.linkedToAbove,
+    linkedToLeft = AppConstants.defaultClumpValues.linkedToLeft
   ) {
     this.id = id;
     this.clumpName = clumpName;
     this.clumpCode = clumpCode;
-    this.column = column;
-    this.linkedClumpID = linkedClumpID;
+    this.linkedToAbove = linkedToAbove;
+    this.linkedToLeft = linkedToLeft;
   }
 
   getData(key) {
@@ -43,12 +43,32 @@ export default class ClumpInfo {
       AppConstants.defaultClumpErrorValues.id,
       AppConstants.defaultClumpErrorValues.clumpName,
       AppConstants.defaultClumpErrorValues.clumpCode,
-      AppConstants.defaultClumpErrorValues.column,
-      AppConstants.defaultClumpErrorValues.linkedClumpID
+      AppConstants.defaultClumpErrorValues.linkedToAbove,
+      AppConstants.defaultClumpErrorValues.linkedToLeft
     );
   }
 
   static logError(errMsg) {
     console.error(`ClumpInfo Error: ${errMsg}`);
+  }
+
+  static jsonToClumpInfo(jsonData) {
+    const clumpInfo = new ClumpInfo();
+    Object.keys(clumpInfo).forEach((key) => {
+      if (key in jsonData) {
+        clumpInfo[key] = jsonData[key];
+      }
+    });
+    return clumpInfo;
+  }
+  static clumpInfoToJson(clumpInfo) {
+    const jsonData = {};
+    Object.keys(clumpInfo).forEach((key) => {
+      jsonData[key] = clumpInfo[key];
+    });
+    return jsonData;
+  }
+  static clumpInfoToString(clumpInfo) {
+    return `ClumpInfo: ${JSON.stringify(clumpInfo)}`;
   }
 }
