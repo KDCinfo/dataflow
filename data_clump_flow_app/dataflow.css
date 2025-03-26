@@ -318,8 +318,10 @@ li ol>li:before {
 }
 
 .expanded {
+  background-color: #cceeee;
   height: auto;
   min-height: 60px;
+  outline: 2px solid #33ff33;
   white-space: normal;
   /* Span 2 rows to push content below */
   /* grid-row-end: span 2; */
