@@ -1,7 +1,6 @@
 import AppConfig from './AppConfig.js';
 import AppHelpers from './AppHelper.js';
 import AppStorage from './AppStorage.js';
-import ClumpInfo from './ClumpInfo.js';
 import DataDefaultMaps from './DataDefaultMaps.js';
 
 export default class AppData {

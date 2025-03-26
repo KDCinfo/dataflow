@@ -1131,7 +1131,12 @@ P.S. This dialog will not show again.`;
 
       // Update global variables.
       if (clumpFound.id === this.dataManager.getData('lastAddedClumpId')) {
-        this.dataManager.setData('lastAddedClumpId', clumpListSpliced[clumpListSpliced.length - 1].id);
+        this.dataManager.setData(
+          'lastAddedClumpId',
+          clumpListSpliced.length > 0
+              ? clumpListSpliced[clumpListSpliced.length - 1].id
+              : DataDefaultMaps.dataDefaultMap().lastAddedClumpId
+        );
         this.dataManager.setLastAdded();
       }
       this.dataManager.setData(
