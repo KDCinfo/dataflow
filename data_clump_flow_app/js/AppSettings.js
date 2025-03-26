@@ -19,6 +19,7 @@ export default class AppSettings {
   // These are the overall app settings, which allow for the retrieval of individual clumpLists.
   //
   // defaultAppSettings: {
+  //   showIds: false,
   //   gridRepeatRangeValue: 2,
   //   storageNames: ['default'], // camelCase or snake_case.
   //   storageIndex: 0
@@ -208,23 +209,19 @@ P.S. This dialog will not show again.`;
     this.uiElements.clumpFormId.addEventListener('reset', this.handleFormReset.bind(this));
 
     // this.uiElements.settingsPanelToggle
-    // onclick="togglePanel(event)"
     this.uiElements.settingsPanelToggle.addEventListener('click', this.togglePanel.bind(this));
     this.uiElements.exportPanelToggle.addEventListener('click', this.togglePanel.bind(this));
-    // id="gridRepeatRangeInput"
-    // oninput="updateGridRepeat(event)"
+    // id="showIdsCheckbox"
+    this.uiElements.showIdsCheckbox.addEventListener('change', this.toggleShowIds.bind(this));
+    // id="gridRepeatRangeInput" | Slider
     this.uiElements.gridRepeatRangeInput.addEventListener('input', this.updateGridRepeat.bind(this));
     // id="storageButtonDelete"
-    // onclick="deleteSelectedStorage()"
     this.uiElements.storageButtonDelete.addEventListener('click', this.deleteSelectedStorage.bind(this));
     // id="storageButtonUse"
-    // onclick="useSelectedStorage()"
     this.uiElements.storageButtonUse.addEventListener('click', this.useSelectedStorage.bind(this));
     // id="restoreBackupButton"
-    // onclick="restoreSelectedStorage()"
     this.uiElements.restoreBackupButton.addEventListener('click', this.restoreSelectedStorage.bind(this));
     // id="newStorageNameButton"
-    // onclick="createNewStorage()"
     this.uiElements.newStorageNameButton.addEventListener('click', this.createNewStorage.bind(this));
 
     window.addEventListener('storage', (event) => {
@@ -876,6 +873,13 @@ P.S. This dialog will not show again.`;
     return curGridRepeatRangeValue;
   }
 
+  toggleShowIds(event) {
+    AppConfig.debugConsoleLogs && console.log('Checkbox is checked:', event.target.checked);
+    this.appSettingsInfo.showIds = event.target.checked;
+    this.storeSettings();
+    this.renderMatrix();
+  }
+
   // HTML Slider with options that will update the grid repeat:
   // > ['auto', '1fr', '150px', '200px', '250px', '300px']
   //
@@ -1405,7 +1409,7 @@ P.S. This dialog will not show again.`;
         './htmlh/empty-page.htmlh',
         this.uiElements.clumpContainer,
         (target) => {
-          console.log('Content injected into:', target);
+          AppConfig.debugConsoleLogs && console.log('Content injected into:', target);
           target.style.color = '#ffffff';
         }
       );
@@ -1437,11 +1441,18 @@ P.S. This dialog will not show again.`;
     // [4] Update the grid repeat slider label.
     this.uiElements.gridRepeatHtmlSpan.textContent = `[${this.appSettingsInfo.gridRepeatRangeValue}] ${cellWidth}`;
 
-    // [5] Update the 'storageName' dropdown from settings.storage
+    // [ SHOW IDS CHECKBOX ]
+
+    // [5] Show IDs | Listener event: 'toggleShowIds()'.
+    this.uiElements.showIdsCheckbox.checked = this.appSettingsInfo.showIds === true;
+
+    // [ STORAGE ]
+
+    // [6] Update the 'storageName' dropdown from settings.storage
     this.updateStorageNameDropdownOptions();
     this.uiElements.storageNameLabelCurrent.textContent = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
 
-    // [6] Enable/disable storage buttons.
+    // [7] Enable/disable storage buttons.
     this.toggleStorageButtons();
 
     // [ CLUMP NODE PLACEMENT ]
@@ -1518,9 +1529,14 @@ P.S. This dialog will not show again.`;
 
         // Create content span for clump name and code
         const contentSpan = document.createElement('div');
-        contentSpan.className = 'content-span';
-        contentSpan.innerHTML = `<strong>${clumpFound.clumpName}</strong>
+        const clumpId = this.appSettingsInfo.showIds === true
+            ? `<span class="clump-id">[${clumpFound.id}]</span> `
+            : '';
+        const clumpName = `<small></small><strong>${clumpFound.clumpName}</strong>
               <br>${clumpFound.clumpCode.split('\n')[0]}`;
+        contentSpan.className = 'content-span';
+        contentSpan.innerHTML = `${clumpId}${clumpName}`;
+        contentSpan.setAttribute('data-clump-id', clumpFound.id);
         clumpCell.appendChild(contentSpan);
 
         // Apply linked/unlinked class based on the condition

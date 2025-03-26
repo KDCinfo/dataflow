@@ -22,6 +22,7 @@ export default class DataDefaultMMaps {
     lastAddedClumpId: -1,
     highestClumpId: 0,
     defaultAppSettings: {
+      showIds: false,
       gridRepeatRangeValue: 0,
       storageNames: ['error'], // camelCase or snake_case.
       storageIndex: 0
@@ -58,6 +59,7 @@ export default class DataDefaultMMaps {
     highestClumpId: 0,
 
     defaultAppSettings: {
+      showIds: false,
       gridRepeatRangeValue: 2,
       storageNames: [AppConstants.defaultStorageName], // camelCase or snake_case.
       storageIndex: 0

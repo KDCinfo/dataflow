@@ -97,11 +97,14 @@ export default class AppStorage {
 
   static getJsonSettingsFromStorageOrDefaults() {
     const dataFromStorage = AppStorage.appStorageGetItem(AppConstants.localStorageSettingsKey);
-    const dataFromDefaults = JSON.stringify(
-      DataDefaultMaps.dataDefaultMap().defaultAppSettings
-    );
-    return JSON.parse(
-      dataFromStorage || dataFromDefaults
-    );
+    const dataFromDefaults = JSON.stringify(DataDefaultMaps.dataDefaultMap().defaultAppSettings);
+    const parsedData = JSON.parse(dataFromStorage || dataFromDefaults);
+
+    // The 'appSettingsInfo.showIds' property may not exist (added 2025-03).
+    if (!parsedData.hasOwnProperty('showIds')) {
+      parsedData.showIds = false;
+    }
+
+    return parsedData;
   }
 }

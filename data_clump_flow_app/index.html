@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Data Clump Flow Analysis Tool</title>
-  <link rel="stylesheet" href="./dataflow.css?v=0002">
+  <link rel="stylesheet" href="./dataflow.css?v=0003">
   <meta name="description" content="A tool to map and visualize branching data flows.">
   <meta name="keywords" content="data clumps, data flow, data mapping, data visualization">
   <link rel="icon" type="image/x-icon" href="./favicon.ico">
@@ -99,6 +99,11 @@ Moving a clump into its own tail is not currently supported.">
         <span class="collapse-arrow">◀</span>
       </div>
       <div class="info-panel info-panel-sub settings panel-from-expanded-to-collapsed">
+        <div class="settings-block settings-show-ids">
+          <label for="showIdsCheckbox" class="show-ids-label">Toggle IDs:&nbsp;
+            <input type="checkbox" id="showIdsCheckbox" class="show-ids-checkbox" />
+          </label>
+        </div>
         <!--
           HTML Slider with options that will update the grid repeat:
           > ['auto', '1fr', '150px', '200px', '250px', '300px']

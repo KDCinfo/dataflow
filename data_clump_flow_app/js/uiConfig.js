@@ -21,6 +21,7 @@ export const uiConfig = {
     // resetClumpButton: '#clumpFormButtonReset'
   },
   settings: {
+    showIdsCheckbox: '#showIdsCheckbox',
     gridRepeatRangeInput: '#gridRepeatRangeInput',
     gridRepeatHtmlSpan: '#gridRepeatHtmlSpan',
     gridRepeatSliderMarkers: '#gridRepeatSliderMarkers',

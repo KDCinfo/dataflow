@@ -376,6 +376,14 @@ export default class AppData {
   addClumpsToMatrix() {
     this.clearClumpColumnMap();
     this.clumpMatrix.length = 0;
+
+    // Print clump ID and both linkedTo properties for each clump in clumpList.
+    AppConfig.debugConsoleLogs && console.log('*** [AppData] Clump List - Pre:', this.clumpList.map(clump => ({
+      id: clump.id,
+      linkedToAbove: clump.linkedToAbove,
+      linkedToLeft: clump.linkedToLeft || clump.linkedTo || clump.linkedClumpID
+    })));
+
     this.clumpList.forEach(clump => {
       this.highestClumpId = clump.id > this.highestClumpId ? clump.id : this.highestClumpId;
       this.addClumpToMatrix(clump);

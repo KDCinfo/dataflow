@@ -666,7 +666,33 @@ li ol>li:before {
 }
 
 
-/* Layout for Slider Block */
+/* Layout for Show IDs and Slider blocks */
+.settings-show-ids {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  margin: 5px 0 5px;
+  padding: 0 0 15px;
+  width: 100%;
+}
+
+.show-ids-label {
+  flex: 1;
+  font-size: 14px;
+  text-align: center;
+  white-space: normal;
+  width: 100%;
+}
+
+/* bottom border for all but the last element */
+.settings-show-ids:not(:last-child) {
+  border-bottom: 1px solid #003300;
+}
+
+.show-ids-checkbox {
+  vertical-align: middle;
+}
+
 .settings-slider {
   align-items: center;
   display: flex;
