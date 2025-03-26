@@ -94,10 +94,12 @@ is open source and PRs are welcome. Thank you
 for visiting, and I hope the app is helpful!\n
 P.S. This dialog will not show again.`;
 
-    const getInitMessage = AppStorage.appStorageGetItem('initMessage');
-    if (getInitMessage === null) {
+    const getInitMessageOriginal = AppStorage.appStorageGetItem('initMessage');
+    const getInitMessage = AppStorage.appStorageGetItem('dataflowInitMessage');
+    // If one OR the other isn't null, don't show the alert.
+    if (getInitMessageOriginal === null && getInitMessage === null) {
       alert(alertText);
-      AppStorage.appStorageSetItem('initMessage', 'seen');
+      AppStorage.appStorageSetItem('dataflowInitMessage', 'seen');
     }
   }
 

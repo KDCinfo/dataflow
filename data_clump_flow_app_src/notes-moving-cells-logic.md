@@ -213,3 +213,45 @@ if (newLeft !== -1) {
 
 return updatedClumpList;
 ```
+
+```log
+0: ClumpInfo {id: 1, clumpName: 't11', clumpCode: 't11 desc desc', linkedToAbove: -1, linkedToLeft: -1}
+1: ClumpInfo {id: 5, clumpName: 't222', clumpCode: '', linkedToAbove: -1, linkedToLeft: 1}
+2: ClumpInfo {id: 9, clumpName: 't22b', clumpCode: '', linkedToAbove: 5, linkedToLeft: -1}
+3: ClumpInfo {id: 11, clumpName: 't22c', clumpCode: '', linkedToAbove: 9, linkedToLeft: -1}
+4: ClumpInfo {id: 12, clumpName: 't22d', clumpCode: '', linkedToAbove: 11, linkedToLeft: -1}
+5: ClumpInfo {id: 4, clumpName: 't44', clumpCode: 't44 desc desc', linkedToAbove: 1, linkedToLeft: -1}
+length: 6
+```
+
+```log
+[0 0 0]
+
+[ 1  0  0] // "id": 1,  "column":  1, "linkedClumpID": -1, "clumpName": "Development done"
+[ 2  3  0] // "id": 2,  "column":  1, "linkedClumpID": -1, "clumpName": "Start Mac"
+           // "id": 3,  "column": -1, "linkedClumpID":  2, "clumpName": "Start TeamViewer (optional)"
+[ 4  0  0] // "id": 4,  "column":  1, "linkedClumpID": -1, "clumpName": "Start Docker Desktop"
+[ 5  6  0] // "id": 5,  "column":  1, "linkedClumpID": -1, "clumpName": "Start Jenkins"
+           // "id": 6,  "column": -1, "linkedClumpID":  5, "clumpName": "CLI: cd ~/Development/projects/src/dev-mac/jenkins-docker/"
+[ 0  7  0] // "id": 7,  "column":  2, "linkedClumpID": -1, "clumpName": "CLI: ./runmac.sh"
+[ 0  8  0] // "id": 8,  "column":  2, "linkedClumpID": -1, "clumpName": "CLI: ./runj.sh"
+[ 9 10  0] // "id": 9,  "column":  1, "linkedClumpID": -1, "clumpName": "PRE-CONFIG: Build the Flutter Environment Docker Image for Jenkinsfile usage"
+           // "id": 10, "column": -1, "linkedClumpID":  9, "clumpName": "1. Update the `runf.sh` file with your own Docker Hub info (i.e. `macuser`)."
+[ 0 11  0] // "id": 11, "column":  2, "linkedClumpID": -1, "clumpName": "2. Increase the current version in `runf.sh`."
+[ 0 12  0] // "id": 12, "column":  2, "linkedClumpID": -1, "clumpName": "3. Update the image file: `DockerfileFlutter`"
+[ 0 13  0] // "id": 13, "column":  2, "linkedClumpID": -1, "clumpName": "4. Run the command that fits:"
+[14 15 16] // "id": 14, "column":  1, "linkedClumpID": -1, "clumpName": "Start Jenkins Agent on Mac host (for iOS builds)"
+           // "id": 15, "column": -1, "linkedClumpID": 14, "clumpName": "### Initial MacOS Agent Setup"
+           // "id": 16, "column": -1, "linkedClumpID": 15, "clumpName": "Creation of the 'jenkins-workspace` Folder"
+[ 0  0 17] // "id": 17, "column":  3, "linkedClumpID": -1, "clumpName": "### In Jenkins"
+[ 0  0 18] // "id": 18, "column":  3, "linkedClumpID": -1, "clumpName": "### In a Terminal"
+[ 0  0 19] // "id": 19, "column":  3, "linkedClumpID": -1, "clumpName": "### Additional Jenkins Agent directions:"
+[ 0 20 21] // "id": 20, "column":  2, "linkedClumpID": -1, "clumpName": "### Routine MacOS Agent Startups"
+           // "id": 21, "column": -1, "linkedClumpID": 20, "clumpName": "CLI: Open a new terminal window"
+[ 0  0 22] // "id": 22, "column":  3, "linkedClumpID": -1, "clumpName": "CLI: cd ~/Development/projects/src/dev-mac/jenkins-docker-agent/"
+[ 0  0 23] // "id": 23, "column":  3, "linkedClumpID": -1, "clumpName": "CLI: ./runa.sh"
+[24 25  0] // "id": 24, "column":  1, "linkedClumpID": -1, "clumpName": "Deploy to stores"
+           // "id": 25, "column": -1, "linkedClumpID": 24, "clumpName": "CLI: cd ~/Development/projects/my-app/app/tools/"
+[ 0 26  0] // "id": 26, "column":  2, "linkedClumpID": -1, "clumpName": "CLI: ./rund.sh"
+[27  0  0] // "id": 27, "column":  1, "linkedClumpID": -1, "clumpName": "Monitor Jenkins progress across two pipelines"
+```
