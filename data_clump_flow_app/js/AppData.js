@@ -865,10 +865,12 @@ export default class AppData {
             return;
           }
 
-          if (rightmostRow === -1) {
-            console.error("No clumps found in rightmost column");
-            return;
-          }
+          // This likely means the tail generated from 'clumpList'
+          //   hasn't been added to the 'clumpMatrix' yet.
+          // if (rightmostRow === -1) {
+          //   console.error("No clumps found in rightmost column");
+          //   return;
+          // }
 
           // Record the row to add the new clump to (note: the row == index + 1).
           const rowToAddTo = newClumpAboveRow > rightmostRow ? newClumpAboveRow : rightmostRow;
