@@ -289,9 +289,19 @@ Part 3
 - Bug fixes.
 - Added a one-time alert with a note to export all storage flows.
 
+> 2025-03-26
+
 - Fixed a few 'ClumpInfo' legacy property bugs.
 - Fixed bug when deleting the last clump.
 - Renamed storage key for: 'dataflowInitMessage'
 - New feature: Added a checkbox toggle in the Settings panel for showing IDs.
+
+> 2025-03-28
+
+- Refactored 'ClumpInfo' to allow for legacy props.
+- Do not allow an edit to proceed with no 'linkedTo' selected.
+- Disabled invalid options in 'Column Select' dropdown when editing.
+  - Cannot move to the bottom of the edited column, or a column to the right.
+- Handful of bug fixes.
 
 _
