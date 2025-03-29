@@ -355,6 +355,10 @@ P.S. This dialog will not show again.`;
     let newClumpList = [];
     let newClump;
 
+    const editIndex = this.dataManager.getData('editingIndex');
+    const isNew = editIndex === null || editIndex === undefined;
+    const isEdit = !isNew && editIndex > -1;
+
     if (
       this.uiElements.linkToId.selectedIndex === 0 &&
       this.uiElements.columnSelect.selectedIndex === -1
@@ -374,7 +378,7 @@ P.S. This dialog will not show again.`;
         ? { isLinkedLeft: false, linkId: -1 }
         : this.getLinkInfo(columnRawValue);
 
-    if (this.dataManager.getData('editingIndex') === null) {
+    if (isNew) {
       //
       // **ADDING A NEW CLUMP**
       //
@@ -1001,7 +1005,17 @@ P.S. This dialog will not show again.`;
   }
 
   updateColumnSelectDropdownOptions() {
-    this.uiElements.columnSelect.innerHTML = '<option value="last">Last Added</option>';
+    const isEdit = this.dataManager.getData('editingIndex') !== null;
+    const editId = isEdit ? this.dataManager.getData('clumpList')[this.dataManager.getData('editingIndex')].id : -1;
+    const editColumn = isEdit ? this.dataManager.getData('clumpColumnMap').get(editId) : -1;
+
+    this.uiElements.columnSelect.innerHTML = '';
+
+    const optionLast = document.createElement('option');
+    optionLast.value = 'last';
+    optionLast.textContent = 'Under Last';
+    optionLast.disabled = isEdit && this.dataManager.getData('lastAddedCol') >= editColumn;
+    this.uiElements.columnSelect.appendChild(optionLast);
 
     // Using 'clumpMatrix', this will yield a list of available columns
     // (which the UI uses for the 'Column to Add To' dropdown).
@@ -1012,6 +1026,7 @@ P.S. This dialog will not show again.`;
       const option = document.createElement('option');
       option.value = column;
       option.textContent = `Column ${column}`;
+      option.disabled = isEdit && column >= editColumn;
       this.uiElements.columnSelect.appendChild(option);
     });
 
