@@ -364,10 +364,13 @@ P.S. This dialog will not show again.`;
     }
 
     // Determine linking info based on the selected "Add to Column" option and link inputs.
-    const columnRawValue = this.uiElements.columnSelect.options[
-      this.uiElements.columnSelect.selectedIndex
-    ].value;
     const { isLinkedLeft, linkId } = currentClumpList.length === 0
+    // If no option was selected due to there being no viable options enabled, just use 'last'.
+    const columnRawValue = this.uiElements.columnSelect.selectedIndex === -1
+        ? 'last'
+        : this.uiElements.columnSelect.options[
+            this.uiElements.columnSelect.selectedIndex
+          ].value;
         ? { isLinkedLeft: false, linkId: -1 }
         : this.getLinkInfo(columnRawValue);
 
