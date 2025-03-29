@@ -2,18 +2,26 @@ import AppConstants from './AppConstants.js';
 import AppHelpers from './AppHelper.js';
 
 export default class ClumpInfo {
-  constructor(
+  constructor({
     id = AppConstants.defaultClumpValues.id,
     clumpName = AppConstants.defaultClumpValues.clumpName,
     clumpCode = AppConstants.defaultClumpValues.clumpCode,
     linkedToAbove = AppConstants.defaultClumpValues.linkedToAbove,
-    linkedToLeft = AppConstants.defaultClumpValues.linkedToLeft
-  ) {
+    linkedToLeft = AppConstants.defaultClumpValues.linkedToLeft,
+    column,         // legacy property, remains undefined if not provided
+    linkedTo,       // legacy property, remains undefined if not provided
+    linkedClumpID   // legacy property, remains undefined if not provided
+  } = {}) {
     this.id = id;
     this.clumpName = clumpName;
     this.clumpCode = clumpCode;
     this.linkedToAbove = linkedToAbove;
     this.linkedToLeft = linkedToLeft;
+
+    // Legacy properties.
+    this.column = column;
+    this.linkedTo = linkedTo;
+    this.linkedClumpID = linkedClumpID;
   }
 
   getData(key) {
@@ -52,23 +60,14 @@ export default class ClumpInfo {
     console.error(`ClumpInfo Error: ${errMsg}`);
   }
 
-  static jsonToClumpInfo(jsonData) {
-    const clumpInfo = new ClumpInfo();
-    Object.keys(clumpInfo).forEach((key) => {
-      if (key in jsonData) {
-        clumpInfo[key] = jsonData[key];
-      }
-    });
-    return clumpInfo;
-  }
-  static clumpInfoToJson(clumpInfo) {
-    const jsonData = {};
-    Object.keys(clumpInfo).forEach((key) => {
-      jsonData[key] = clumpInfo[key];
-    });
-    return jsonData;
-  }
   static clumpInfoToString(clumpInfo) {
     return `ClumpInfo: ${JSON.stringify(clumpInfo)}`;
+  }
+
+  static fromJSON(jsonData) {
+    return new ClumpInfo(jsonData);
+  }
+  static toJSON(clumpInfo) {
+    return JSON.stringify(clumpInfo);
   }
 }

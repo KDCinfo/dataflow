@@ -1,6 +1,7 @@
 import AppConfig from './AppConfig.js';
 import AppHelpers from './AppHelper.js';
 import AppStorage from './AppStorage.js';
+import ClumpInfo from './ClumpInfo.js';
 import DataDefaultMaps from './DataDefaultMaps.js';
 
 export default class AppData {
@@ -148,14 +149,9 @@ export default class AppData {
     this.clumpList = [...newClumpList];
   }
   parseClumpListFromStorage(localStorageKeyForClumps = this.localStorageKeyForClumps()) {
-    return JSON.parse(localStorage.getItem(localStorageKeyForClumps) || '[]');
-
-    // The below prematurely converts the clumps to have the new 'linkedTo' properties, but
-    // sets them all to -1. When not converting here, the conversion in 'addClumpToMatrix' works.
-    //
-    // const jsonClumps = JSON.parse(localStorage.getItem(localStorageKeyForClumps) || '[]');
-    // const clumpInfoClumps = jsonClumps.map((clump) => ClumpInfo.jsonToClumpInfo(clump));
-    // return clumpInfoClumps;
+    const jsonClumps = JSON.parse(localStorage.getItem(localStorageKeyForClumps) || '[]');
+    const clumpInfoClumps = jsonClumps.map((clump) => ClumpInfo.fromJSON(clump));
+    return clumpInfoClumps;
   }
 
   // This will set both the 'lastAddedClumpId' and 'lastAddedCol'.
@@ -256,13 +252,13 @@ export default class AppData {
     let checkClumpList = [];
 
     if (this.clumpList.length > 0) {
-      if (this.clumpList[0].hasOwnProperty('column')) {
+      if (this.clumpList[0].column !== undefined) {
         AppConfig.debugConsoleLogs && console.log('*** [AppData] Converting clumps...');
         try {
           // const columnTracker = [];
           const columnTracker = new Map(); // {column, id}
 
-          if (this.clumpList[0].hasOwnProperty('linkedTo')) {
+          if (this.clumpList[0].linkedTo !== undefined) {
             checkClumpList = this.clumpList.map((oldClump, index) => {
 
               let clumpColumnAboveId = this.getClumpAboveId(
@@ -284,7 +280,7 @@ export default class AppData {
             });
             AppConfig.debugConsoleLogs && console.log('*** [AppData] [checkClumpList] [SUCCESS] [linkedTo]:', checkClumpList);
 
-          } else if (this.clumpList[0].hasOwnProperty('linkedClumpID')) {
+          } else if (this.clumpList[0].linkedClumpID !== undefined) {
 
             checkClumpList = this.clumpList.map((oldClump, index) => {
               let clumpColumnAboveId = this.getClumpAboveId(
@@ -394,7 +390,7 @@ export default class AppData {
     this.setLastAdded();
 
     // Checking the first clump for legacy properties to determine if a conversion is needed.
-    if (this.clumpList.length > 0 && this.clumpList[0].hasOwnProperty('column')) {
+    if (this.clumpList.length > 0 && this.clumpList[0].column !== undefined) {
       if (this.clumpListConverted) {
         AppConfig.debugConsoleLogs && console.log('*** [AppData] Clumps already converted.');
         alert('\nClump conversion has already been run\n\nand appears to require a bit of debugging.\n');
@@ -467,9 +463,9 @@ export default class AppData {
     if (clump === undefined) {
       console.error('*** [AppData] Error: No matching clump found.');
       return -1;
-    } else if (clump.hasOwnProperty('linkedTo')) {
+    } else if (clump.linkedTo !== undefined) {
       return this.getData('clumpList').find(clump => clump.linkedTo === clumpId)?.id || -1;
-    } else if (clump.hasOwnProperty('linkedClumpID')) {
+    } else if (clump.linkedClumpID !== undefined) {
       return this.getData('clumpList').find(clump => clump.linkedClumpID === clumpId)?.id || -1;
     } else {
       return this.getData('clumpList').find(clump => clump.linkedToLeft === clumpId)?.id || -1;
@@ -482,7 +478,7 @@ export default class AppData {
   collectSubtreeIdsBelow = (rootId) => {
     let idsBelow = [];
 
-    if (this.getData('clumpList').find(clump => clump.id === rootId).hasOwnProperty('column')) {
+    if (this.getData('clumpList').find(clump => clump.id === rootId).column !== undefined) {
       // Get all cells [below and to the right] of the 'rootId' in 'clumpMatrix'.
       const currentClumpMatrix = this.getData('clumpMatrix');
       const rootIdRowIndex = currentClumpMatrix.findIndex(row => row.includes(rootId));
@@ -641,13 +637,13 @@ export default class AppData {
     const id = newClump.id;
     let linkedToLeft;
     let linkedToAbove;
-    if (newClump.hasOwnProperty('column')) {
+    if (newClump.column !== undefined) {
       // Get last cell in column.
       linkedToAbove = this.lastIdFromColumn(newClump.column);
 
-      if (newClump.hasOwnProperty('linkedTo')) {
+      if (newClump.linkedTo !== undefined) {
         linkedToLeft = newClump.linkedTo;
-      } else if (newClump.hasOwnProperty('linkedClumpID')) {
+      } else if (newClump.linkedClumpID !== undefined) {
         linkedToLeft = newClump.linkedClumpID;
       } else {
         // This is a hard crash because, why are we here?

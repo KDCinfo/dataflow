@@ -408,7 +408,7 @@ P.S. This dialog will not show again.`;
 
       // > structuredClone | https://developer.mozilla.org/en-US/docs/Web/API/Window/structuredClone
       const newClumpObj = structuredClone(originalClump);
-      newClump = ClumpInfo.jsonToClumpInfo(newClumpObj);
+      newClump = ClumpInfo.fromJSON(newClumpObj);
       newClump.clumpName = this.uiElements.clumpNameInput.value;
       newClump.clumpCode = this.uiElements.clumpCodeInput.value;
 
