@@ -355,6 +355,14 @@ P.S. This dialog will not show again.`;
     let newClumpList = [];
     let newClump;
 
+    if (
+      this.uiElements.linkToId.selectedIndex === 0 &&
+      this.uiElements.columnSelect.selectedIndex === -1
+    ) {
+      alert('Please select a clump to link to or a column to add to.');
+      return;
+    }
+
     // Determine linking info based on the selected "Add to Column" option and link inputs.
     const columnRawValue = this.uiElements.columnSelect.options[
       this.uiElements.columnSelect.selectedIndex
