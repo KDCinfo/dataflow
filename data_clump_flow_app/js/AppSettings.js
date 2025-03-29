@@ -484,10 +484,14 @@ P.S. This dialog will not show again.`;
     let updatedClumpList = [];
 
     // CASE 1: C1R1 | First cell | Add and return
-    const isFirstCell = clumpList.length === 0 ||
-        (clumpToInsert.linkedToAbove === -1 && clumpToInsert.linkedToLeft === -1);
-    if (isFirstCell) {
+    // There is no need to do any link analyses for the first cell.
+    if (clumpList.length === 0) {
       updatedClumpList = [clumpToInsert];
+      return updatedClumpList;
+    } else if (clumpToInsert.linkedToAbove === -1 && clumpToInsert.linkedToLeft === -1) {
+      // The first cell is the only cell that can have both 'linkedTo' values set to '-1'.
+      // And because the 'clumpList' isn't empty, we can just replace the first cell in the list.
+      updatedClumpList = [clumpToInsert, ...clumpList.slice(1)];
       return updatedClumpList;
     }
 
