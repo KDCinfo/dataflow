@@ -24,6 +24,20 @@ export default class ClumpInfo {
     this.linkedClumpID = linkedClumpID;
   }
 
+  // Create a clone of the current ClumpInfo instance.
+  clone() {
+    return new ClumpInfo({
+      id: this.id,
+      clumpName: this.clumpName,
+      clumpCode: this.clumpCode,
+      linkedToAbove: this.linkedToAbove,
+      linkedToLeft: this.linkedToLeft,
+      column: this.column, // legacy
+      linkedTo: this.linkedTo, // legacy
+      linkedClumpID: this.linkedClumpID // legacy
+    });
+  }
+
   getData(key) {
     if (key in this) {
       return this[key];

@@ -509,13 +509,27 @@ P.S. This dialog will not show again.`;
       return updatedClumpList;
     }
 
-    const cellToRightId = isAdd ? -1 : this.dataManager.cellIdToRight(insertionClumpId);
-    const cellToRightClump = isAdd ? undefined : clumpList.find(clump => clump.id === cellToRightId);
-    const subtreeRightTail = cellToRightId === -1 ? [] : this.dataManager.collectSubtreeIdsBelow(cellToRightId);
-    const subtreeFullRightTail = cellToRightClump === undefined ? [] : [cellToRightClump, ...subtreeRightTail];
-    const subtreeBelowTail = isAdd ? [] : this.dataManager.collectSubtreeIdsBelow(insertionClumpId);
-    const subtreeBelowTailClumps = subtreeBelowTail.map(id => clumpList.find(clump => clump.id === id));
-    // If we're adding a cell with a linkedToAbove, we only need the bottom tail.
+    //
+
+    // ### RIGHT
+    // const cellToRightId = isAdd ? -1 : this.dataManager.cellIdToRight(insertionClumpId);
+    // const subtreeRightTail = cellToRightId === -1 ? [] : this.dataManager.collectSubtreeIdsBelow(cellToRightId);
+    // const subtreeFullRightTail = cellToRightId === -1 ? [] : [cellToRightId, ...subtreeRightTail];
+    // const subtreeFullRightTailClumps = subtreeFullRightTail.map(id => clumpList.find(clump => clump.id === id));
+
+    // ### BELOW
+    //
+    // Collect the subtree below the insertion point (if any).
+    // This will include all clumps below the insertion point in the same column.
+    // This is used to determine the tail of clumps below the insertion point.
+    const cellBelowId = isAdd ? -1 : this.dataManager.cellIdBelow(insertionClumpId);
+    const subtreeBelowTail = cellBelowId === -1 ? [] : this.dataManager.collectSubtreeIdsBelow(cellBelowId);
+    const subtreeFullBelowTail = cellBelowId === -1 ? [] : [cellBelowId, ...subtreeBelowTail];
+    // const subtreeFullBelowTailClumps = subtreeFullBelowTail.map(id => clumpList.find(clump => clump.id === id));
+
+    // ### FULL TAILS
+    //
+    // This list is the same as the two above combined.
     const subtreeBothTails = isAdd ? [] : this.dataManager.collectSubtreeIdsFullTail(insertionClumpId);
     const subtreeBothTailsClumps = subtreeBothTails.map(id => clumpList.find(clump => clump.id === id));
 
@@ -526,35 +540,40 @@ P.S. This dialog will not show again.`;
       const targetClumpIndex = clumpList.findIndex(clump => clump.id === newAbove);
 
       const clumpListSliceStart = clumpList.slice(0, targetClumpIndex + 1).filter(clump =>
-        !subtreeBelowTail.includes(clump.id)
+        !subtreeBothTails.includes(clump.id)
           && clump.id !== insertionClumpId);
       const clumpListSliceEnd = clumpList.slice(targetClumpIndex + 1).filter(clump =>
-        !subtreeBelowTail.includes(clump.id)
+        !subtreeBothTails.includes(clump.id)
           && clump.id !== insertionClumpId
       );
 
       const cellBelowTargetClump = clumpList.find(clump => clump.linkedToAbove === newAbove);
-      if (cellBelowTargetClump !== undefined) {
-        const subtreeBelowTailLastId = subtreeBelowTail.length === 0
+      const cellBelowTargetClone = cellBelowTargetClump === undefined ? undefined : cellBelowTargetClump.clone();
+
+      if (cellBelowTargetClone !== undefined) {
+        const subtreeBelowTailLastId = subtreeFullBelowTail.length === 0
             ? insertionClumpId
-            : subtreeBelowTail[subtreeBelowTail.length - 1];
+            : subtreeFullBelowTail[subtreeFullBelowTail.length - 1];
         // If we're adding, the 'insertionClumpId' is the cell being linked to
         //   (because a new clump has no tail, but where it's being inserted might).
         // If we're editing, the 'insertionClumpId' is the cell being edited
         //   (because we need its tail).
-        cellBelowTargetClump.linkedToAbove = isAdd ? insertionClumpId : subtreeBelowTailLastId;
+        cellBelowTargetClone.linkedToAbove = isAdd ? insertionClumpId : subtreeBelowTailLastId;
 
-        // Update 'clumpListSliceEnd' with the updated 'cellBelowTargetClump'.
-        const clumpListSliceEndIndex = clumpListSliceEnd.findIndex(clump => clump.id === cellBelowTargetClump.id);
-        clumpListSliceEnd[clumpListSliceEndIndex] = cellBelowTargetClump;
+        // Update 'clumpListSliceEnd' with the updated 'cellBelowTargetClone'.
+        const clumpListSliceEndIndex = clumpListSliceEnd.findIndex(clump => clump.id === cellBelowTargetClone.id);
+        if (clumpListSliceEndIndex !== -1) {
+          clumpListSliceEnd[clumpListSliceEndIndex] = cellBelowTargetClone;
+        } else {
+          const clumpListBothTailsIndex = subtreeBothTailsClumps.findIndex(clump => clump.id === cellBelowTargetClone.id);
+          subtreeBothTailsClumps[clumpListBothTailsIndex] = cellBelowTargetClone;
+        }
       }
-
 
       updatedClumpList = [
         ...clumpListSliceStart,
         clumpToInsert,
-        ...subtreeBelowTailClumps,
-        ...subtreeFullRightTail,
+        ...subtreeBothTailsClumps,
         ...clumpListSliceEnd
       ].filter(clump => clump !== undefined);
 

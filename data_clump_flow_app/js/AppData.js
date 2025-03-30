@@ -461,7 +461,7 @@ export default class AppData {
     const clump = this.getData('clumpList').find(clump => clump.id === clumpId);
 
     if (clump === undefined) {
-      console.error('*** [AppData] Error: No matching clump found.');
+      console.error('*** [AppData] [cellIdToRight] Error: No matching clump found.');
       return -1;
     } else if (clump.linkedTo !== undefined) {
       return this.getData('clumpList').find(clump => clump.linkedTo === clumpId)?.id || -1;
@@ -472,18 +472,51 @@ export default class AppData {
     }
   };
 
+  cellIdBelow = (clumpId) => {
+    const clump = this.getData('clumpList').find(clump => clump.id === clumpId);
+
+    if (clump === undefined) {
+      console.error('*** [AppData] [cellIdBelow] Error: No matching clump found.');
+      return -1;
+    } else if (clump.linkedToAbove !== undefined) {
+      return this.getData('clumpList').find(clump => clump.linkedToAbove === clumpId)?.id || -1;
+    } else if (clump.column !== undefined) {
+      // This block means the clump has a 'column' property and is not linked to anything above it.
+      // In this case, we will return the first clump in the next row of the same column.
+      const clumpColumn = this.clumpColumnMap.get(clump.id);
+      if (clumpColumn === undefined) {
+        console.error('*** [AppData] [cellIdBelow] Error: No column found for clump.');
+        return -1;
+      }
+      // Find the next row in the same column.
+      for (let rowIndex = this.getRowCount() - 1; rowIndex >= 0; rowIndex--) {
+        // Check if the clumpMatrix has a value in the next row for this column.
+        if (this.clumpMatrix[rowIndex] && this.clumpMatrix[rowIndex][clumpColumn - 1] !== 0) {
+          // Return the ID of the clump found in that position.
+          return this.clumpMatrix[rowIndex][clumpColumn - 1];
+        }
+      }
+      // If no clump is found below in the same column, return -1.
+      return -1;
+    }
+  }
+
   // Helper function to recursively collect all descendant clump IDs.
   // For a 'below tail', if a clump is directly below the root, include it.
   // > const subtreeBelowTail = collectSubtreeIdsBelow(movedClumpId);
   collectSubtreeIdsBelow = (rootId) => {
     let idsBelow = [];
 
-    if (this.getData('clumpList').find(clump => clump.id === rootId).column !== undefined) {
+    if (
+      this.getData('clumpList').length > 0 &&
+      this.getData('clumpList')[0]?.column !== undefined &&
+      this.getData('clumpList').find(clump => clump.id === rootId) !== undefined
+    ) {
       // Get all cells [below and to the right] of the 'rootId' in 'clumpMatrix'.
-      const currentClumpMatrix = this.getData('clumpMatrix');
-      const rootIdRowIndex = currentClumpMatrix.findIndex(row => row.includes(rootId));
-      const rootIdColIndex = currentClumpMatrix[rootIdRowIndex].indexOf(rootId);
-      currentClumpMatrix.forEach((row, rowIndex) => {
+      // const currentClumpMatrix = this.getData('clumpMatrix'); // Avoid 'get' caching in loop.
+      const rootIdRowIndex = this.getData('clumpMatrix').findIndex(row => row.includes(rootId));
+      const rootIdColIndex = this.getData('clumpMatrix')[rootIdRowIndex].indexOf(rootId);
+      this.getData('clumpMatrix').forEach((row, rowIndex) => {
         if (rowIndex > rootIdRowIndex) {
           for (let i = rootIdColIndex; i < row.length; i++) {
             if (row[i] !== 0) {
