@@ -149,7 +149,12 @@ export default class AppData {
     this.clumpList = [...newClumpList];
   }
   parseClumpListFromStorage(localStorageKeyForClumps = this.localStorageKeyForClumps()) {
-    const jsonClumps = JSON.parse(localStorage.getItem(localStorageKeyForClumps) || '[]');
+    const storedClumps = localStorage.getItem(localStorageKeyForClumps) || '[]';
+    const mappedClumps = this.parseClumpListFromJSON(storedClumps);
+    return mappedClumps;
+  }
+  parseClumpListFromJSON(clumpsString = '[]') {
+    const jsonClumps = JSON.parse(clumpsString);
     const clumpInfoClumps = jsonClumps.map((clump) => ClumpInfo.fromJSON(clump));
     return clumpInfoClumps;
   }
@@ -255,12 +260,11 @@ export default class AppData {
       if (this.clumpList[0].column !== undefined) {
         AppConfig.debugConsoleLogs && console.log('*** [AppData] Converting clumps...');
         try {
-          // const columnTracker = [];
           const columnTracker = new Map(); // {column, id}
 
           if (this.clumpList[0].linkedTo !== undefined) {
-            checkClumpList = this.clumpList.map((oldClump, index) => {
 
+            checkClumpList = this.clumpList.map((oldClump, index) => {
               let clumpColumnAboveId = this.getClumpAboveId(
                 oldClump.id,
                 oldClump.column,
@@ -268,15 +272,13 @@ export default class AppData {
                 index,
                 columnTracker
               );
-
-              return {
+              return new ClumpInfo({
                 id: oldClump.id,
                 clumpName: oldClump.clumpName,
                 clumpCode: oldClump.clumpCode,
-                linkedToLeft: oldClump.linkedTo,
-                linkedToAbove: clumpColumnAboveId
-                // linkedToAbove: oldClump.column, // @NOTE: This is a column, not an ID.
-              };
+                linkedToAbove: clumpColumnAboveId, // This is now an ID.
+                linkedToLeft: oldClump.linkedTo // This is now the left ID.
+              });
             });
             AppConfig.debugConsoleLogs && console.log('*** [AppData] [checkClumpList] [SUCCESS] [linkedTo]:', checkClumpList);
 
@@ -290,15 +292,13 @@ export default class AppData {
                 index,
                 columnTracker
               );
-
-              return {
+              return new ClumpInfo({
                 id: oldClump.id,
                 clumpName: oldClump.clumpName,
                 clumpCode: oldClump.clumpCode,
-                linkedToLeft: oldClump.linkedClumpID,
-                linkedToAbove: clumpColumnAboveId
-                // linkedToAbove: oldClump.column,
-              };
+                linkedToAbove: clumpColumnAboveId, // This is now an ID.
+                linkedToLeft: oldClump.linkedClumpID // This is now the left ID.
+              });
             });
             AppConfig.debugConsoleLogs && console.log('*** [AppData] [checkClumpList] [SUCCESS] [linkedClumpID]:', checkClumpList);
 
@@ -592,7 +592,9 @@ export default class AppData {
     updatedHighestClumpId
   ) {
     // Update and store clumps.
-    this.setClumpList(importedClumps);
+    const jsonClumps = JSON.stringify(importedClumps);
+    const mappedClumps = this.parseClumpListFromJSON(jsonClumps);
+    this.setClumpList(mappedClumps);
     this.storeClumps();
 
     // Update data.
