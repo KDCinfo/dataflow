@@ -210,6 +210,32 @@ Part 3
 
 -----
 
+## Testing | Jest
+
+@3/30/2025 11:22:31 PM
+- Skeleton: Dataflow
+	- Mac
+		- To install Jest:
+			- Upgraded Homebrew
+				> brew --version | 4.4.12
+				> brew upgrade
+				> brew --version | 4.4.26
+			- Install pnpm
+				> brew install node
+				> brew install pnpm
+				> node --version | 23.10.0
+				> pnpm --version | 10.7.0
+			- Install Jest
+				> pnpm add --save-dev jest
+					| devDependencies: + jest 29.7.0
+					| Done in 5.5s using pnpm v10.7.0
+				> pnpm add -D @babel/core babel-jest @babel/preset-env
+				> pnpm install --save-dev jest-environment-jsdom
+
+        > pnpm run test
+
+-----
+
 ## @TODO:
 
 - Moderate changes:
@@ -303,5 +329,11 @@ Part 3
 - Disabled invalid options in 'Column Select' dropdown when editing.
   - Cannot move to the bottom of the edited column, or a column to the right.
 - Handful of bug fixes.
+
+> 2025-03-31
+
+- More bug fixes for legacy ClumpInfo properties and importing.
+- Got Jest setup. Added a few tests.
+  > pnpm run test
 
 _

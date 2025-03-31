@@ -4,3 +4,5 @@
 **/_old/
 **/private/
 **/old/
+**/node_modules/
+**/*-lock.yaml
