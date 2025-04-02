@@ -715,7 +715,7 @@ P.S. This dialog will not show again.`;
   // When canceling an edit, reset the 'editingIndex' to null, and remove the
   // last 'Link to Clump' dropdown option if it is the same as the original 'linkedClumpID'.
   handleFormReset(event) {
-    event.preventDefault();
+    event?.preventDefault();
 
     this.dataManager.setData('editingIndex', null);
 
@@ -1156,6 +1156,9 @@ P.S. This dialog will not show again.`;
       //  0    |  C2R7 |< C3R6
       //  0    |  0    |  C3R7
       //  C1R5 |  0    |  0
+
+      // Cancel/reset clump form.
+      this.handleFormReset();
 
       const getClumpList = this.dataManager.getData('clumpList');
 
