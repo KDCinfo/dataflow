@@ -486,7 +486,7 @@ li ol>li:before {
 .clump-form-div > input[type='text'],
 .clump-form-div > select,
 .clump-form-div > textarea {
-  flex: 1;
+  flex: auto;
   padding: 5px;
   font-size: 14px;
 }
@@ -495,13 +495,13 @@ li ol>li:before {
 .clump-form-div > select,
 .clump-form-div > textarea,
 .clump-form-div > div {
-  max-width: 235px;
+  /* max-width: 235px; */
+  max-width: 95%;
   min-width: 120px;
-  width: 90%;
+  width: 95%;
 }
-
 .clump-form-div > select {
-  width: 100%;
+  max-width: fit-content;
 }
 
 .clump-form-div-inline {
@@ -541,6 +541,9 @@ li ol>li:before {
   .clump-form-form {
     padding: 15px;
   }
+  .clump-form-div > select {
+    max-width: 95%;
+  }
 
   .clump-form-div {
     flex-direction: column;
@@ -552,11 +555,6 @@ li ol>li:before {
     margin-right: 0;
     margin-bottom: 5px;
     width: auto;
-  }
-
-  .clump-form-div > input,
-  .clump-form-div > textarea {
-    width: 90%;
   }
 
   .form-buttons {
