@@ -1584,7 +1584,8 @@ P.S. This dialog will not show again.`;
         const clumpId = this.appSettingsInfo.showIds === true
             ? `<span class="clump-id">[${clumpFound.id}]</span> `
             : '';
-        const clumpName = `<small></small><strong>${clumpFound.clumpName}</strong>
+        const clumpName = `<small></small>
+              <strong>${AppHelpers.unescapeHTML(clumpFound.clumpName)}</strong>
               <br>${AppHelpers.unescapeHTML(clumpFound.clumpCode).split('\n')[0]}`;
         contentSpan.className = 'content-span';
         contentSpan.innerHTML = `${clumpId}${clumpName}`;
@@ -1644,7 +1645,7 @@ P.S. This dialog will not show again.`;
 
           // Update the content span with clump name and code.
           //
-          let clumpCellContents = `<strong>${clumpFound.clumpName}</strong>
+          let clumpCellContents = `<strong>${AppHelpers.unescapeHTML(clumpFound.clumpName)}</strong>
             <br>${isCellCollapsed
               ? AppHelpers.unescapeHTML(clumpFound.clumpCode).split('\n')[0]
               : AppHelpers.unescapeHTML(clumpFound.clumpCode).split('\n').slice(0, 2).join('<br>')}`;
