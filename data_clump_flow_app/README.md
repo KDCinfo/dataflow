@@ -336,4 +336,12 @@ Part 3
 - Got Jest setup. Added a few tests.
   > pnpm run test
 
+> 2025-04-16
+
+- Bug fix: Added 3 more `unescapeHTML` converters for 'clumpCode'.
+  - Also applied `unescapeHTML` bug fix to `clumpName`.
+- UI: Limit width on select dropdowns.
+- New: Tapping an open cell who's clump is not on top, will surface it. Only clumps on top will be closed. Before it would close the clump under the stack, so you couldn't see it being closed.
+- Also renamed some vars for clarity, and scoped everything inside the 'toggleCell' function.
+
 _
