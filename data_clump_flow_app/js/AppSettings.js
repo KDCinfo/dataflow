@@ -1572,28 +1572,29 @@ P.S. This dialog will not show again.`;
           this.uiElements.clumpContainer.appendChild(emptyCell);
           continue;
         }
-        const clumpCell = document.createElement('div');
+        const clumpCellDiv = document.createElement('div');
 
+        // ClumpList is a list of all clumps as ClumpInfo objects.
         clumpListIndex = getClumpList.findIndex(clump => clump.id === curClumpId);
-        const clumpFound = getClumpList[clumpListIndex];
+        const clumpInfoFound = getClumpList[clumpListIndex];
 
-        clumpCell.className = `clump-node collapsed clump-list-index-${clumpListIndex}`;
+        clumpCellDiv.className = `clump-node collapsed clump-list-index-${clumpListIndex}`;
 
         // Create content span for clump name and code
         const contentSpan = document.createElement('div');
         const clumpId = this.appSettingsInfo.showIds === true
-            ? `<span class="clump-id">[${clumpFound.id}]</span> `
+            ? `<span class="clump-id">[${clumpInfoFound.id}]</span> `
             : '';
         const clumpName = `<small></small>
-              <strong>${AppHelpers.unescapeHTML(clumpFound.clumpName)}</strong>
-              <br>${AppHelpers.unescapeHTML(clumpFound.clumpCode).split('\n')[0]}`;
+              <strong>${AppHelpers.unescapeHTML(clumpInfoFound.clumpName)}</strong>
+              <br>${AppHelpers.unescapeHTML(clumpInfoFound.clumpCode).split('\n')[0]}`;
         contentSpan.className = 'content-span';
         contentSpan.innerHTML = `${clumpId}${clumpName}`;
-        contentSpan.setAttribute('data-clump-id', clumpFound.id);
-        clumpCell.appendChild(contentSpan);
+        contentSpan.setAttribute('data-clump-id', clumpInfoFound.id);
+        clumpCellDiv.appendChild(contentSpan);
 
         // Apply linked/unlinked class based on the condition
-        clumpCell.classList.add(clumpFound.linkedToLeft !== -1 ? 'linked' : 'unlinked');
+        clumpCellDiv.classList.add(clumpInfoFound.linkedToLeft !== -1 ? 'linked' : 'unlinked');
 
         const iconSpan = document.createElement('div');
         iconSpan.className = 'icon-span';
@@ -1604,7 +1605,7 @@ P.S. This dialog will not show again.`;
         editIcon.textContent = '✏️';
         editIcon.onclick = (event) => {
           event.stopPropagation(); // Prevent toggle when clicking edit
-          this.loadForEdit(getClumpList.indexOf(clumpFound), event);
+          this.loadForEdit(getClumpList.indexOf(clumpInfoFound), event);
         };
         iconSpan.appendChild(editIcon);
 
@@ -1612,8 +1613,8 @@ P.S. This dialog will not show again.`;
         if (
           (getClumpList.length === 1) ||
           (
-            getClumpList[0].id !== clumpFound.id &&
-            getClumpList.find(clump => clump.linkedToLeft === clumpFound.id) === undefined
+            getClumpList[0].id !== clumpInfoFound.id &&
+            getClumpList.find(clump => clump.linkedToLeft === clumpInfoFound.id) === undefined
           )
         ) {
           const deleteIcon = document.createElement('div');
@@ -1625,14 +1626,44 @@ P.S. This dialog will not show again.`;
           };
           iconSpan.appendChild(deleteIcon);
         }
-        clumpCell.appendChild(iconSpan);
+        clumpCellDiv.appendChild(iconSpan);
 
-        // Toggle function to handle cell expansion/collapse
-        const toggleCell = () => {
-          clumpCell.classList.toggle('expanded');
-          clumpCell.classList.toggle('collapsed');
+        // Toggle function to handle cell expansion/collapse.
+        const toggleCell = (event) => {
 
-          const isCellCollapsed = clumpCell.classList.contains('collapsed');
+          const currentCell = event.target.closest('.clump-node');
+          const currentContentSpan = currentCell.querySelector('.content-span');
+          const currentSpanPre = currentContentSpan.querySelector('pre');
+
+          const cellzIndex = parseInt(currentSpanPre?.style.zIndex, 10) || 0;
+
+          let largestExpandedZIndex = 0;
+          const elements = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded .content-span pre');
+          for (const clumpCellPre of elements) {
+            const zIndex = parseInt(clumpCellPre.style.zIndex, 10) || 0;
+            if (zIndex > largestExpandedZIndex) {
+              largestExpandedZIndex = zIndex;
+            }
+          }
+
+          // If the cell is already open but is not the highest zIndex,
+          //   just bring the cell clump to the top, else close it.
+          // If the cell is collapsed, or expanded and already on
+          //   top, run it through the full toggle flow below,
+          if (currentCell.classList.contains('expanded') && cellzIndex < largestExpandedZIndex) {
+            currentSpanPre.style.zIndex = largestExpandedZIndex + 10;
+            return;
+          } else {
+            // Update 'largestExpandedZIndex' if 'cellzIndex' is greater.
+            if (cellzIndex > largestExpandedZIndex) {
+              largestExpandedZIndex = cellzIndex;
+            }
+          }
+
+          currentCell.classList.toggle('expanded');
+          currentCell.classList.toggle('collapsed');
+
+          const isCellCollapsed = currentCell.classList.contains('collapsed');
           const expandedCellsContent = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded');
           const howManyExpanded = expandedCellsContent.length;
 
@@ -1645,29 +1676,20 @@ P.S. This dialog will not show again.`;
 
           // Update the content span with clump name and code.
           //
-          let clumpCellContents = `<strong>${AppHelpers.unescapeHTML(clumpFound.clumpName)}</strong>
+          let clumpCellContents = `<strong>${AppHelpers.unescapeHTML(clumpInfoFound.clumpName)}</strong>
             <br>${isCellCollapsed
-              ? AppHelpers.unescapeHTML(clumpFound.clumpCode).split('\n')[0]
-              : AppHelpers.unescapeHTML(clumpFound.clumpCode).split('\n').slice(0, 2).join('<br>')}`;
+              ? AppHelpers.unescapeHTML(clumpInfoFound.clumpCode).split('\n')[0]
+              : AppHelpers.unescapeHTML(clumpInfoFound.clumpCode).split('\n').slice(0, 2).join('<br>')}`;
           if (!isCellCollapsed) {
             // Show both 'clumpName' and 'clumpCode' in bottom panel.
-            clumpCellContents += `<pre><b>${AppHelpers.unescapeHTML(clumpFound.clumpName)}</b><br><br>${AppHelpers.unescapeHTML(clumpFound.clumpCode)}</pre>`;
+            clumpCellContents += `<pre><b>${AppHelpers.unescapeHTML(clumpInfoFound.clumpName)}</b><br><br>${AppHelpers.unescapeHTML(clumpInfoFound.clumpCode)}</pre>`;
           }
-          contentSpan.innerHTML = clumpCellContents;
+          currentContentSpan.innerHTML = clumpCellContents;
 
-          // Set z-index for expanded cells.
+          // Set the z-index if the cell is expanded.
           //
           if (!isCellCollapsed) {
-            let largestExpandedZIndex = 0;
-            const elements = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded .content-span pre');
-            for (const clumpCellPre of elements) {
-              const zIndex = parseInt(clumpCellPre.style.zIndex, 10) || 0;
-              if (zIndex > largestExpandedZIndex) {
-                largestExpandedZIndex = zIndex;
-              }
-            }
-
-            contentSpan.querySelector('pre').style.zIndex = largestExpandedZIndex + 10;
+            currentContentSpan.querySelector('pre').style.zIndex = largestExpandedZIndex + 10;
           }
         };
 
@@ -1679,11 +1701,11 @@ P.S. This dialog will not show again.`;
             event.stopPropagation();
             return;
           }
-          toggleCell();
+          toggleCell(event);
         });
 
         // Append cell to the container
-        this.uiElements.clumpContainer.appendChild(clumpCell);
+        this.uiElements.clumpContainer.appendChild(clumpCellDiv);
       }
     }
 
