@@ -756,6 +756,7 @@ datalist {
 
 .export-import-storage-name select {
   min-width: 120px;
+  max-width: 220px;
 }
 
 .storage-buttons button {
