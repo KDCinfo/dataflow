@@ -1585,7 +1585,7 @@ P.S. This dialog will not show again.`;
             ? `<span class="clump-id">[${clumpFound.id}]</span> `
             : '';
         const clumpName = `<small></small><strong>${clumpFound.clumpName}</strong>
-              <br>${clumpFound.clumpCode.split('\n')[0]}`;
+              <br>${AppHelpers.unescapeHTML(clumpFound.clumpCode).split('\n')[0]}`;
         contentSpan.className = 'content-span';
         contentSpan.innerHTML = `${clumpId}${clumpName}`;
         contentSpan.setAttribute('data-clump-id', clumpFound.id);
@@ -1646,8 +1646,8 @@ P.S. This dialog will not show again.`;
           //
           let clumpCellContents = `<strong>${clumpFound.clumpName}</strong>
             <br>${isCellCollapsed
-              ? clumpFound.clumpCode.split('\n')[0]
-              : clumpFound.clumpCode.split('\n').slice(0, 2).join('<br>')}`;
+              ? AppHelpers.unescapeHTML(clumpFound.clumpCode).split('\n')[0]
+              : AppHelpers.unescapeHTML(clumpFound.clumpCode).split('\n').slice(0, 2).join('<br>')}`;
           if (!isCellCollapsed) {
             // Show both 'clumpName' and 'clumpCode' in bottom panel.
             clumpCellContents += `<pre><b>${AppHelpers.unescapeHTML(clumpFound.clumpName)}</b><br><br>${AppHelpers.unescapeHTML(clumpFound.clumpCode)}</pre>`;
