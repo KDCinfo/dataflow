@@ -44,5 +44,13 @@ export const uiConfig = {
     lastAddedColTag: '#lastAddedColTag',
     editingIndexTag: '#editingIndexTag',
     editingIdTag: '#editingIdTag'
+  },
+  modal: {
+    appModal: '#appModal',
+    appModalBtn: '#appModalBtn',
+    modalContent: '#appModalContent',
+    modalCloseButton: '#modalCloseButton',
+    storageNameTagModal: '#storageNameTagModal',
+    storageNameLabelCurrentModal: '#storageNameLabelCurrentModal'
   }
 };

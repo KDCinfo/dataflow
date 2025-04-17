@@ -660,7 +660,7 @@ li ol>li:before {
   padding: 2px 15px;
 }
 
-#importDataButton {
+.import-data-button {
   width: 50%;
   height: 100%;
 }
@@ -786,7 +786,7 @@ datalist {
   margin: 0 auto;
 }
 
-button#restoreBackupButton {
+button.restore-backup-button {
   display: block;
   text-align: center;
 }

@@ -5,7 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Data Clump Flow Analysis Tool</title>
-  <link rel="stylesheet" href="./dataflow.css?v=0005">
+  <link rel="stylesheet" href="./dataflow.css?v=0006">
+  <link rel="stylesheet" href="./dataflow-modal.css?v=0001">
   <meta name="description" content="A tool to map and visualize branching data flows.">
   <meta name="keywords" content="data clumps, data flow, data mapping, data visualization">
   <link rel="icon" type="image/x-icon" href="./favicon.ico">
@@ -131,7 +132,7 @@ Moving a clump into its own tail is not currently supported.">
             <button id="exportAllDataButton" class="short">Export All</button>
             <button id="exportDataButton" class="short">Exp Current</button>
           </div>
-          <button id="importDataButton">Import<br>Data</button>
+          <button id="importDataButton" class="import-data-button">Import<br>Data</button>
         </div>
 
         <div class="export-import-block export-import-storage-name">
@@ -148,9 +149,6 @@ Moving a clump into its own tail is not currently supported.">
 
           <!-- Two-button wrapper -->
           <div class="storage-buttons form-buttons storage-button-actions">
-            <!-- Storage: Delete Selected -->
-            <button id="storageButtonDelete" class="storage-button-action storage-button-delete">Delete Selected</button>
-
             <!-- Storage: Use Selected; force wrap text -->
             <button id="storageButtonUse" class="storage-button-action storage-button-use"><strong>Activate Selected</strong></button>
           </div>
@@ -158,20 +156,11 @@ Moving a clump into its own tail is not currently supported.">
           <!-- One-button wrapper -->
           <div class="storage-buttons form-buttons storage-button-restore">
             <!-- Storage: Restore Backup -->
-            <button id="restoreBackupButton" class="short">Restore <span class="no-wrap">Auto-Backup</span></button>
+            <button id="restoreBackupButton" class="restore-backup-button short">Restore <span class="no-wrap">Auto-Backup</span></button>
           </div>
         </div>
-
-        <div class="export-import-block export-import-storage-name">
-          <!-- Create name wrapper -->
-          <div class="storage-create-name form-buttons storage-buttons">
-            <!-- Storage: Create New -->
-            <input type="text" id="newStorageNameInput" placeholder="newFlowName">
-            <button id="newStorageNameButton">New Flow</button>
-          </div>
-          <span id="storageNamingError"
-            class="error storage-naming-error error-visible hidden"></span>
-        </div>
+        <hr>
+        <button id="appModalBtn">Open Project Flow Manager</button>
       </div>
 
       <!-- Show fields for 'lastAddedLumpID', and 'lastAddedCol' -->
@@ -195,6 +184,51 @@ Moving a clump into its own tail is not currently supported.">
     <div id="outputContainer" class="output-container">
       <div class="grid" id="clumpContainer"></div>
       <div class="cross-tab-warning hidden" id="crossTabWarning"></div>
+    </div>
+  </div>
+
+  <!-- Starter: https://www.w3schools.com/howto/howto_css_modals.asp -->
+  <div id="appModal" class="modal-wrapper" style="display: none;">
+    <!-- Modal content -->
+    <div id="appModalContent" class="modal-content">
+      <div class="modal-header">
+        <span id="modalCloseButton" class="modal-close-button">&times;</span>
+      </div>
+      <div class="modal-body">
+        <!-- CONTENT BODY: START | modal-body -->
+
+        <!-- Storage name selector wrapper -->
+        <div class="storage-name-wrapper">
+          <label for="storageNameTagModal" class="storage-name-label">Select Flow:<br>
+            <small id="storageNameLabelCurrentModal"
+              class="storage-name-label-current">[default]</small>
+          </label>
+          <select id="storageNameTagModal">
+            <option value="0">Default</option>
+          </select>
+        </div>
+
+        <div class="storage-buttons form-buttons storage-button-actions">
+          <!-- Storage: Delete Selected -->
+          <button id="storageButtonDelete" class="storage-button-action storage-button-delete">Delete Selected</button>
+        </div>
+
+        <div class="export-import-block export-import-storage-name">
+          <!-- Create name wrapper -->
+          <div class="storage-create-name form-buttons storage-buttons">
+            <!-- Storage: Create New -->
+            <input type="text" id="newStorageNameInput" placeholder="newFlowName">
+            <button id="newStorageNameButton">New Flow</button>
+          </div>
+          <span id="storageNamingError"
+            class="error storage-naming-error error-visible hidden"></span>
+        </div>
+
+        <!-- CONTENT BODY: END | modal-body -->
+      </div>
+      <div class="modal-footer">
+        <div class="align-right">Active Flow: <span id="appModalActiveFlow"></span></div>
+      </div>
     </div>
   </div>
 
