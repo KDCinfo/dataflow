@@ -199,13 +199,13 @@ Moving a clump into its own tail is not currently supported.">
 
         <!-- Storage name selector wrapper -->
         <div class="storage-name-wrapper">
-          <label for="storageNameTagModal" class="storage-name-label">Select Flow:<br>
+          <label class="storage-name-label">Select Flow:&nbsp;
             <small id="storageNameLabelCurrentModal"
               class="storage-name-label-current">[default]</small>
+              <select id="storageNameTagModal">
+                <option value="0">Default</option>
+              </select>
           </label>
-          <select id="storageNameTagModal">
-            <option value="0">Default</option>
-          </select>
         </div>
 
         <div class="storage-buttons form-buttons storage-button-actions">

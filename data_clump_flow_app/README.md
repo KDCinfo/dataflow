@@ -344,4 +344,23 @@ Part 3
 - New: Tapping an open cell who's clump is not on top, will surface it. Only clumps on top will be closed. Before it would close the clump under the stack, so you couldn't see it being closed.
 - Also renamed some vars for clarity, and scoped everything inside the 'toggleCell' function.
 
+> 2025-04-17
+- Added a modal for a new Project Flow Manager panel.
+  - It will allow for flow more flexible naming, renaming, grouping, and other project-type features.
+- Project Flow Modal Status:
+  -
+  -
+  -
+  -
+  -
+
+@TODO: Project Flow Manager Modal
+- Fix styling
+  - Adapt z-index with 'clipboard' icon.
+- Adapt 'ESC' key functionality with modal.
+- Add a 'custom name' Map field 'AppSettingInfo' that ties
+  a custom name to a specific localStorage name (snake_case or camelCase).
+- Add renaming (of both custom name and localStorage names).
+- Add grouping for project-level flows.
+
 _
