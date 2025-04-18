@@ -27,7 +27,7 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+button:hover:enabled {
   box-shadow: 0 0 7px #ccff00
 }
 
@@ -224,7 +224,7 @@ li ol>li:before {
 .column {
   display: flex;
   flex-direction: column;
-  margin-right: 20px;
+  /* margin-right: 20px; */
 }
 
 .clump-node {
@@ -634,9 +634,8 @@ li ol>li:before {
 
 .export-import-buttons {
   display: flex;
-  height: 60px; /* Adjust this value as needed */
+  /* height: 60px; */
   margin-bottom: 5px;
-  width: 80%;
   max-width: 250px;
 }
 
@@ -736,8 +735,7 @@ datalist {
   border-top: 1px solid #003300;
   display: flex;
   flex-direction: column;
-  margin-top: 15px;
-  padding-top: 10px;
+  margin-top: 10px;
 }
 
 .export-import-storage-name label {
@@ -801,9 +799,19 @@ button.restore-backup-button {
   padding: 5px;
 }
 
+.storage-name-label {
+  margin: 0;
+}
 .storage-name-label-current {
+  border: 1px dotted #b0e000;
   color: #b0e000;
-  margin-left: 5px;
+  margin: 0px auto 10px;
+  padding: 0 10px;
+}
+.app-modal-button-modal {
+  padding: 8px 10px;
+  margin: 10px auto 0;
+  white-space: normal;
 }
 
 /* Responsive layout: stack labels and inputs vertically */
@@ -821,7 +829,7 @@ button.restore-backup-button {
     flex-direction: column;
     align-items: flex-start;
   }
-
+/*
   .export-import-storage-name label {
     text-align: left;
     margin-right: 0;
@@ -829,7 +837,7 @@ button.restore-backup-button {
     padding-bottom: 5px;
     width: auto;
   }
-
+*/
   .storage-buttons,
   .storage-name-wrapper {
     flex-direction: column;
@@ -843,7 +851,7 @@ button.restore-backup-button {
   .export-import-storage-name>div.storage-button-actions .storage-button-action {
     min-height: auto;
   }
-
+/*
   .export-import-storage-name>div> :nth-child(1),
   .export-import-storage-name>div> :nth-child(2) {
     align-items: center;
@@ -851,6 +859,7 @@ button.restore-backup-button {
     margin: 0 auto;
     width: 90%;
   }
+*/
 }
 
 .script-vars {

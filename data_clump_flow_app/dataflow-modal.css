@@ -24,13 +24,16 @@
 .modal-header > span {
   color: #ffffff;
   display: flex;
-  font-size: 24px;
+  font-size: 20px;
 }
+.modal-header > span > span {
+  font-weight: bold;
+}
+
 .modal-close-button {
   font-size: 28px;
   font-weight: bold;
 }
-
 .modal-close-button:hover,
 .modal-close-button:focus {
   color: #b0e000;
@@ -75,8 +78,8 @@
 }
 
 /* Layout */
-.storage-name-wrapper {
-  align-items: center;
+.storage-name-wrapper-modal {
+  align-items: start;
   display: flex;
   flex-direction: row;
   height: 100%;
@@ -93,4 +96,8 @@
 .row {
   display: flex;
   flex-direction: row;
+}
+
+.storage-name-label-modal {
+  margin: 10px auto;
 }
