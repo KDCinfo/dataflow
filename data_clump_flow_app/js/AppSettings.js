@@ -1085,6 +1085,10 @@ P.S. This dialog will not show again.`;
     });
     this.uiElements.storageNameTag.value = this.appSettingsInfo.storageIndex;
     this.uiElements.storageNameTagModal.value = this.appSettingsInfo.storageIndex;
+
+    // Set dropdown sizes to length of 'appSettingsInfo.storageNames'.
+    this.uiElements.storageNameTag.size = this.appSettingsInfo.storageNames.length;
+    this.uiElements.storageNameTagModal.size = this.appSettingsInfo.storageNames.length;
   }
 
   //

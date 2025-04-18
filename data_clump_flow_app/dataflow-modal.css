@@ -7,13 +7,26 @@
   left: 0;
   top: 0;
   width: 100%; /* Full width */
-  z-index: 1; /* Sit on top */
+  z-index: 10000; /* Sit on top */
 }
 
-/* The Close Button */
+/* Modal Header */
+.modal-header {
+  background-color: #5cb85c;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 16px;
+  position: relative;
+}
+
+/* Header: Active Flow and Close Button */
+.modal-header > span {
+  color: #ffffff;
+  display: flex;
+  font-size: 24px;
+}
 .modal-close-button {
-  color: #aaa;
-  float: right;
   font-size: 28px;
   font-weight: bold;
 }
@@ -23,13 +36,6 @@
   color: #b0e000;
   text-decoration: none;
   cursor: pointer;
-}
-
-/* Modal Header */
-.modal-header {
-  padding: 2px 16px;
-  background-color: #5cb85c;
-  color: white;
 }
 
 /* Modal Body */
@@ -66,4 +72,25 @@
 @keyframes animatetop {
   from {top: -300px; opacity: 0}
   to {top: 0; opacity: 1}
+}
+
+/* Layout */
+.storage-name-wrapper {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.row {
+  display: flex;
+  flex-direction: row;
 }
