@@ -1086,8 +1086,7 @@ P.S. This dialog will not show again.`;
     this.uiElements.storageNameTag.value = this.appSettingsInfo.storageIndex;
     this.uiElements.storageNameTagModal.value = this.appSettingsInfo.storageIndex;
 
-    // Set dropdown sizes to length of 'appSettingsInfo.storageNames'.
-    this.uiElements.storageNameTag.size = this.appSettingsInfo.storageNames.length;
+    // Set dropdown size (in the modal) to a length of 'appSettingsInfo.storageNames'.
     this.uiElements.storageNameTagModal.size = this.appSettingsInfo.storageNames.length;
   }
 
