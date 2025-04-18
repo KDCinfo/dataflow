@@ -30,6 +30,16 @@ export default class AppModal {
     });
   }
 
+  // Getter for if modal is open.
+  get isOpen() {
+    return this.appModal.style.display === 'block';
+  }
+
+  // Close the modal.
+  close() {
+    this.appModal.style.display = 'none';
+  }
+
   // Get the modal.
   appModal;
 

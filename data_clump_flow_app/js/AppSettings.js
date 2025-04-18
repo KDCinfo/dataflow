@@ -148,7 +148,12 @@ P.S. This dialog will not show again.`;
     this.uiElements.popItIcon.addEventListener('click', this.toggleClumpFormPopUp.bind(this));
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
-        this.toggleClumpFormPopUp();
+        // If modal is open, close it. Else, toggle the clump form pop up.
+        if (this.appModal.isOpen) {
+          this.appModal.close();
+        } else {
+          this.toggleClumpFormPopUp();
+        }
       }
     });
 
