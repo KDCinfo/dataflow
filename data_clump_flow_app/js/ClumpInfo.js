@@ -38,6 +38,17 @@ export default class ClumpInfo {
     });
   }
 
+  // Compare two ClumpInfo instances for equality.
+  static isEqual(clump1, clump2) {
+    return (
+      clump1.linkedToAbove === clump2.linkedToAbove &&
+      clump1.linkedToLeft === clump2.linkedToLeft &&
+      clump1.clumpName === clump2.clumpName &&
+      // 'clumpCode' can be a bigger check, so placing last.
+      clump1.clumpCode === clump2.clumpCode
+    );
+  }
+
   getData(key) {
     if (key in this) {
       return this[key];

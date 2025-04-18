@@ -210,8 +210,18 @@ P.S. This dialog will not show again.`;
 
     // Listener on 'newStorageNameInput' field to check if the 'New Storage' button should be bold.
     this.uiElements.newStorageNameInput.addEventListener('input', this.checkNewStorageButton.bind(this));
-    this.uiElements.storageNameTag.addEventListener('change', this.toggleStorageButtons.bind(this));
-    this.uiElements.storageNameTagModal.addEventListener('change', this.toggleStorageButtons.bind(this));
+
+    // Listeners for <select> dropdowns: 'storageNameTag' and 'storageNameTagModal'.
+    this.uiElements.storageNameTag.addEventListener('change', (event) => {
+      // Set this.uiElements.storageNameTagModal to the same value as this.
+      this.uiElements.storageNameTagModal.value = event.target.value;
+      this.toggleStorageButtons();
+    });
+    this.uiElements.storageNameTagModal.addEventListener('change', (event) => {
+      // Set this.uiElements.storageNameTag to the same value as this.
+      this.uiElements.storageNameTag.value = event.target.value;
+      this.toggleStorageButtons(this.uiElements.storageNameTagModal);
+    });
 
     this.uiElements.exportDataButton.addEventListener('click', this.handleExportData.bind(this));
     this.uiElements.exportAllDataButton.addEventListener('click', this.handleExportAllData.bind(this));
@@ -888,21 +898,27 @@ P.S. This dialog will not show again.`;
   //   - Disable 'Delete Selected'.
   // - the currently active storage name:
   //   - Disable both buttons.
-  toggleStorageButtons() {
-    const selectedIndex = this.uiElements.storageNameTag.selectedIndex;
-    const selectedStorageName = this.appSettingsInfo.storageNames[selectedIndex];
-    const selectedStorageNameBackup = `${selectedStorageName}_backup`;
+  toggleStorageButtons(
+    selectToCheck = this.uiElements.storageNameTag
+  ) {
+    const selectedIndexSrc = selectToCheck.selectedIndex;
 
+    const selectedStorageNameSrc = this.appSettingsInfo.storageNames[selectedIndexSrc];
+    const isDefaultSrc = selectedStorageNameSrc === AppConstants.defaultStorageName;
+    const isActiveSrc = selectedIndexSrc === this.appSettingsInfo.storageIndex;
+
+    // Button: 'Activate Selected' | Main
+    this.uiElements.storageButtonUse.disabled = isActiveSrc;
+    // Button: 'Delete Selected' | Modal
+    this.uiElements.storageButtonDelete.disabled = isDefaultSrc || isActiveSrc;
+
+    const selectedStorageNameSrcBackup = `${selectedStorageNameSrc}_backup`;
     const currentList = this.dataManager.getData('clumpList');
-    const backupData = this.dataManager.parseClumpListFromStorage(selectedStorageNameBackup);
+    const backupData = this.dataManager.parseClumpListFromStorage(selectedStorageNameSrcBackup);
     const listMatch = currentList.length === backupData.length &&
-        currentList.every((clump, index) => clump.id === backupData[index].id);
+        currentList.every((clump, index) => ClumpInfo.isEqual(clump, backupData[index]));
 
-    const isDefault = selectedStorageName === AppConstants.defaultStorageName;
-    const isActive = selectedIndex === this.appSettingsInfo.storageIndex;
-
-    this.uiElements.storageButtonUse.disabled = isActive;
-    this.uiElements.storageButtonDelete.disabled = isDefault || isActive;
+    // Button: 'Restore Auto-Backup' | Modal
     this.uiElements.restoreBackupButton.disabled = backupData.length === 0 || listMatch;
   }
 
