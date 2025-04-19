@@ -80,7 +80,9 @@ export default class AppSettings {
     this.appModal = new AppModal(
       this.uiElements.appModal,
       this.uiElements.appModalBtn,
-      this.uiElements.modalCloseButton
+      this.uiElements.modalCloseButton,
+      this.uiElements.newStorageNameInput,
+      this.uiElements.clumpNameInput
     );
 
     // Show the welcome alert only once.
@@ -215,6 +217,13 @@ P.S. This dialog will not show again.`;
 
     // Listener on 'newStorageNameInput' field to check if the 'New Storage' button should be bold.
     this.uiElements.newStorageNameInput.addEventListener('input', this.checkNewStorageButton.bind(this));
+    // onEnter, submit form.
+    this.uiElements.newStorageNameInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        this.createNewStorage();
+      }
+    });
 
     // Listeners for <select> dropdowns: 'storageNameTag' and 'storageNameTagModal'.
     this.uiElements.storageNameTag.addEventListener('change', (event) => {
@@ -1353,6 +1362,8 @@ P.S. This dialog will not show again.`;
         AppStorage.appStorageRemoveItem(selectedStorageName);
 
         this.updateStorageNameDropdownOptions();
+        this.toggleStorageButtons(this.uiElements.storageNameTagModal);
+        this.uiElements.newStorageNameInput.focus();
       }
     } else {
       // This should never be hit because the button should be disabled when not allowed.
@@ -1767,6 +1778,11 @@ P.S. This dialog will not show again.`;
     }
 
     // Set focus to the 'clump name' input field.
-    this.uiElements.clumpNameInput.focus();
+    // If the modal is open focus on newStorageNameInput.
+    if (typeof this.appModal !== 'undefined' && this.appModal.isOpen) {
+      this.uiElements.newStorageNameInput.focus();
+    } else {
+      this.uiElements.clumpNameInput.focus();
+    }
   }
 }
