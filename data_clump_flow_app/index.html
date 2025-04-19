@@ -129,10 +129,8 @@ Moving a clump into its own tail is not currently supported.">
       <div class="info-panel info-panel-sub export-import panel-from-collapsed-to-expanded">
         <div class="export-import-block export-import-buttons column">
           <small id="storageNameLabelCurrent" class="storage-name-label-current">[default]</small>
-          <button id="exportDataButton" class="short">Export Current</button>
-          <button id="exportAllDataButton" class="short">Export All</button>
         </div>
-        <div class="export-import-block export-import-storage-name">
+        <div class="export-import-block export-import-storage-name export-import-storage-main">
           <!-- Storage name selector wrapper -->
           <div class="storage-name-wrapper">
             <label for="storageNameTag" class="storage-name-label"><span>Select Flow:</span></label>
@@ -146,7 +144,11 @@ Moving a clump into its own tail is not currently supported.">
           </div>
         </div>
         <div class="export-import-block export-import-storage-name export-import-buttons">
-          <button id="appModalBtn" class="app-modal-button-modal">Open Flow Manager</button>
+          <div class="storage-buttons">
+            <button id="exportDataButton" class="short">Export Current</button>
+            <button id="exportAllDataButton" class="short">Export All</button>
+          </div>
+          <button id="appModalBtn" class="app-modal-button-open-modal">Open Flow Manager</button>
         </div>
       </div>
 

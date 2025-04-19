@@ -634,33 +634,24 @@ li ol>li:before {
 
 .export-import-buttons {
   display: flex;
-  /* height: 60px; */
   margin-bottom: 5px;
   max-width: 250px;
 }
 
 .export-import-buttons > div {
-  display: flex;
-  flex-direction: column;
+  gap: 10px;
   justify-content: space-between;
-  width: 50%; /* Half the width of the container */
 }
 
 .export-import-buttons button {
   border: 1px solid #777777;
   border-radius: 4px;
   white-space: nowrap;
+  max-width: 160px;
   width: 100%;
 }
 
-.export-import-buttons button.short {
-  height: calc(50% - 5px); /* Half height minus half of the gap */
-  font-size: 12px;
-  padding: 2px 15px;
-}
-
 .import-data-button {
-  width: 50%;
   height: 100%;
 }
 
@@ -735,7 +726,11 @@ datalist {
   border-top: 1px solid #003300;
   display: flex;
   flex-direction: column;
-  margin-top: 10px;
+}
+
+.export-import-storage-main {
+  gap: 0px;
+  padding-bottom: 10px;
 }
 
 .export-import-storage-name label {
@@ -743,7 +738,6 @@ datalist {
   font-size: 14px;
   margin-right: 10px;
   text-align: right;
-  /* width: 125px; */
 }
 
 .export-import-storage-name select {
@@ -799,6 +793,9 @@ button.restore-backup-button {
   padding: 5px;
 }
 
+.storage-name-wrapper {
+  flex-direction: column;
+}
 .storage-name-label {
   margin: 0;
 }
@@ -808,41 +805,27 @@ button.restore-backup-button {
   margin: 0px auto 10px;
   padding: 0 10px;
 }
-.app-modal-button-modal {
+.app-modal-button-open-modal {
   padding: 8px 10px;
-  margin: 10px auto 0;
+  margin: 0 auto;
   white-space: normal;
 }
 
 /* Responsive layout: stack labels and inputs vertically */
 @media (max-width: 950px) {
   .export-import-buttons {
-    /* flex-direction: column; */
     gap: 5px;
   }
-
   .grid-repeat-html-span {
     display: block;
   }
-
   .export-import-storage-name {
     flex-direction: column;
     align-items: flex-start;
   }
-/*
-  .export-import-storage-name label {
-    text-align: left;
-    margin-right: 0;
-    margin-bottom: 5px;
-    padding-bottom: 5px;
-    width: auto;
-  }
-*/
-  .storage-buttons,
-  .storage-name-wrapper {
+  .storage-buttons {
     flex-direction: column;
   }
-
   .export-import-storage-name>div.storage-button-actions {
     flex-direction: column-reverse;
     margin-top: 0;
@@ -851,15 +834,6 @@ button.restore-backup-button {
   .export-import-storage-name>div.storage-button-actions .storage-button-action {
     min-height: auto;
   }
-/*
-  .export-import-storage-name>div> :nth-child(1),
-  .export-import-storage-name>div> :nth-child(2) {
-    align-items: center;
-    display: flex;
-    margin: 0 auto;
-    width: 90%;
-  }
-*/
 }
 
 .script-vars {
