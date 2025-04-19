@@ -189,40 +189,43 @@ Moving a clump into its own tail is not currently supported.">
 
         <!-- Storage name selector wrapper -->
         <div class="storage-name-wrapper-modal">
-          <div class="column">
+
+          <div class="column storage-name-wrapper-modal-list">
             <label for="storageNameTagModal" class="storage-name-label-modal">Select Flow:</label>
             <select id="storageNameTagModal" class="storage-name-select-modal">
               <option value="0">Default</option>
             </select>
           </div>
-          <div class="column">
-            <div class="storage-buttons form-buttons storage-button-actions">
-              <!-- Storage: Delete Selected -->
-              <button id="storageButtonDelete" class="storage-button-action storage-button-delete">&#9888; Delete Selected</button>
-            </div>
 
-            <div class="export-import-block export-import-storage-name">
+          <div class="column">
+            <div class="export-import-block">
               <!-- Create name wrapper -->
-              <div class="storage-create-name form-buttons storage-buttons">
+              <div class="storage-create-name form-buttons">
                 <!-- Storage: Create New -->
                 <input type="text" id="newStorageNameInput" placeholder="newFlowName">
-                <button id="newStorageNameButton">New Flow</button>
-                <button id="newStorageRenameButton">Rename Selected</button>
+                <div class="storage-buttons">
+                  <button id="newStorageNameButton" class="bold">New Flow</button>
+                  <button id="newStorageRenameButton">Rename Selected</button>
+                </div>
               </div>
               <span id="storageNamingError"
                 class="error storage-naming-error error-visible hidden"></span>
             </div>
 
             <!-- One-button wrapper -->
-            <div class="storage-buttons form-buttons storage-button-restore">
+            <div class="storage-buttons export-import-storage-name form-buttons storage-button-restore">
               <!-- Storage: Import Data -->
-              <button id="importDataButton" class="import-data-button">Import<br>Data</button>
-              <!-- Storage: Restore Backup -->
-              <button id="restoreBackupButton" class="restore-backup-button short">Restore <span class="no-wrap">Auto-Backup</span></button>
+              <button id="importDataButton" class="import-data-button">Import Data</button>
+              <div class="button-danger">
+                <!-- Storage: Delete Selected -->
+                <button id="storageButtonDelete" class="storage-button-action storage-button-delete">&#9888; Delete Selected</button>
+                <!-- Storage: Restore Backup -->
+                <button id="restoreBackupButton" class="restore-backup-button short">&#9888; Restore <span class="no-wrap">Auto-Backup</span></button>
+              </div>
             </div>
           </div>
-        </div>
 
+        </div>
         <!-- CONTENT BODY: END | modal-body -->
       </div>
       <div class="modal-footer"></div>
@@ -231,5 +234,4 @@ Moving a clump into its own tail is not currently supported.">
 
   <script src="./js/main.js" type="module"></script>
 </body>
-
 </html>

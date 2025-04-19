@@ -10,6 +10,23 @@
   z-index: 10000; /* Sit on top */
 }
 
+/* Modal Content/Box */
+.modal-content {
+  animation-name: animatetop;
+  animation-duration: 0.4s;
+  background-color: rgba(0,0,0,0.4);
+  background-color: #030c00;
+  border: 1px solid #5cb85c;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  color: #b0e000;
+  font-family: Arial, sans-serif;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  position: relative;
+  width: 80%;
+}
+
 /* Modal Header */
 .modal-header {
   background-color: #5cb85c;
@@ -41,12 +58,6 @@
   cursor: pointer;
 }
 
-/* Modal Body */
-.modal-body {
-  margin: 10px auto 15px;
-  padding: 2px 16px;
-}
-
 /* Modal Footer */
 .modal-footer {
   padding: 2px 16px;
@@ -54,38 +65,22 @@
   color: white;
 }
 
-/* Modal Content/Box */
-.modal-content {
-  animation-name: animatetop;
-  animation-duration: 0.4s;
-  background-color: rgba(0,0,0,0.4);
-  background-color: #030c00;
-  border: 1px solid #5cb85c;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
-  color: #b0e000;
-  font-family: Arial, sans-serif;
-  margin: 15% auto; /* 15% from the top and centered */
-  padding: 20px;
-  position: relative;
-  width: 80%;
+/* Modal Body */
+.modal-body {
+  margin: 10px auto 15px;
+  padding: 2px 16px;
 }
 
-/* Add Animation */
-@keyframes animatetop {
-  from {top: -300px; opacity: 0}
-  to {top: 0; opacity: 1}
-}
-
-/* Layout */
 .storage-name-wrapper-modal {
-  align-items: start;
+  align-items: end;
   display: flex;
   flex-direction: row;
-  height: 100%;
+  gap: 15px;
   justify-content: center;
   position: relative;
-  width: 100%;
+}
+.storage-name-wrapper-modal-list {
+  margin-bottom: 15px;
 }
 .column {
   display: flex;
@@ -98,6 +93,48 @@
   flex-direction: row;
 }
 
+/* Add Animation */
+@keyframes animatetop {
+  from {top: -300px; opacity: 0}
+  to {top: 0; opacity: 1}
+}
+
 .storage-name-label-modal {
   margin: 10px auto;
+}
+
+.export-import-storage-name>div.storage-button-restore {
+  margin: 0 auto;
+}
+.storage-buttons .import-data-button {
+  font-weight: bold;
+  height: 100%;
+  padding: 15px 10px;
+}
+.storage-button-restore button {
+  max-width: 220px;
+  width: 100%;
+}
+.button-danger {
+  border: 1px dotted #ff0000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 8px;
+}
+.button-danger button {
+  background-color: #ffdcdcdf;
+}
+.bold {
+  font-weight: bold;
+}
+button.restore-backup-button {
+  display: block;
+  text-align: center;
+}
+.storage-create-name input {
+  padding: 5px;
+}
+.storage-create-name button {
+  padding: 5px;
 }
