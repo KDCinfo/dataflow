@@ -152,7 +152,7 @@ P.S. This dialog will not show again.`;
       if (event.key === 'Escape') {
         // If modal is open, close it. Else, toggle the clump form pop up.
         if (this.appModal.isOpen) {
-          this.appModal.close();
+          this.appModal.modalClose();
         } else {
           this.toggleClumpFormPopUp();
         }
@@ -1400,13 +1400,14 @@ P.S. This dialog will not show again.`;
       this.dataManager.addClumpsToMatrix();
 
       // Update UI.
+      const currentStorageName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
       this.uiElements.clumpFormId.reset();
       this.uiElements.outputContainer.style.marginBottom = '0';
       this.uiElements.outputContainer.style.height = 'calc(100vh - 42px)';
-      this.uiElements.storageNameLabelCurrent.textContent =
-        this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
-      this.uiElements.storageNameLabelCurrentModal.textContent =
-        this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
+      this.uiElements.storageNameLabelCurrent.textContent = currentStorageName;
+      this.uiElements.storageNameLabelCurrent.setAttribute('title', currentStorageName);
+      this.uiElements.storageNameLabelCurrentModal.textContent = currentStorageName;
+      this.uiElements.storageNameLabelCurrentModal.setAttribute('title', currentStorageName);
       this.updateDataInHtml();
       this.renderMatrix();
     }
@@ -1557,10 +1558,11 @@ P.S. This dialog will not show again.`;
 
     // [6] Update the 'storageName' dropdown from settings.storage
     this.updateStorageNameDropdownOptions();
-    this.uiElements.storageNameLabelCurrent.textContent =
-        this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
-    this.uiElements.storageNameLabelCurrentModal.textContent =
-        this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
+    const currentStorageName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
+    this.uiElements.storageNameLabelCurrent.textContent = currentStorageName;
+    this.uiElements.storageNameLabelCurrent.setAttribute('title', currentStorageName);
+    this.uiElements.storageNameLabelCurrentModal.textContent = currentStorageName;
+    this.uiElements.storageNameLabelCurrentModal.setAttribute('title', currentStorageName);
 
     // [7] Enable/disable storage buttons.
     this.toggleStorageButtons();

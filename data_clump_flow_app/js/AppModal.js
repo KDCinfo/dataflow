@@ -14,14 +14,12 @@ export default class AppModal {
     //
     // When the user clicks on the button, open the modal
     this.appModalBtn.onclick = () => {
-      this.appModal.style.display = 'block';
-      this.newStorageNameInput.focus();
+      this.modalOpen();
     }
 
-    // When the user clicks on <span> (x), close the modal
+    // When the user clicks on <span> (x), close the modal.
     this.modalCloseButton.onclick = () => {
-      this.appModal.style.display = 'none';
-      this.clumpNameInput.focus();
+      this.modalClose();
     }
 
     // When the user clicks anywhere outside of the modal, close it
@@ -29,20 +27,36 @@ export default class AppModal {
     // window.onclick = function(event) {}
     window.addEventListener('click', (event) => {
       if (event.target === this.appModal) {
-        this.appModal.style.display = 'none';
-        this.clumpNameInput.focus();
+        this.modalClose();
       }
     });
+  }
+
+  // Toggle classes: modal-content-anim in/out.
+  modalOpen() {
+    this.appModal.classList.remove('modal-content-animout');
+    this.appModal.style.display = 'block';
+    this.appModal.classList.add('modal-content-animin');
+    // Wait for animation to finish before opening.
+    setTimeout(() => {
+      this.newStorageNameInput.focus();
+    }, 500);
+  }
+  modalClose() {
+    this.appModal.classList.remove('modal-content-animin');
+    this.appModal.classList.add('modal-content-animout');
+    // Wait for animation to finish before closing.
+    const onAnimEnd = () => {
+      this.appModal.style.display = 'none';
+      this.appModal.removeEventListener('animationend', onAnimEnd);
+      this.clumpNameInput.focus();
+    };
+    this.appModal.addEventListener('animationend', onAnimEnd);
   }
 
   // Getter for if modal is open.
   get isOpen() {
     return this.appModal.style.display === 'block';
-  }
-
-  // Close the modal.
-  close() {
-    this.appModal.style.display = 'none';
   }
 
   // Get the modal.

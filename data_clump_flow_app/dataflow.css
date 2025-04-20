@@ -636,6 +636,7 @@ li ol>li:before {
   display: flex;
   margin-bottom: 5px;
   max-width: 250px;
+  width: 100%;
 }
 
 .export-import-buttons > div {
@@ -779,7 +780,10 @@ datalist {
   border: 1px dotted #b0e000;
   color: #b0e000;
   margin: 0px auto 10px;
+  overflow: hidden;
   padding: 0 10px;
+  text-overflow: ellipsis;
+  width: 90%;
 }
 .app-modal-button-open-modal {
   padding: 8px 10px;
