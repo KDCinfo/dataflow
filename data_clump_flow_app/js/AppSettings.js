@@ -216,7 +216,9 @@ P.S. This dialog will not show again.`;
     //
 
     // Listener on 'newStorageNameInput' field to check if the 'New Storage' button should be bold.
-    this.uiElements.newStorageNameInput.addEventListener('input', this.toggleStorageButtons.bind(this));
+    this.uiElements.newStorageNameInput.addEventListener('input', () => {
+      this.toggleStorageButtons(this.uiElements.storageNameTagModal);
+    });
     // onEnter, submit form.
     this.uiElements.newStorageNameInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') {
@@ -261,6 +263,9 @@ P.S. This dialog will not show again.`;
     this.uiElements.newStorageNameButton.addEventListener('click', this.createNewStorage.bind(this));
     // id="newStorageRenameButton"
     this.uiElements.newStorageRenameButton.addEventListener('click', this.renameStorage.bind(this));
+    // id="newStorageRenameCopy"
+    this.uiElements.newStorageRenameCopy.addEventListener('click', this.copyStorageName.bind(this));
+    this.uiElements.newStorageRenameCopy.setAttribute('title', AppConstants.storageNameCopyFlowNameText);
 
     window.addEventListener('storage', (event) => {
       if (event.key === AppConstants.localStorageSettingsKey) {
@@ -1429,6 +1434,23 @@ P.S. This dialog will not show again.`;
 
   renameStorage() {
     this.createNewStorage(true);
+  }
+
+  // Copy the selected flow name into the input field.
+  copyStorageName() {
+    AppConfig.debugConsoleLogs &&
+      console.log('Copy selected storage name:', this.uiElements.storageNameTag.value);
+
+    if (this.uiElements.storageNamingError.classList.contains('error-visible')) {
+      this.hideStorageError();
+    }
+
+    const selectedStorageIndex = parseInt(this.uiElements.storageNameTag.value, 10);
+    const selectedStorageName = this.appSettingsInfo.storageNames[selectedStorageIndex];
+    this.uiElements.newStorageNameInput.value = selectedStorageName;
+    this.uiElements.newStorageNameInput.focus();
+
+    this.toggleStorageButtons(this.uiElements.storageNameTagModal);
   }
 
   deleteSelectedStorage() {

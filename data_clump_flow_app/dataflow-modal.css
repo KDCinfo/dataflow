@@ -139,7 +139,8 @@
 .export-import-storage-name>div.storage-button-restore {
   margin: 0 auto;
 }
-.storage-buttons .import-data-button {
+
+.storage-buttons-modal .import-data-button {
   height: 100%;
   line-height: 1.6;
   margin: 0 auto;
@@ -178,4 +179,34 @@ button.restore-backup-button {
 }
 .storage-create-name-modal.form-buttons {
   flex-direction: column;
+}
+
+.storage-buttons-modal button {
+  font-size: 12px;
+  padding: 5px 10px;
+}
+.storage-buttons-modal button.storage-new-name-button {
+  /* Ref: :disabled */
+  cursor: pointer;
+  font-weight: bold;
+}
+.storage-buttons-modal button.storage-rename-button {
+  cursor: pointer;
+  width: 80%;
+}
+.storage-buttons-modal button.storage-rename-copy {
+  font-size: 18px;
+  padding: 0;
+  vertical-align: top;
+  width: 15%;
+}
+.storage-buttons-modal button:disabled {
+  background-color: rgba(239, 239, 239, 0.7);
+  color: #444444;
+  cursor: default;
+  font-weight: normal;
+}
+
+.tip small {
+  color: #b0e000dd;
 }

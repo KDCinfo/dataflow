@@ -204,15 +204,18 @@ Moving a clump into its own tail is not currently supported.">
                 <!-- Storage: Create New -->
                 <input type="text" id="newStorageNameInput" placeholder="exampleFlowName">
                 <span id="storageNamingError" class="error storage-naming-error error-visible hidden"></span>
-                <div class="storage-buttons">
+                <div class="storage-buttons-modal">
                   <button id="newStorageNameButton" class="storage-new-name-button">New Flow</button>
-                  <button id="newStorageRenameButton" class="storage-rename-button">Rename Selected</button>
+                  <span class="no-wrap">
+                    <button id="newStorageRenameButton" class="storage-rename-button">Rename Selected</button>
+                    &nbsp;<button id="newStorageRenameCopy" class="storage-rename-copy">📋</button>
+                  </span>
                 </div>
               </div>
             </div>
 
             <!-- One-button wrapper -->
-            <div class="storage-buttons export-import-storage-name form-buttons storage-button-restore">
+            <div class="storage-buttons-modal export-import-storage-name form-buttons storage-button-restore">
               <!-- Storage: Import Data -->
               <button id="importDataButton" class="import-data-button"><b>Import Data</b> <span class="no-wrap">into Selected</span></button>
               <div class="button-danger">
@@ -222,6 +225,12 @@ Moving a clump into its own tail is not currently supported.">
                 <button id="restoreBackupButton" class="restore-backup-button short">&#9888; Restore Selected <span class="no-wrap">Auto-Backup</span></button>
               </div>
             </div>
+
+            <div class="tip"><small>
+              Tip: Hover over disabled buttons,
+              the copy button, or long modal titles
+              for more info or error messages.
+            </small></div>
           </div>
 
         </div>

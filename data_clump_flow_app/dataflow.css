@@ -52,14 +52,6 @@ button:hover:enabled {
   font-size: 12px;
   padding: 5px 10px;
 }
-.storage-buttons button.storage-new-name-button {
-  /* Ref: :disabled */
-  cursor: pointer;
-  font-weight: bold;
-}
-.storage-buttons button.storage-rename-button {
-  cursor: pointer;
-}
 .storage-buttons button:disabled {
   background-color: rgba(239, 239, 239, 0.7);
   color: #444444;
@@ -771,7 +763,9 @@ datalist {
 }
 .export-import-storage-name>div.storage-button-actions .storage-button-action {
   display: block;
+  margin-top: 10px;
   min-height: 42px;
+  padding: 8px 18px;
   text-align: center;
   width: 100%;
 }
