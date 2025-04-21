@@ -202,11 +202,11 @@ Moving a clump into its own tail is not currently supported.">
               <!-- Create name wrapper -->
               <div class="storage-create-name storage-create-name-modal form-buttons">
                 <!-- Storage: Create New -->
-                <input type="text" id="newStorageNameInput" placeholder="newFlowName">
+                <input type="text" id="newStorageNameInput" placeholder="exampleFlowName">
                 <span id="storageNamingError" class="error storage-naming-error error-visible hidden"></span>
                 <div class="storage-buttons">
-                  <button id="newStorageNameButton">New Flow</button>
-                  <button id="newStorageRenameButton">Rename Selected</button>
+                  <button id="newStorageNameButton" class="storage-new-name-button">New Flow</button>
+                  <button id="newStorageRenameButton" class="storage-rename-button">Rename Selected</button>
                 </div>
               </div>
             </div>
@@ -214,7 +214,7 @@ Moving a clump into its own tail is not currently supported.">
             <!-- One-button wrapper -->
             <div class="storage-buttons export-import-storage-name form-buttons storage-button-restore">
               <!-- Storage: Import Data -->
-              <button id="importDataButton" class="import-data-button">Import Data</button>
+              <button id="importDataButton" class="import-data-button"><b>Import Data</b> <span class="no-wrap">into Selected</span></button>
               <div class="button-danger">
                 <!-- Storage: Delete Selected -->
                 <button id="storageButtonDelete" class="storage-button-action storage-button-delete">&#9888; Delete Selected</button>

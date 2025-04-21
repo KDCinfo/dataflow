@@ -35,6 +35,7 @@ export const uiConfig = {
     storageNameLabelCurrent: '#storageNameLabelCurrent',
     newStorageNameInput: '#newStorageNameInput',
     newStorageNameButton: '#newStorageNameButton',
+    newStorageRenameButton: '#newStorageRenameButton',
     storageButtonDelete: '#storageButtonDelete',
     storageButtonUse: '#storageButtonUse',
     storageNamingError: '#storageNamingError'

@@ -896,11 +896,19 @@ P.S. This dialog will not show again.`;
   // Function to bold 'New Storage' button text if the 'newStorageNameInput' value is valid.
   checkNewStorageButton() {
     const newStorageNameValue = this.uiElements.newStorageNameInput.value.trim();
-    const isValid = this.isValidKeyName(newStorageNameValue);
-    // Make button text bold.
-    this.uiElements.newStorageNameButton.style.fontWeight = isValid ? 'bold' : 'normal';
-    // Change button's cursor.
-    this.uiElements.newStorageNameButton.style.cursor = isValid ? 'pointer' : 'default';
+    const isInList = this.checkIfStorageNameExists(newStorageNameValue);
+    const isValid = !isInList && this.isValidKeyName(newStorageNameValue);
+
+    if (newStorageNameValue === '') {
+      this.uiElements.newStorageNameButton.setAttribute('disabled', true);
+      this.uiElements.newStorageNameButton.setAttribute('title', AppConstants.storageNameErrTextNameEmpty);
+    } else if (!isValid) {
+      this.uiElements.newStorageNameButton.setAttribute('disabled', true);
+      this.uiElements.newStorageNameButton.setAttribute('title', AppConstants.storageNameErrTextInvalid);
+    } else {
+      this.uiElements.newStorageNameButton.removeAttribute('disabled');
+      this.uiElements.newStorageNameButton.removeAttribute('title');
+    }
 
     if (isValid) {
       this.hideStorageError();
@@ -916,24 +924,79 @@ P.S. This dialog will not show again.`;
     selectToCheck = this.uiElements.storageNameTag
   ) {
     const selectedIndexSrc = selectToCheck.selectedIndex;
-
     const selectedStorageNameSrc = this.appSettingsInfo.storageNames[selectedIndexSrc];
     const isDefaultSrc = selectedStorageNameSrc === AppConstants.defaultStorageName;
     const isActiveSrc = selectedIndexSrc === this.appSettingsInfo.storageIndex;
 
-    // Button: 'Activate Selected' | Main
-    this.uiElements.storageButtonUse.disabled = isActiveSrc;
-    // Button: 'Delete Selected' | Modal
-    this.uiElements.storageButtonDelete.disabled = isDefaultSrc || isActiveSrc;
+    if (isDefaultSrc || isActiveSrc) {
+      // Button: ['Activate Selected'] | Main
+      if (isActiveSrc) {
+        this.uiElements.storageButtonUse.setAttribute('disabled', true);
+        this.uiElements.storageButtonUse.setAttribute('title', AppConstants.storageNameErrUseText);
+      } else {
+        this.uiElements.storageButtonUse.removeAttribute('disabled');
+        this.uiElements.storageButtonUse.removeAttribute('title');
+      }
 
+      // Button: ['Delete Selected'] | Modal
+      this.uiElements.storageButtonDelete.setAttribute('disabled', true);
+      this.uiElements.storageButtonDelete.setAttribute('title', AppConstants.storageNameErrDelText);
+
+      // Button: ['Rename Selected'] | Modal
+      // @TODO: Renaming the current ('isActiveSrc') may be doable,
+      //        but was concerned about having to re-render the matrix (and losing the modal).
+      //        But that re-render may not be necessary.
+      this.uiElements.newStorageRenameButton.setAttribute('disabled', true);
+      this.uiElements.newStorageRenameButton.setAttribute('title', AppConstants.storageNameErrRenameText);
+    } else {
+      // Button: ['Activate Selected'] | Main
+      this.uiElements.storageButtonUse.removeAttribute('disabled');
+      this.uiElements.storageButtonUse.removeAttribute('title');
+
+      // Button: ['Delete Selected'] | Modal
+      this.uiElements.storageButtonDelete.removeAttribute('disabled');
+      this.uiElements.storageButtonDelete.removeAttribute('title');
+
+      // Button: ['Rename Selected'] | Modal
+      const newStorageNameValue = this.uiElements.newStorageNameInput.value.trim();
+      const isInList = this.checkIfStorageNameExists(newStorageNameValue);
+      const isValid = !isInList && this.isValidKeyName(newStorageNameValue);
+
+      if (isInList) {
+        // Disable 'Rename Selected' button if the case-insensitive new name already exists.
+        this.uiElements.newStorageRenameButton.setAttribute('disabled', true);
+        this.uiElements.newStorageRenameButton.setAttribute('title', AppConstants.storageNameErrTextNameExists);
+      } else if (newStorageNameValue === '') {
+        // Disable 'Rename Selected' button if the new name is empty.
+        this.uiElements.newStorageRenameButton.setAttribute('disabled', true);
+        this.uiElements.newStorageRenameButton.setAttribute('title', AppConstants.storageNameErrTextNameEmpty);
+      } else if (!isValid) {
+        // Disable 'Rename Selected' button if the new name is invalid.
+        this.uiElements.newStorageRenameButton.setAttribute('disabled', true);
+        this.uiElements.newStorageRenameButton.setAttribute('title', AppConstants.storageNameErrTextInvalid);
+      } else {
+        // Enable 'Rename Selected' button.
+        this.uiElements.newStorageRenameButton.removeAttribute('disabled');
+        this.uiElements.newStorageRenameButton.removeAttribute('title');
+      }
+    }
+
+    // Button: 'Restore Auto-Backup' | Modal
+    // Enable or disable the 'Restore Auto-Backup' button based on backup data.
+    //
     const selectedStorageNameSrcBackup = `${selectedStorageNameSrc}_backup`;
-    const currentList = this.dataManager.getData('clumpList');
+    const currentList = this.dataManager.parseClumpExportListFromStorage(selectedStorageNameSrc);
     const backupData = this.dataManager.parseClumpListFromStorage(selectedStorageNameSrcBackup);
     const listMatch = currentList.length === backupData.length &&
         currentList.every((clump, index) => ClumpInfo.isEqual(clump, backupData[index]));
 
-    // Button: 'Restore Auto-Backup' | Modal
-    this.uiElements.restoreBackupButton.disabled = backupData.length === 0 || listMatch;
+    if (backupData.length === 0 || listMatch) {
+      this.uiElements.restoreBackupButton.setAttribute('disabled', true);
+      this.uiElements.restoreBackupButton.setAttribute('title', AppConstants.storageNameErrBackupText);
+    } else {
+      this.uiElements.restoreBackupButton.removeAttribute('disabled');
+      this.uiElements.restoreBackupButton.removeAttribute('title');
+    }
   }
 
   //
@@ -1289,6 +1352,7 @@ P.S. This dialog will not show again.`;
   createNewStorage() {
     // Temporarily disable the new storage button to prevent double-clicks.
     this.uiElements.newStorageNameButton.disabled = true;
+    this.uiElements.newStorageRenameButton.disabled = true;
 
     const trimmedStorageName = this.uiElements.newStorageNameInput.value.trim();
 
@@ -1304,6 +1368,7 @@ P.S. This dialog will not show again.`;
         this.uiElements.storageNamingError.innerHTML = '';
         // Remove temporary disablement of the new storage button.
         this.uiElements.newStorageNameButton.disabled = false;
+        this.uiElements.newStorageRenameButton.disabled = false;
         // Reset CSS styling on the 'New Storage' button.
         this.checkNewStorageButton();
       }, 250);
@@ -1318,6 +1383,7 @@ P.S. This dialog will not show again.`;
       this.showStorageError(this.dataManager.getData('storageNameErrorText'));
       // Remove temporary disablement of the new storage button.
       this.uiElements.newStorageNameButton.disabled = false;
+      this.uiElements.newStorageRenameButton.disabled = false;
       // Reset CSS styling on the 'New Storage' button.
       this.checkNewStorageButton();
     }
@@ -1415,7 +1481,7 @@ P.S. This dialog will not show again.`;
 
   // Button: id="restoreBackupButton"
   restoreSelectedStorage() {
-    const selectedStorageIndex = parseInt(this.uiElements.storageNameTag.value, 10);
+    const selectedStorageIndex = parseInt(this.uiElements.storageNameTagModal.value, 10);
 
     AppConfig.debugConsoleLogs &&
       console.log('Restore backup for current storage:', selectedStorageIndex);
@@ -1431,7 +1497,7 @@ P.S. This dialog will not show again.`;
       selectedStorageIndex === this.appSettingsInfo.storageIndex &&
       AppStorage.appStorageCheckItemExists(selectedStorageNameBackup)
     ) {
-      const storageName = this.appSettingsInfo.storageNames[this.uiElements.storageNameTag.value];
+      const storageName = this.appSettingsInfo.storageNames[this.uiElements.storageNameTagModal.value];
       const backupName = `${storageName}_backup`;
       if (confirm(`\n!!! WARNING !!! All current data WILL BE REPLACED!
             \nBackup storage name: ${backupName}
@@ -1566,6 +1632,7 @@ P.S. This dialog will not show again.`;
 
     // [7] Enable/disable storage buttons.
     this.toggleStorageButtons();
+    this.checkNewStorageButton();
 
     // [ CLUMP NODE PLACEMENT ]
     //

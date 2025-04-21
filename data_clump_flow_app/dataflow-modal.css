@@ -140,8 +140,8 @@
   margin: 0 auto;
 }
 .storage-buttons .import-data-button {
-  font-weight: bold;
   height: 100%;
+  line-height: 1.6;
   margin: 0 auto;
   max-width: 120px;
   padding: 15px 10px;
@@ -150,8 +150,9 @@
   max-width: 220px;
   width: 100%;
 }
+/* Ref: warning; alert */
 .button-danger {
-  border: 1px dotted #ff0000;
+  border: 1px dashed #ff0000aa; /* Ref: red */
   display: flex;
   flex-direction: column;
   gap: 10px;
