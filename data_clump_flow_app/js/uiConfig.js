@@ -35,6 +35,8 @@ export const uiConfig = {
     storageNameLabelCurrent: '#storageNameLabelCurrent',
     newStorageNameInput: '#newStorageNameInput',
     newStorageNameButton: '#newStorageNameButton',
+    newStorageRenameButton: '#newStorageRenameButton',
+    newStorageRenameCopy: '#newStorageRenameCopy',
     storageButtonDelete: '#storageButtonDelete',
     storageButtonUse: '#storageButtonUse',
     storageNamingError: '#storageNamingError'
@@ -44,5 +46,13 @@ export const uiConfig = {
     lastAddedColTag: '#lastAddedColTag',
     editingIndexTag: '#editingIndexTag',
     editingIdTag: '#editingIdTag'
+  },
+  modal: {
+    appModal: '#appModal',
+    appModalBtn: '#appModalBtn',
+    modalContent: '#appModalContent',
+    modalCloseButton: '#modalCloseButton',
+    storageNameTagModal: '#storageNameTagModal',
+    storageNameLabelCurrentModal: '#storageNameLabelCurrentModal'
   }
 };

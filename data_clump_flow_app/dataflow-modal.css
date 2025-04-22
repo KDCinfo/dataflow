@@ -1,0 +1,212 @@
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+/* The Modal (background) */
+.modal-wrapper {
+  display: none; /* Hidden by default */
+  height: 100%; /* Full height */
+  left: 0;
+  overflow: auto; /* Enable scroll if needed */
+  position: fixed; /* Stay in place */
+  top: 0;
+  width: 100%; /* Full width */
+  z-index: 10000; /* Sit on top */
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: rgba(0,0,0,0.4);
+  background-color: #030c00;
+  border: 1px solid #5cb85c;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  color: #b0e000;
+  font-family: Arial, sans-serif;
+  margin: 15% auto; /* 15% from the top and centered */
+  max-width: 600px;
+  padding: 20px;
+  position: relative;
+  width: 80%;
+}
+
+/* Modal Header */
+.modal-header {
+  align-items: center;
+  background-color: #003300;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 10px;
+  position: relative;
+}
+
+/* Header: Active Flow and Close Button */
+.modal-header > span {
+  color: #ffffff;
+  display: flex;
+  font-size: 18px;
+}
+.active-flow-span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.active-flow-text {
+  color: #b0e000;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modal-header > span.modal-close-button {
+  font-size: 28px;
+  font-weight: bold;
+  padding: 0 4px;
+}
+.modal-header > span.modal-close-button:hover,
+.modal-header > span.modal-close-button:focus {
+  color: #b0e000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Modal Footer */
+.modal-footer {
+  padding: 2px 16px;
+  background-color: #003300;
+  color: white;
+}
+
+/* Modal Body */
+.modal-body {
+  margin: 10px auto 15px;
+  padding: 2px 16px;
+}
+
+.storage-name-wrapper-modal {
+  align-items: start;
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  justify-content: center;
+  position: relative;
+}
+.storage-name-wrapper-modal-list {
+  align-items: start;
+  margin-bottom: 15px;
+}
+.storage-name-select-modal {
+  width: 100%;
+}
+
+/* Add Animation */
+.modal-content-animin {
+  background-color: #00224466;
+  animation-name: animatein;
+  animation-duration: 0.4s;
+}
+.modal-content-animout {
+  background-color: transparent;
+  animation-name: animateout;
+  animation-duration: 0.4s;
+}
+/* Animation should happen on open and close */
+@keyframes animatein {
+  from {top: -300px; opacity: 0}
+  to {top: 0; opacity: 1}
+}
+@keyframes animateout {
+  from {top: 0; opacity: 1}
+  to {top: -300px; opacity: 0}
+}
+
+.storage-name-label-modal {
+  margin: 10px 0 5px;
+}
+
+.export-import-storage-name.storage-button-restore {
+  margin-top: 0;
+  padding-top: 15px;
+}
+.export-import-storage-name>div.storage-button-restore {
+  margin: 0 auto;
+}
+
+.storage-buttons-modal .import-data-button {
+  height: 100%;
+  line-height: 1.6;
+  margin: 0 auto;
+  max-width: 120px;
+  padding: 15px 10px;
+}
+.storage-button-restore button {
+  max-width: 220px;
+  width: 100%;
+}
+/* Ref: warning; alert */
+.button-danger {
+  border: 1px dashed #ff0000aa; /* Ref: red */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 8px;
+}
+.button-danger button {
+  background-color: #ffdcdcdf;
+}
+.bold {
+  font-weight: bold;
+}
+button.restore-backup-button {
+  display: block;
+  text-align: center;
+}
+.storage-create-name-modal input {
+  padding: 5px;
+}
+.storage-create-name-modal button {
+  margin: 0 0 10px;
+  padding: 5px;
+  width: 100%;
+}
+.storage-create-name-modal.form-buttons {
+  flex-direction: column;
+}
+
+.storage-buttons-modal button {
+  font-size: 12px;
+  padding: 5px 10px;
+}
+.storage-buttons-modal button.storage-new-name-button {
+  /* Ref: :disabled */
+  cursor: pointer;
+  font-weight: bold;
+}
+.storage-buttons-modal button.storage-rename-button {
+  cursor: pointer;
+  width: 80%;
+}
+.storage-buttons-modal button.storage-rename-copy {
+  font-size: 18px;
+  padding: 0;
+  vertical-align: top;
+  width: 15%;
+}
+.storage-buttons-modal button:disabled {
+  background-color: rgba(239, 239, 239, 0.7);
+  color: #444444;
+  cursor: default;
+  font-weight: normal;
+}
+
+.tip small {
+  color: #b0e000dd;
+}

@@ -25,8 +25,11 @@ export default class AppConstants {
         </ul>`;
   static storageNameErrRestoreText = `There was an issue with this backup.
 Ensure the active storage is selected, and a backup exists.`;
+  static storageNameErrBackupText = `There is either no backup to restore, or it has not changed.`;
   static storageNameErrDelText = `Cannot delete the default or currently active storage names.`;
+  static storageNameErrRenameText = `Cannot rename the default or currently active storage names.`;
   static storageNameErrUseText = `Cannot load an already active storage name.`;
+  static storageNameCopyFlowNameText = `Copy the selected flow name into the input field.`;
 
   static defaultClumpValues = {
     id: -1,

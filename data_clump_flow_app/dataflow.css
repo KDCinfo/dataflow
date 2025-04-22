@@ -27,7 +27,7 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+button:hover:enabled {
   box-shadow: 0 0 7px #ccff00
 }
 
@@ -48,13 +48,15 @@ button:hover {
   opacity: 0.9;
 }
 
+.storage-buttons button {
+  font-size: 12px;
+  padding: 5px 10px;
+}
 .storage-buttons button:disabled {
   background-color: rgba(239, 239, 239, 0.7);
   color: #444444;
-}
-
-.storage-buttons button {
-  font-size: 12px;
+  cursor: default;
+  font-weight: normal;
 }
 
 h2 {
@@ -224,7 +226,7 @@ li ol>li:before {
 .column {
   display: flex;
   flex-direction: column;
-  margin-right: 20px;
+  /* margin-right: 20px; */
 }
 
 .clump-node {
@@ -634,37 +636,23 @@ li ol>li:before {
 
 .export-import-buttons {
   display: flex;
-  height: 60px; /* Adjust this value as needed */
   margin-bottom: 5px;
-  width: 80%;
   max-width: 250px;
+  width: 100%;
 }
 
 .export-import-buttons > div {
-  display: flex;
-  flex-direction: column;
+  gap: 10px;
   justify-content: space-between;
-  width: 50%; /* Half the width of the container */
 }
 
 .export-import-buttons button {
   border: 1px solid #777777;
   border-radius: 4px;
   white-space: nowrap;
+  max-width: 160px;
   width: 100%;
 }
-
-.export-import-buttons button.short {
-  height: calc(50% - 5px); /* Half height minus half of the gap */
-  font-size: 12px;
-  padding: 2px 15px;
-}
-
-#importDataButton {
-  width: 50%;
-  height: 100%;
-}
-
 
 /* Layout for Show IDs and Slider blocks */
 .settings-show-ids {
@@ -736,8 +724,11 @@ datalist {
   border-top: 1px solid #003300;
   display: flex;
   flex-direction: column;
-  margin-top: 15px;
-  padding-top: 10px;
+}
+
+.export-import-storage-main {
+  gap: 0px;
+  padding-bottom: 10px;
 }
 
 .export-import-storage-name label {
@@ -745,7 +736,6 @@ datalist {
   font-size: 14px;
   margin-right: 10px;
   text-align: right;
-  /* width: 125px; */
 }
 
 .export-import-storage-name select {
@@ -757,10 +747,6 @@ datalist {
 .export-import-storage-name select {
   min-width: 120px;
   max-width: 220px;
-}
-
-.storage-buttons button {
-  padding: 5px 10px;
 }
 
 .export-import-storage-name>div {
@@ -777,64 +763,49 @@ datalist {
 }
 .export-import-storage-name>div.storage-button-actions .storage-button-action {
   display: block;
+  margin-top: 10px;
   min-height: 42px;
+  padding: 8px 18px;
   text-align: center;
   width: 100%;
 }
 
-.export-import-storage-name>div.storage-button-restore {
-  margin: 0 auto;
+.storage-name-wrapper {
+  flex-direction: column;
 }
-
-button#restoreBackupButton {
-  display: block;
-  text-align: center;
+.storage-name-label {
+  margin: 0;
 }
-
-.storage-create-name input {
-  margin: 0 0 0 10px;
-  padding: 5px;
-}
-
-.storage-create-name button {
-  margin: 0 10px 0 0;
-  padding: 5px;
-}
-
 .storage-name-label-current {
+  border: 1px dotted #b0e000;
   color: #b0e000;
-  margin-left: 5px;
+  margin: 0px auto 10px;
+  overflow: hidden;
+  padding: 0 10px;
+  text-overflow: ellipsis;
+  width: 90%;
+}
+.app-modal-button-open-modal {
+  padding: 8px 10px;
+  margin: 0 auto;
+  white-space: normal;
 }
 
 /* Responsive layout: stack labels and inputs vertically */
 @media (max-width: 950px) {
   .export-import-buttons {
-    /* flex-direction: column; */
     gap: 5px;
   }
-
   .grid-repeat-html-span {
     display: block;
   }
-
   .export-import-storage-name {
     flex-direction: column;
     align-items: flex-start;
   }
-
-  .export-import-storage-name label {
-    text-align: left;
-    margin-right: 0;
-    margin-bottom: 5px;
-    padding-bottom: 5px;
-    width: auto;
-  }
-
-  .storage-buttons,
-  .storage-name-wrapper {
+  .storage-buttons {
     flex-direction: column;
   }
-
   .export-import-storage-name>div.storage-button-actions {
     flex-direction: column-reverse;
     margin-top: 0;
@@ -842,14 +813,6 @@ button#restoreBackupButton {
   }
   .export-import-storage-name>div.storage-button-actions .storage-button-action {
     min-height: auto;
-  }
-
-  .export-import-storage-name>div> :nth-child(1),
-  .export-import-storage-name>div> :nth-child(2) {
-    align-items: center;
-    display: flex;
-    margin: 0 auto;
-    width: 90%;
   }
 }
 

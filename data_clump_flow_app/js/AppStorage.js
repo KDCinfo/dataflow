@@ -94,6 +94,28 @@ export default class AppStorage {
     return localStorage.getItem(key);
   }
 
+  // Example usage:
+  // AppStorage.renameLocalStorageKey('oldKeyName', 'newKeyName');
+  static renameLocalStorageKey(oldKey, newKey) {
+    if (oldKey === newKey) {
+      return; // No need to rename if keys are the same
+    }
+
+    this._storeData(oldKey, newKey);
+
+    // Also rename '_backup' key (if it exists).
+    const backupKeyOld = `${oldKey}_backup`;
+    const backupKeyNew = `${newKey}_backup`;
+    AppStorage._storeData(backupKeyOld, backupKeyNew);
+  }
+
+  static _storeData(oldKeyName, newKeyName) {
+    const data = localStorage.getItem(oldKeyName);
+    if (data !== null) {
+      localStorage.setItem(newKeyName, data);
+      localStorage.removeItem(oldKeyName);
+    }
+  }
 
   static getJsonSettingsFromStorageOrDefaults() {
     const dataFromStorage = AppStorage.appStorageGetItem(AppConstants.localStorageSettingsKey);

@@ -236,25 +236,30 @@ Part 3
 
 -----
 
-## @TODO:
+## Feature Thoughts
 
-- Moderate changes:
-  - Add color picker for cells
-  - Add a queue for expanded clumps that can be reapplied after repainting the matrix (so cells can stay open after adding or updating).
-  - Allow storage names to be descriptive; use a 'join table' to track descriptive names with the actual storage key names.
-  - Swap IDs for `data-` attributes
-    - Leave IDs for labels
-    - Add all `data-` selectors to config file
-    - Swap out all query selectors for `data-` attribute selectors
-    - Question: Is it worth the change?
-  - ~~Add pop-up link for empty page message (so it is available after data is added).~~
-    ^ No idea what this meant | 2025-03-23
-- Potentially big changes:
-  - Add ability to move cells, perhaps make it a drag-and-drop feature.
-- Bug: Sometimes 'Import Data' will fail silently*.
-  - *An error is shown in the dev tools console.
-  - Workaround: Try it again. Subequent attempts usually work.
-  - Unsure if this still exists after refactor to classes.
+@4/22/2025 1:06:44 AM
+@4/22/2025 1:10:48 AM
+- Skeleton: Dataflow
+
+I'm contemplating whether to take a day or two and build out the 'flow naming'
+	controller that will handle creating normalized localStorage keys, which are
+	restricted to either snake_case or camelCase, while allowing for custom flow
+	names. A downside is you can't go straight to the Application tab and find
+	your flow because you would have to check a table in the controller (which
+	would be stored in its own localStorage slot). Granted that table is easily
+	accessed, but it is still an additional step away from knowing which localStorage you're looking for.
+The two cons of allowing for random key names is 1) the character casing restriction on the user,
+	and 2) the domain's localStorage listing can get pretty messy.
+One halfway solution is to prefix all flow name keys with "df_". But again, is that
+	even worth the time for all the ways I have in mind for implementing just a prefix?
+I think just being able to rename the storage keys is enough for now, for as the list
+	grows, a user can formulate their own naming convention (albeit still restricted to
+	those two cases) and rename existing flow names to their heart's content (providing
+	there's no drawback to repeatedly creating and deleting storage slots, being that's
+	the only way to rename a localStorage key).
+
+-----
 
 ## @TODONE:
 
@@ -303,6 +308,12 @@ Part 3
   - Any open Data Clump Flow apps in other open tabs can't change the currently active storage.
 - Added cross-tab add/edit/delete protection when an active storage is deleted in another open tab.
 
+## ### ### ### ##
+##
+## Version: 2.0.0
+##
+## ### ### ### ##
+
 > 2025-03
 
 - Added ability to delete any non-left-linked cells.
@@ -343,5 +354,65 @@ Part 3
 - UI: Limit width on select dropdowns.
 - New: Tapping an open cell who's clump is not on top, will surface it. Only clumps on top will be closed. Before it would close the clump under the stack, so you couldn't see it being closed.
 - Also renamed some vars for clarity, and scoped everything inside the 'toggleCell' function.
+
+## ### ### ### ##
+##
+## Version: 2.1.0
+##
+## ### ### ### ##
+
+> 2025-04-17--22
+
+- Added a modal for a new 'Project Flow Manager' panel.
+  - It will allow for more flexible naming, renaming, grouping, and other project-type features.
+  - Project Flow Manager modal status:
+    - Fixed styling
+      - Adapted z-index with 'clipboard' icon.
+    - Adapted 'ESC' key functionality with modal.
+- Added ability to rename flow names.
+- Flow names are now sorted in ascending order.
+  - Test data before sort
+    ```
+    {"gridRepeatRangeValue":"2","storageNames":["default","test11Flow","test_22a","check2","c2","dataflow_flow","bbb2","dataflow_flow_with_a_very_long_name","dataflow_flow_with_an_even_longer_very_very_long_name_xyz","aaa"],"storageIndex":2,"showIds":false}
+    ```
+
+## @BUGS:
+
+### Cannot Recreate
+
+- [ ] Bug | View a clump -> Add a 'New Flow' | The open clump closes, but the space remains
+- [ ] Bug | Sometimes 'Import Data' will fail silently*.
+  - *An error is shown in the dev tools console.
+  - Workaround: Try it again. Subequent attempts usually work.
+  - Unsure if this still exists after refactor to classes.
+
+## @TODO:
+
+### Light/moderate changes:
+
+- [ ] Flows: Delete -> Show preview of first clump
+- [ ] Flows: Add a URL query param to open a specific data flow // ?flow=docker_flows
+  - [ ] That would allow for a "share" link
+- [ ] Collapsible side menu
+- [ ] Add color picker for cells
+- [ ] Add a queue for expanded clumps that can be reapplied after repainting the matrix (so cells can stay open after adding or updating).
+- [ ] Add a link to pop up the empty page message for pages with data.
+- [ ] Swap IDs for `data-` attributes
+  - Leave IDs for labels
+  - Add all `data-` selectors to config file
+  - Swap out all query selectors for `data-` attribute selectors
+  - Question: Is it worth the change? What are the pros of `data-` attributes again?
+
+### Potentially slightly bigger changes:
+
+- [ ] Add grouping for project-level flows.
+- [ ] Add a 'Flow Naming' controller: custom flow names + consistent localStorage keys (e.g. 'df_1', 'df_2', 'df_3').
+  - [ ] Allow storage names to be descriptive; use a 'join table' to track descriptive names with the actual storage key names.
+    - All names **in storage** should be preceded with: df_ or data_ | df_docker_flows
+  - [ ] Add a property to 'AppSettingInfo' for a 'custom name' Map (a 2-column lookup table) that ties
+        a custom name to a specific localStorage name (which this app restricts to either snake_case or camelCase).
+  - [ ] Allow for the renaming of both custom names and localStorage names. Having a custom key name should not break the controller (e.g. grandfathered flow names).
+- [ ] Implement: Drag-n-drop
+
 
 _
