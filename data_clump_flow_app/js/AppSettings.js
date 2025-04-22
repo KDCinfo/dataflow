@@ -260,7 +260,9 @@ P.S. This dialog will not show again.`;
     // id="restoreBackupButton"
     this.uiElements.restoreBackupButton.addEventListener('click', this.restoreSelectedStorage.bind(this));
     // id="newStorageNameButton"
-    this.uiElements.newStorageNameButton.addEventListener('click', this.createNewStorage.bind(this));
+    this.uiElements.newStorageNameButton.addEventListener('click', () => {
+      this.createNewStorage();
+    });
     // id="newStorageRenameButton"
     this.uiElements.newStorageRenameButton.addEventListener('click', this.renameStorage.bind(this));
     // id="newStorageRenameCopy"
