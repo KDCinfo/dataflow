@@ -864,6 +864,19 @@ P.S. This dialog will not show again.`;
     return this.appSettingsInfo.storageNames.map(name => name.toLowerCase()).includes(keyName.toLowerCase());
   }
 
+  // Sort the storage names alphabetically and return.
+  // We'll sort by 'localeCompare', but keep 'default' at index 0.
+  sortStorageNames() {
+    const sortedNames = this.appSettingsInfo.storageNames.toSorted((a, b) => a.localeCompare(b));
+    const defaultIndex = sortedNames.indexOf(AppConstants.defaultStorageName);
+    if (defaultIndex > 0) {
+      // Remove 'default' from the list and add it to the top.
+      sortedNames.splice(defaultIndex, 1);
+      sortedNames.unshift(AppConstants.defaultStorageName);
+    }
+    return sortedNames;
+  }
+
   hideStorageError() {
     if (this.uiElements.storageNamingError.classList.contains('error-visible')) {
       this.classListChain(this.uiElements.storageNamingError)
@@ -886,6 +899,13 @@ P.S. This dialog will not show again.`;
   }
 
   storeSettings(updateDataManager = true) {
+    // Sort storageNames prior to storage.
+    const oldSelectedFlowName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
+    const sortedStorageNames = this.sortStorageNames();
+    this.appSettingsInfo.storageNames = sortedStorageNames;
+    const newIndex = sortedStorageNames.indexOf(oldSelectedFlowName);
+    this.appSettingsInfo.storageIndex = newIndex === -1 ? 0 : newIndex;
+
     // The 'dataManager' is not yet initialized when this method is called from the constructor.
     if (updateDataManager) {
       this.dataManager.updateAppSettingsInfo(this.appSettingsInfo);
@@ -901,28 +921,6 @@ P.S. This dialog will not show again.`;
   //
   // @TODO: Extract these to a 'UIInterface' class for the storage settings.
   //
-
-  // Enable 'New Storage' button text if 'newStorageNameInput' value is valid.
-  checkNewStorageButton() {
-    const newStorageNameValue = this.uiElements.newStorageNameInput.value.trim();
-    const isInList = this.checkIfStorageNameExists(newStorageNameValue);
-    const isValid = !isInList && this.isValidKeyName(newStorageNameValue);
-
-    if (newStorageNameValue === '') {
-      this.uiElements.newStorageNameButton.setAttribute('disabled', true);
-      this.uiElements.newStorageNameButton.setAttribute('title', AppConstants.storageNameErrTextNameEmpty);
-    } else if (!isValid) {
-      this.uiElements.newStorageNameButton.setAttribute('disabled', true);
-      this.uiElements.newStorageNameButton.setAttribute('title', AppConstants.storageNameErrTextInvalid);
-    } else {
-      this.uiElements.newStorageNameButton.removeAttribute('disabled');
-      this.uiElements.newStorageNameButton.removeAttribute('title');
-    }
-
-    if (isValid) {
-      this.hideStorageError();
-    }
-  }
 
   // - If the selected storage name is:
   // - 'default':
@@ -945,6 +943,7 @@ P.S. This dialog will not show again.`;
     const strippedErrText = AppConstants.storageNameErrTextInvalid.replace(/<[^>]*>/g, '');
 
     // Button: Create ['New Flow'] | Modal
+    // Enable 'New Storage' button text if 'newStorageNameInput' value is valid.
     if (newStorageNameValue === '') {
       // 'isValid' also checks for an empty value, so this check needs
       // to come first so we can provide a more specific error message.
