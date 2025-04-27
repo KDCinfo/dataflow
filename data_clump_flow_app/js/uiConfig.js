@@ -31,6 +31,7 @@ export const uiConfig = {
     exportDataButton: '#exportDataButton',
     exportAllDataButton: '#exportAllDataButton',
     importDataButton: '#importDataButton',
+    importBulkButton: '#importBulkButton',
     storageNameTag: '#storageNameTag',
     storageNameLabelCurrent: '#storageNameLabelCurrent',
     newStorageNameInput: '#newStorageNameInput',
