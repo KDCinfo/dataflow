@@ -87,8 +87,10 @@ export default class AppSettings {
 
     // Uncomment the trigger below when debugging the Flow Manager modal.
     // this.triggerAppModalBtnClick();
+
     // Show the welcome alert only once.
-    this.showOneTimeAlert();
+    // Removing this popup: If anyone is using the tool they will have seen this by now.
+    // this.showOneTimeAlert();
   }
 
   // Future function to trigger appModalBtn click.

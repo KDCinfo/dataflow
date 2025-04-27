@@ -387,6 +387,15 @@ I think just being able to rename the storage keys is enough for now, for as the
     {"gridRepeatRangeValue":"2","storageNames":["default","test11Flow","test_22a","check2","c2","dataflow_flow","bbb2","dataflow_flow_with_a_very_long_name","dataflow_flow_with_an_even_longer_very_very_long_name_xyz","aaa"],"storageIndex":2,"showIds":false}
     ```
 
+## ### ### ### ##
+##
+## Version: 2.1.1
+##
+## ### ### ### ##
+
+- [X] Removed one-time alert message suggesting to export all your storage.
+  - If anyone is actually using this tool they will have seen this by now.
+
 ## @BUGS:
 
 ### Cannot Recreate
