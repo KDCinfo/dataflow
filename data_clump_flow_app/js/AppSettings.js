@@ -1053,15 +1053,17 @@ P.S. This dialog will not show again.`;
     const selectedStorageNameSrcBackup = `${selectedStorageNameSrc}_backup`;
     const currentList = this.dataManager.parseClumpExportListFromStorage(selectedStorageNameSrc);
     const backupData = this.dataManager.parseClumpListFromStorage(selectedStorageNameSrcBackup);
-    const listMatch = currentList.length === backupData.length &&
+    const listsMatch = currentList.length === backupData.length &&
         currentList.every((clump, index) => ClumpInfo.isEqual(clump, backupData[index]));
 
-    if (backupData.length === 0 || listMatch) {
-      this.uiElements.restoreBackupButton.setAttribute('disabled', true);
-      this.uiElements.restoreBackupButton.setAttribute('title', AppConstants.storageNameErrBackupText);
-    } else {
+    // if (backupData.length === 0 || listMatch) {
+    // Only enable restore backup button if a backup exists and the selected list is active.
+    if (isActiveSrc && backupData.length > 0 && !listsMatch) {
       this.uiElements.restoreBackupButton.removeAttribute('disabled');
       this.uiElements.restoreBackupButton.removeAttribute('title');
+    } else {
+      this.uiElements.restoreBackupButton.setAttribute('disabled', true);
+      this.uiElements.restoreBackupButton.setAttribute('title', AppConstants.storageNameErrBackupText);
     }
 
     if (isValid && !isInList) {
