@@ -102,6 +102,8 @@
 .storage-name-wrapper-modal-list {
   align-items: start;
   margin-bottom: 15px;
+  min-width: 200px;
+  padding: 5px;
 }
 .storage-name-select-modal {
   width: 100%;
