@@ -89,6 +89,7 @@ export default class AppSettings {
     this.showOneTimeAlert();
   }
 
+  // [Tested]
   showOneTimeAlert() {
     const alertText = `Welcome to the Data Clump Flow App!\n
     NOTE: Important Update for 2025\n
@@ -117,6 +118,7 @@ P.S. This dialog will not show again.`;
     }
   }
 
+  // [Tested]
   resolveSelectors(selectors) {
     const resolved = {};
     const uiConfigKeys = Object.keys(selectors);
@@ -131,11 +133,13 @@ P.S. This dialog will not show again.`;
   }
 
   // Adding the '.popped' class to 'clump-form-form' will pop out the form.
+  // [Tested]
   toggleClumpFormPopUp() {
     this.uiElements.clumpFormId.classList.toggle('popped');
     this.uiElements.clumpNameInput.focus();
   }
 
+  // [Tested]
   removePopUp() {
     this.uiElements.clumpFormId.classList.remove('popped');
     this.uiElements.clumpNameInput.focus();
@@ -352,6 +356,7 @@ P.S. This dialog will not show again.`;
     });
   }
 
+  // [Tested]
   addTextToCrossTabWarning(
     allowDismiss,
     messageToDisplayOnOtherTabs
@@ -370,6 +375,7 @@ P.S. This dialog will not show again.`;
     }
   }
 
+  // [Tested: No]
   dismissWarningMessage() {
     this.uiElements.crossTabWarning.classList.add('hidden');
   }
@@ -377,6 +383,7 @@ P.S. This dialog will not show again.`;
   // Check if 'AppSettingsInfo.storageIndex' reflects the same name as the currently active
   // storage name. If not, return. We DO NOT want to update a storage that doesn't exist, else
   // it will overwrite all the data in the next storage in the list and replace it with this data.
+  // [Tested: No]
   checkIfStorageNameStillExists() {
     const currentStorageName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex].toLowerCase();
     const storageNameLabelTrimmed = this.uiElements.storageNameLabelCurrent.textContent.trim().toLowerCase();
@@ -387,6 +394,7 @@ P.S. This dialog will not show again.`;
     return true;
   }
 
+  // [Tested: No]
   handleFormSubmit(event) {
     // clumpFormId.onsubmit = (event) => {
     event.preventDefault();
@@ -520,7 +528,8 @@ P.S. This dialog will not show again.`;
    * @param {Object} clumpToInsert - The clump data; either new or after edits (with updated link fields).
    * @param {Object} originalClump - The original clump data (before edits).
    * @returns {Array} - A new clump list with clumps repositioned as needed.
-   */
+  */
+  // [Tested: No]
   handleClumpMovement(clumpList, clumpToInsert, originalClump) {
     const insertionClumpId = clumpToInsert.id;
     const newAbove = clumpToInsert.linkedToAbove;
@@ -668,17 +677,20 @@ P.S. This dialog will not show again.`;
     return clumpList;
   }
 
+  // [Tested: No]
   get getByLinkNotColumn() {
     const newLinkToIdFromUI = parseInt(this.uiElements.linkToId.value, 10) || -1;
     // const getByLinkNotColumn = !isNaN(newLinkToIdFromUI) && newLinkToIdFromUI > 0;
     return !isNaN(newLinkToIdFromUI) && newLinkToIdFromUI > 0;
   }
 
+  // [Tested: No]
   get isLinkToLeftSelected() {
     // const isLinkedLeft = getByLinkNotColumn && this.uiElements.linkedToLeft.checked;
     return this.getByLinkNotColumn && this.uiElements.linkedToLeft.checked;
   }
 
+  // [Tested: No]
   getLinkInfo(columnRawValue) {
     const returnObject = {
       isLinkedLeft: false,
@@ -726,18 +738,21 @@ P.S. This dialog will not show again.`;
     return returnObject;
   }
 
+  // [Tested: No]
   enableDisableLinkToFields(onOrOff) {
     this.uiElements.linkToId.disabled = onOrOff;
     this.uiElements.linkedToLeft.disabled = onOrOff;
     this.uiElements.linkedToAbove.disabled = onOrOff;
   }
 
+  // [Tested: No]
   enableDisableColumnSelect() {
     this.uiElements.columnSelect.disabled =
         this.uiElements.linkToId.value !== '' ||
         this.dataManager.getData('editingIndex') === 0;
   }
 
+  // [Tested: No]
   resetFormFields() {
     // This will reset the form fields, regardless of any nesting.
     // clumpFormId.reset();
@@ -759,6 +774,7 @@ P.S. This dialog will not show again.`;
 
   // When canceling an edit, reset the 'editingIndex' to null, and remove the
   // last 'Link to Clump' dropdown option if it is the same as the original 'linkedClumpID'.
+  // [Tested: No]
   handleFormReset(event) {
     event?.preventDefault();
 
@@ -779,6 +795,7 @@ P.S. This dialog will not show again.`;
     this.clearSelectedClumpNode();
   }
 
+  // [Tested: No]
   handleExportAllData() {
     console.log('[AppSettings] handleExportAllData');
 
@@ -790,11 +807,13 @@ P.S. This dialog will not show again.`;
     });
   }
 
+  // [Tested: No]
   handleExportData() {
     const currentStorageLabelName = this.uiElements.storageNameLabelCurrent.textContent.trim();
     this.exportStorageName(currentStorageLabelName);
   }
 
+  // [Tested: No]
   exportStorageName(currentStorageLabelName, storedData) {
     const exportName = currentStorageLabelName === AppConstants.defaultStorageName
       ? AppConstants.defaultExportStorageName
@@ -808,6 +827,7 @@ P.S. This dialog will not show again.`;
     });
   }
 
+  // [Tested: No]
   async handleImportData() {
     const importedDataArray = await FileHandler.handleImportData();
 
@@ -843,6 +863,7 @@ P.S. This dialog will not show again.`;
 
   // Regular expression (regex) to validate storage names.
   // Also checks if the name is already in the list.
+  // [Tested: No]
   isValidKeyName(keyName) {
     // Validate the new storage name, and check new name isn't already in the list.
     if (keyName === '') {
@@ -858,6 +879,7 @@ P.S. This dialog will not show again.`;
     return this.dataManager.getData('storageNameErrorText') === '';
   }
 
+  // [Tested: No]
   checkIfStorageNameExists(keyName) {
     // return storageNames.includes(keyName);
     // 'includes' is case-sensitive, so we need to lowercase all the names.
@@ -866,6 +888,7 @@ P.S. This dialog will not show again.`;
 
   // Sort the storage names alphabetically and return.
   // We'll sort by 'localeCompare', but keep 'default' at index 0.
+  // [Tested: No]
   sortStorageNames() {
     const sortedNames = this.appSettingsInfo.storageNames.toSorted((a, b) => a.localeCompare(b));
     const defaultIndex = sortedNames.indexOf(AppConstants.defaultStorageName);
@@ -877,6 +900,7 @@ P.S. This dialog will not show again.`;
     return sortedNames;
   }
 
+  // [Tested: No]
   hideStorageError() {
     if (this.uiElements.storageNamingError.classList.contains('error-visible')) {
       this.classListChain(this.uiElements.storageNamingError)
@@ -889,6 +913,7 @@ P.S. This dialog will not show again.`;
   }
 
   // Many thanks to: https://stackoverflow.com/a/29143197/638153 | user663031
+  // [Tested: No]
   classListChain(htmlElement) {
     var elementClassList = htmlElement.classList;
     return {
@@ -898,6 +923,7 @@ P.S. This dialog will not show again.`;
     };
   }
 
+  // [Tested: No]
   storeSettings(updateDataManager = true) {
     // Sort storageNames prior to storage.
     const oldSelectedFlowName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
@@ -927,6 +953,7 @@ P.S. This dialog will not show again.`;
   //   - Disable 'Delete Selected'.
   // - the currently active storage name:
   //   - Disable both buttons.
+  // [Tested: No]
   toggleStorageButtons(
     selectToCheck = this.uiElements.storageNameTag
   ) {
@@ -1035,6 +1062,7 @@ P.S. This dialog will not show again.`;
   // @TODO: Extract these to a 'UIInterface' class for the grid repeat setting.
   //
 
+  // [Tested: No]
   convertGridRepeatSettingValueToCellWidth(curGridRepeat = this.appSettingsInfo.gridRepeatRangeValue) {
     AppConfig.debugConsoleLogs && console.log('curGridRepeat:', curGridRepeat);
 
@@ -1048,6 +1076,7 @@ P.S. This dialog will not show again.`;
     return curGridRepeatRangeValue;
   }
 
+  // [Tested: No]
   toggleShowIds(event) {
     AppConfig.debugConsoleLogs && console.log('Checkbox is checked:', event.target.checked);
     this.appSettingsInfo.showIds = event.target.checked;
@@ -1058,6 +1087,7 @@ P.S. This dialog will not show again.`;
   // HTML Slider with options that will update the grid repeat:
   // > ['auto', '1fr', '150px', '200px', '250px', '300px']
   //
+  // [Tested: No]
   updateGridRepeat(event) {
     const newGridRepeat = event.target.value;
     const cellWidth = this.convertGridRepeatSettingValueToCellWidth(newGridRepeat);
@@ -1078,6 +1108,7 @@ P.S. This dialog will not show again.`;
   // @TODO: Extract these to a 'UIInterface' class for the data output.
   //
 
+  // [Tested: No]
   updateDataInHtml() {
     // Last added Clump ID.
     this.uiElements.lastAddedClumpIdTag.textContent = this.dataManager.getData('lastAddedClumpId').toString();
@@ -1099,6 +1130,7 @@ P.S. This dialog will not show again.`;
   // @TODO: Extract these to a 'UIInterface' class for dropdowns.
   //
 
+  // [Tested: No]
   updateLinkToDropdownOptions() {
     this.uiElements.linkToId.innerHTML = '<option value="">None</option>';
 
@@ -1160,6 +1192,7 @@ P.S. This dialog will not show again.`;
     // this.uiElements.linkToId.disabled = this.dataManager.getData('editingIndex') !== null;
   }
 
+  // [Tested: No]
   updateColumnSelectDropdownOptions() {
     const isEdit = this.dataManager.getData('editingIndex') !== null;
     const editId = isEdit ? this.dataManager.getData('clumpList')[this.dataManager.getData('editingIndex')].id : -1;
@@ -1192,6 +1225,7 @@ P.S. This dialog will not show again.`;
     // this.uiElements.columnSelect.disabled = this.dataManager.getData('editingIndex') !== null;
   }
 
+  // [Tested: No]
   updateStorageNameDropdownOptions() {
     this.uiElements.storageNameTag.innerHTML = '';
     this.uiElements.storageNameTagModal.innerHTML = '';
@@ -1219,6 +1253,7 @@ P.S. This dialog will not show again.`;
   // @TODO: Extract these to an 'AppForm' class.
   //
 
+  // [Tested: No]
   loadForEdit(index, event) {
     event.stopPropagation();
 
@@ -1263,11 +1298,13 @@ P.S. This dialog will not show again.`;
   }
 
   // Clear the 'clump-node-selected' class from all clump nodes.
+  // [Tested: No]
   clearSelectedClumpNode() {
     const clumpNodes = document.querySelectorAll('.clump-node');
     clumpNodes.forEach(node => node.classList.remove('clump-node-selected'));
   }
 
+  // [Tested: No]
   selectClumpNode(eventTarget) {
     this.clearSelectedClumpNode();
     // Add class to selected clump node.
@@ -1278,6 +1315,7 @@ P.S. This dialog will not show again.`;
   //   what happens when you delete a clump that has a clump linked to it from its right?
   // And the shifting involved for cells below, left and right, will require some complexity.
   // For now, we'll just provide the ability to remove the last clump added (an undo).
+  // [Tested: No]
   deleteLastClump(event, clumpId) {
     event.stopPropagation();
 
@@ -1367,6 +1405,7 @@ P.S. This dialog will not show again.`;
     }
   }
 
+  // [Tested: No]
   showStorageError(errText) {
     if (
       this.uiElements.storageNamingError.classList.contains('hidden') ||
@@ -1381,6 +1420,7 @@ P.S. This dialog will not show again.`;
   }
 
   // const newStorageNameInput = document.getElementById("newStorageNameInput");
+  // [Tested: No]
   createNewStorage(isRename = false) {
     // Temporarily disable the new storage button to prevent double-clicks.
     this.uiElements.newStorageNameButton.disabled = true;
@@ -1433,11 +1473,13 @@ P.S. This dialog will not show again.`;
     }
   }
 
+  // [Tested: No]
   renameStorage() {
     this.createNewStorage(true);
   }
 
   // Copy the selected flow name into the input field.
+  // [Tested: No]
   copyStorageName() {
     AppConfig.debugConsoleLogs &&
       console.log('Copy selected storage name:', this.uiElements.storageNameTag.value);
@@ -1454,6 +1496,7 @@ P.S. This dialog will not show again.`;
     this.toggleStorageButtons(this.uiElements.storageNameTagModal);
   }
 
+  // [Tested: No]
   deleteSelectedStorage() {
     AppConfig.debugConsoleLogs &&
       console.log('Delete selected storage:', this.uiElements.storageNameTagModal.value);
@@ -1503,6 +1546,7 @@ P.S. This dialog will not show again.`;
   }
 
   // const storageName = document.getElementById("storageName");
+  // [Tested: No]
   useSelectedStorage() {
     AppConfig.debugConsoleLogs &&
       console.log('Use selected storage:', this.uiElements.storageNameTag.value);
@@ -1545,6 +1589,7 @@ P.S. This dialog will not show again.`;
   }
 
   // Button: id="restoreBackupButton"
+  // [Tested: No]
   restoreSelectedStorage() {
     const selectedStorageIndex = parseInt(this.uiElements.storageNameTagModal.value, 10);
 
@@ -1603,6 +1648,7 @@ P.S. This dialog will not show again.`;
     }
   }
 
+  // [Tested: No]
   togglePanel(event) {
     event.stopPropagation();
 
@@ -1630,6 +1676,7 @@ P.S. This dialog will not show again.`;
       : '▼';
   }
 
+  // [Tested: No]
   renderMatrix() {
     // Set CSS property dynamically to control number of columns.
     const columnCount = this.dataManager.getColumnCount();

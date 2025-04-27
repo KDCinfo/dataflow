@@ -4,6 +4,10 @@
 
 > [Automa Home](https://automa.site)
 
+Testing is done via the 'Automa' Chrome plugin (MV3-compatible).
+
+- When opening the plugin's full panel you can import the attached test scripts.
+
 ### Automa Workflow Files:
 
 The following will simply add 4 cells into Column 1.

@@ -126,6 +126,8 @@ Claude and I went back and forth through six draft variations. I finally gave up
 4. When switching storage, update 'sessionStorage' and 'localStorage'.
 5. When creating or deleting storage, update 'sessionStorage' and 'localStorage' and notify other tabs to refresh.
 
+## Testing
+
 ### Testing: The Active Index Doesn't Change on Reload
 
 Part 1
@@ -210,7 +212,7 @@ Part 3
 
 -----
 
-## Testing | Jest
+### Testing | Jest
 
 @3/30/2025 11:22:31 PM
 - Skeleton: Dataflow
@@ -232,7 +234,16 @@ Part 3
 				> pnpm add -D @babel/core babel-jest @babel/preset-env
 				> pnpm install --save-dev jest-environment-jsdom
 
-        > pnpm run test
+#### TL;DR
+
+From `/dataflow`:
+
+> cd data_clump_flow_app
+> pnpm run test
+
+### Testing | Automa
+
+> See: ../data_clump_flow_app_src/automa/README.md
 
 -----
 

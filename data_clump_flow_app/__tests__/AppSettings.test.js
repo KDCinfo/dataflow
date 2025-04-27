@@ -47,8 +47,34 @@ describe('AppSettings', () => {
     document.addEventListener('DOMContentLoaded', function () {
       const resolved = appSettings.uiElements;
       expect(resolved.clumpFormId).toBeTruthy();
+      expect(resolved.popItIcon).toBeTruthy();
       expect(resolved.clumpNameInput).toBeTruthy();
       expect(resolved.clumpCodeInput).toBeTruthy();
+      expect(resolved.columnSelect).toBeTruthy();
+      expect(resolved.linkToId).toBeTruthy();
+      expect(resolved.linkedToLeft).toBeTruthy();
+      expect(resolved.linkedToAbove).toBeTruthy();
+      expect(resolved.clumpFormButtonSubmit).toBeTruthy();
+      expect(resolved.clumpFormButtonReset).toBeTruthy();
+      expect(resolved.settingsPanelToggle).toBeTruthy();
+      expect(resolved.showIdsCheckbox).toBeTruthy();
+      expect(resolved.gridRepeatHtmlSpan).toBeTruthy();
+      expect(resolved.gridRepeatRangeInput).toBeTruthy();
+      expect(resolved.gridRepeatSliderMarkers).toBeTruthy();
+      expect(resolved.exportPanelToggle).toBeTruthy();
+      expect(resolved.storageNameLabelCurrent).toBeTruthy();
+      expect(resolved.storageNameTag).toBeTruthy();
+      expect(resolved.storageButtonUse).toBeTruthy();
+      expect(resolved.exportDataButton).toBeTruthy();
+      expect(resolved.exportAllDataButton).toBeTruthy();
+      expect(resolved.appModalBtn).toBeTruthy();
+      expect(resolved.lastAddedClumpIdTag).toBeTruthy();
+      expect(resolved.lastAddedColTag).toBeTruthy();
+      expect(resolved.editingIndexTag).toBeTruthy();
+      expect(resolved.editingIdTag).toBeTruthy();
+      expect(resolved.outputContainer).toBeTruthy();
+      expect(resolved.clumpContainer).toBeTruthy();
+      expect(resolved.crossTabWarning).toBeTruthy();
     });
   });
 
@@ -93,4 +119,105 @@ describe('AppSettings', () => {
       expect(alertSpy).not.toHaveBeenCalled();
     });
   });
+
+  test('addTextToCrossTabWarning allows dismiss when allowDismiss is true', () => {
+    document.addEventListener('DOMContentLoaded', function () {
+      const warningElement = appSettings.uiElements.crossTabWarning;
+      const message = 'Warning: Action needed on other tabs!';
+
+      // Spy on dismissWarningMessage
+      const dismissSpy = jest.spyOn(appSettings, 'dismissWarningMessage').mockImplementation(() => {
+        warningElement.classList.add('hidden');
+      });
+
+      // Ensure the warning element initially has the "hidden" class.
+      warningElement.classList.add('hidden');
+
+      appSettings.addTextToCrossTabWarning(true, message);
+
+      // Check that "hidden" class was removed.
+      expect(warningElement.classList.contains('hidden')).toBe(false);
+      // Check that the innerHTML is set.
+      expect(warningElement.innerHTML).toBe(message);
+      // Check that style cursor is set to 'pointer'.
+      expect(warningElement.style.cursor).toBe('pointer');
+      // Check that onclick is set.
+      expect(typeof warningElement.onclick).toBe('function');
+
+      // Simulate a click event.
+      const fakeEvent = { preventDefault: jest.fn() };
+      warningElement.onclick(fakeEvent);
+      expect(fakeEvent.preventDefault).toHaveBeenCalled();
+      expect(dismissSpy).toHaveBeenCalled();
+    });
+  });
+
+  test('addTextToCrossTabWarning does not allow dismiss when allowDismiss is false', () => {
+    document.addEventListener('DOMContentLoaded', function () {
+      const warningElement = appSettings.uiElements.crossTabWarning;
+      const message = 'Warning: Do not dismiss this message automatically!';
+
+      // Ensure the warning element initially has the "hidden" class.
+      warningElement.classList.add('hidden');
+
+      appSettings.addTextToCrossTabWarning(false, message);
+
+      // Check that "hidden" class was removed.
+      expect(warningElement.classList.contains('hidden')).toBe(false);
+      // Check that the innerHTML is updated.
+      expect(warningElement.innerHTML).toBe(message);
+      // Check that style cursor is set to 'default'.
+      expect(warningElement.style.cursor).toBe('default');
+      // Check that onclick is null.
+      expect(warningElement.onclick).toBeNull();
+    });
+  });
+
+  // [Tested] | showOneTimeAlert() {
+  // [Tested] | resolveSelectors(selectors) {
+  // [Tested] | toggleClumpFormPopUp() {
+  // [Tested] | removePopUp() {
+  // [Tested] | addTextToCrossTabWarning(
+  // [Tested: No] | dismissWarningMessage() {
+  // [Tested: No] | checkIfStorageNameStillExists() {
+  // [Tested: No] | handleFormSubmit(event) {
+  // [Tested: No] | handleClumpMovement(clumpList, clumpToInsert, originalClump) {
+  // [Tested: No] | get getByLinkNotColumn() {
+  // [Tested: No] | get isLinkToLeftSelected() {
+  // [Tested: No] | getLinkInfo(columnRawValue) {
+  // [Tested: No] | enableDisableLinkToFields(onOrOff) {
+  // [Tested: No] | enableDisableColumnSelect() {
+  // [Tested: No] | resetFormFields() {
+  // [Tested: No] | handleFormReset(event) {
+  // [Tested: No] | handleExportAllData() {
+  // [Tested: No] | handleExportData() {
+  // [Tested: No] | exportStorageName(currentStorageLabelName, storedData) {
+  // [Tested: No] | async handleImportData() {
+  // [Tested: No] | isValidKeyName(keyName) {
+  // [Tested: No] | checkIfStorageNameExists(keyName) {
+  // [Tested: No] | sortStorageNames() {
+  // [Tested: No] | hideStorageError() {
+  // [Tested: No] | classListChain(htmlElement) {
+  // [Tested: No] | storeSettings(updateDataManager = true) {
+  // [Tested: No] | toggleStorageButtons(
+  // [Tested: No] | convertGridRepeatSettingValueToCellWidth(curGridRepeat = this.appSettingsInfo.gridRepeatRangeValue) {
+  // [Tested: No] | toggleShowIds(event) {
+  // [Tested: No] | updateGridRepeat(event) {
+  // [Tested: No] | updateDataInHtml() {
+  // [Tested: No] | updateLinkToDropdownOptions() {
+  // [Tested: No] | updateColumnSelectDropdownOptions() {
+  // [Tested: No] | updateStorageNameDropdownOptions() {
+  // [Tested: No] | loadForEdit(index, event) {
+  // [Tested: No] | clearSelectedClumpNode() {
+  // [Tested: No] | selectClumpNode(eventTarget) {
+  // [Tested: No] | deleteLastClump(event, clumpId) {
+  // [Tested: No] | showStorageError(errText) {
+  // [Tested: No] | createNewStorage(isRename = false) {
+  // [Tested: No] | renameStorage() {
+  // [Tested: No] | copyStorageName() {
+  // [Tested: No] | deleteSelectedStorage() {
+  // [Tested: No] | useSelectedStorage() {
+  // [Tested: No] | restoreSelectedStorage() {
+  // [Tested: No] | togglePanel(event) {
+  // [Tested: No] | renderMatrix() {
 });
