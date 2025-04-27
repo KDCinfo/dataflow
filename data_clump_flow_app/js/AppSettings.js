@@ -85,8 +85,17 @@ export default class AppSettings {
       this.uiElements.clumpNameInput
     );
 
+    // Uncomment the trigger below when debugging the Flow Manager modal.
+    // this.triggerAppModalBtnClick();
     // Show the welcome alert only once.
     this.showOneTimeAlert();
+  }
+
+  // Future function to trigger appModalBtn click.
+  async triggerAppModalBtnClick() {
+    // Delay the click for 'n' seconds.
+    await new Promise(resolve => setTimeout(resolve, 500));
+    this.appModal.appModalBtn.click();
   }
 
   // [Tested]
