@@ -395,6 +395,10 @@ I think just being able to rename the storage keys is enough for now, for as the
 
 - [X] Removed one-time alert message suggesting to export all your storage.
   - If anyone is actually using this tool they will have seen this by now.
+- [X] Allow for bulk importing.
+  - I recently cleared all the cookies for 'kdcinfo.com' for another project I was working on.
+      Fortunately I use the 'Export All' button fairly often (because I know what losing data feels like).
+      Unfortunately I have a dozen flows to import.
 
 ## @BUGS:
 

@@ -114,6 +114,18 @@ export default class AppData {
     this.addClumpsToMatrix();
   }
 
+  formatDateElements(separator, ...elements) {
+    return elements.map(x => (x + '').padStart(2, '0')).join(separator);
+  }
+
+  // console.log('ISO (now):          ', formatLocalISO(new Date()))
+  get localTimestamp() {
+    const date = new Date();
+    let isoDate = this.formatDateElements('-', date.getFullYear(), date.getMonth() + 1, date.getDate());
+    isoDate += 'T' + this.formatDateElements(':', date.getHours(), date.getMinutes(), date.getSeconds());
+    return isoDate + `.${String(date.getMilliseconds()).padStart(3, '0')}`;
+  }
+
   // Setter for appSettings called from parent ('AppSettings').
   updateAppSettingsInfo(newSettings) {
     this.#appSettingsInfo = newSettings;
@@ -341,10 +353,15 @@ export default class AppData {
   //   - AppSettings: When [deleting] a storage.
   //   - AppData: [After conversion] when adding to matrix.
   //   - AppData: [After importing] data.
-  storeClumps(createBackup = true) {
+  // The 'createBackup' param is currently only disabled in the bulk import (`this.storeBulkAppData`).
+  storeClumps(
+    createBackup = true,
+    localStorageKey = this.localStorageKeyForClumps(),
+    clumpListToStore = this.clumpList
+  ) {
     AppStorage.appStorageSetItem(
-      this.localStorageKeyForClumps(),
-      JSON.stringify(this.clumpList),
+      localStorageKey,
+      JSON.stringify(clumpListToStore),
       createBackup
     );
   }
@@ -606,6 +623,103 @@ export default class AppData {
     // Clear matrix and re-add all clumps.
     this.resetClumpListConverted();
     this.addClumpsToMatrix();
+  }
+
+  // Cycle through 'filenamesAndClumpsMap' map and store clumps.
+  // - Filenames will be used as storage names
+  //   but will need to be regexed to conform to either 'snake_case' or 'camelCase'.
+  // - If a case-insensitive storage name already exists,
+  //   the imported storage filename will suffix a 'd20250427t055959999' date/timestamp
+  //   (hopefully the milliseconds will prevent consecutive duplicates).
+  storeBulkAppData(filenamesAndClumpsMap) {
+    // 'toLowerCase' is used in case a filename
+    // only has a capitalization difference (e.g. 'camelCase' vs. 'caMelCaSe').
+    const existingStorageNames = this.#appSettingsInfo.storageNames.map(name => name.toLowerCase());
+    const importedStorageNames = [];
+    const duplicateStorageNames = [];
+    const returnMap = new Map();
+    let duplicateCount = 0;
+
+    // File naming conventions and examples:
+    //
+    // dataflow_sc34Before (1).json     // Example 'camelCase' filename.
+    // sc34Before (1)                   // Remove prefix and extension.
+    // sc34Before1                      // Remove special characters (except underscores).
+    //
+    // dataflow_sc34_before (1).json    // Example 'snake_case filename.
+    // sc34_before (1)                  // Remove prefix and extension.
+    // sc34_before1                     // Remove special characters (except underscores).
+    //
+    // Duplicate storage names are handled by appending a timestamp:
+    // | sc34_before1d20250428t034137999x1
+    // |              yyyymmdd hhmmssmmm
+    // |             |        |         |
+    // |             d        t         x1 // x = duplicate count (milliseconds _can_ be the same)
+    //
+    filenamesAndClumpsMap.forEach((clumps, filename) => {
+      // Remove prefix and .json extension.
+      const filenameNoJson = filename.endsWith('.json')
+        ? filename.slice(0, -5)
+        : filename;
+      const baseFilename = filenameNoJson.startsWith('dataflow_')
+        ? filenameNoJson.slice(9)
+        : filenameNoJson;
+
+      // Format the filename to adhere to 'snake_case' or 'camelCase'.
+      // 1) Remove any non-alphanumeric or underscore characters (`^` inside `[]` means negate).
+      const storageNameFormatted = baseFilename.replace(/[^a-zA-Z0-9_]/g, '');
+
+      // 2) Remove any potential leading or trailing underscores (`^` outside `[]` means starts with).
+      let storageName = storageNameFormatted
+        .replace(/^_+|_+$/g, '');     // Remove leading/trailing underscores
+
+      // 3) Edge case: If the storage name contains uppercase letters AND underscores.
+      if (/[A-Z]/.test(storageName) && /_/.test(storageName)) {
+        storageName = storageName
+          .replace(/([A-Z])/g, '_$1') // Insert underscore before capitals
+          .toLowerCase()
+          .replace(/_+/g, '_')        // Collapse any new double underscores
+          .replace(/^_+|_+$/g, '');   // Trim again if needed
+      }
+
+      const isDuplicateStorageName = existingStorageNames.includes(storageName.toLowerCase()) ||
+          duplicateStorageNames.includes(storageName) ||
+          importedStorageNames.includes(storageName);
+      let newStorageName = '';
+      if (!isDuplicateStorageName) {
+        newStorageName = storageName;
+        importedStorageNames.push(newStorageName);
+      } else {
+        // dataflow_test11Flow (1).json // Original filename.
+        // test11Flow1d20250428t034137999 // Duplicate storage name.
+        const dateSlice = 18;
+        const timestampConnector = 'd';
+        const dupeConnector = 'x';
+        let timestamp = this.localTimestamp
+            .replace(/[-:.]/g, '')
+            .replace(/[T]/g, 't')
+            .slice(0, dateSlice);
+
+        newStorageName = `${storageName}${timestampConnector}${timestamp}`;
+
+        if (duplicateStorageNames.includes(newStorageName)) {
+          duplicateCount++;
+          newStorageName = newStorageName + dupeConnector + duplicateCount.toString();
+        }
+        duplicateStorageNames.push(newStorageName);
+      }
+
+      this.storeClumps(
+        false, // createBackup
+        newStorageName,
+        clumps
+      );
+    });
+
+    returnMap.set('importedStorageNames', importedStorageNames);
+    returnMap.set('duplicateStorageNames', duplicateStorageNames);
+
+    return returnMap;
   }
 
   // async fetchData(url) {

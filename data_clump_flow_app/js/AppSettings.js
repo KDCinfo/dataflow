@@ -257,6 +257,7 @@ P.S. This dialog will not show again.`;
     this.uiElements.exportDataButton.addEventListener('click', this.handleExportData.bind(this));
     this.uiElements.exportAllDataButton.addEventListener('click', this.handleExportAllData.bind(this));
     this.uiElements.importDataButton.addEventListener('click', this.handleImportData.bind(this));
+    this.uiElements.importBulkButton.addEventListener('click', this.handleBulkImportData.bind(this));
 
     this.uiElements.clumpFormId.addEventListener('submit', this.handleFormSubmit.bind(this));
     this.uiElements.clumpFormId.addEventListener('reset', this.handleFormReset.bind(this));
@@ -284,7 +285,10 @@ P.S. This dialog will not show again.`;
     this.uiElements.newStorageRenameCopy.addEventListener('click', this.copyStorageName.bind(this));
     this.uiElements.newStorageRenameCopy.setAttribute('title', AppConstants.storageNameCopyFlowNameText);
 
+    // [Q] What's the purpose of this listener?
+    // [A] It listens for changes to the 'AppSettingsInfo' in other tabs.
     window.addEventListener('storage', (event) => {
+      // The event.key is the key of the storage item that was changed.
       if (event.key === AppConstants.localStorageSettingsKey) {
         const oldEventValues = JSON.parse(event.oldValue);
         const newEventValues = JSON.parse(event.newValue);
@@ -296,7 +300,11 @@ P.S. This dialog will not show again.`;
 
         let messageToDisplayOnOtherTabs = '';
 
+        // [Q] Why are we only interested when storage names are added or deleted?
+        // [A] My guess is this was the quickest check to see if changes were made to another tab.
+        //     If so, we could potentially add checks for other 'AppSettingsInfo' values as well.
         if (oldStorageNamesLength !== newStorageNamesLength) {
+          // Allows for the message to be dismissed.
           let allowDismiss = true;
 
           if (oldStorageNamesLength < newStorageNamesLength) {
@@ -820,27 +828,29 @@ P.S. This dialog will not show again.`;
 
   // [Tested: No]
   handleExportData() {
+    if (this.dataManager.getData('clumpList').length === 0) {
+      alert('There is no data to export.');
+      return;
+    }
     const currentStorageLabelName = this.uiElements.storageNameLabelCurrent.textContent.trim();
     this.exportStorageName(currentStorageLabelName);
   }
 
   // [Tested: No]
-  exportStorageName(currentStorageLabelName, storedData) {
+  exportStorageName(currentStorageLabelName, storedData = this.dataManager.getData('clumpList')) {
     const exportName = currentStorageLabelName === AppConstants.defaultStorageName
       ? AppConstants.defaultExportStorageName
       : currentStorageLabelName;
 
     FileHandler.handleExportData({
-      clumpListToExport: typeof storedData === 'undefined'
-          ? this.dataManager.getData('clumpList')
-          : storedData,
+      clumpListToExport: storedData,
       storageName: exportName
     });
   }
 
   // [Tested: No]
   async handleImportData() {
-    const importedDataArray = await FileHandler.handleImportData();
+    const importedDataArray = await FileHandler.resolveClumpsFromFile();
 
     if (
       typeof importedDataArray !== 'undefined' &&
@@ -863,6 +873,58 @@ P.S. This dialog will not show again.`;
       this.uiElements.outputContainer.style.height = 'calc(100vh - 42px)';
       this.updateDataInHtml();
       this.renderMatrix();
+    }
+  }
+
+  // [Tested: No]
+  async handleBulkImportData() {
+    // Map of filenames and their clumps.
+    //   > const filenameClumpsMap = new Map();
+    //   > filenameClumpsMap.set(result.filename, result.clumps);
+    const importedStorageNameMaps = await FileHandler.resolveFilenamesAndClumpsFromFile();
+
+    if (
+      typeof importedStorageNameMaps !== 'undefined' &&
+      FileHandler.objIsMap(importedStorageNameMaps) &&
+      importedStorageNameMaps.size > 0
+    ) {
+      // Store imported lists to localStorage.
+      //   importedStorageLists = returnMap // new Map();
+      //   | returnMap.set('importedStorageNames'
+      //   | returnMap.set('duplicateStorageNames'
+      const importedStorageLists = this.dataManager.storeBulkAppData(
+        importedStorageNameMaps,
+      );
+
+      // Create a new storage name list with the imported names.
+      // The list will be sorted below, in 'this.storeSettings()'.
+      this.appSettingsInfo.storageNames = [
+        ...this.appSettingsInfo.storageNames,
+        ...importedStorageLists.get('importedStorageNames'),
+        // Duplicate storage names are added with a timestamp suffix.
+        ...importedStorageLists.get('duplicateStorageNames')
+      ];
+
+      // Sort the storage names, then update the 'AppSettingsInfo' and dropdown lists.
+      this.storeSettings();
+      this.updateStorageNameDropdownOptions();
+
+      // Inform the user if any storage names were duplicates.
+      if (importedStorageLists.get('duplicateStorageNames').length > 0) {
+        const errMsg = `The following storage names were duplicates and had timestamps added to them:
+<br><br>
+- ${importedStorageLists.get('duplicateStorageNames').join('<br>- ')}
+<br><br>
+You can now compare them with existing lists.`;
+        this.showStorageError(errMsg);
+      } else {
+        const successMsg = `Congratulations!
+<br><br>
+All selected storage names have been imported.
+<br><br>
+You can now escape, and activate them on the main screen.`;
+        this.showStorageError(successMsg);
+      }
     }
   }
 

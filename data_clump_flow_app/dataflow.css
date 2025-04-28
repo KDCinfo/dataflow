@@ -115,15 +115,6 @@ li ol>li:before {
   padding: 0 10px;
 }
 
-/* Fade in/out error message */
-.error-hidden {
-  animation: fade-out 1s forwards;
-}
-
-.error-visible {
-  animation: fade-in 1s forwards;
-}
-
 .storage-naming-error {
   background-color: #003300;
   border-radius: 4px;
@@ -132,13 +123,27 @@ li ol>li:before {
   min-width: 135px;
 }
 
+/* Fade in/out error message */
+.error-hidden {
+  animation: fade-out 1s forwards;
+}
+
+.error-visible {
+  animation: fade-in 1s forwards;
+  width: 100%;
+  overflow: auto;
+}
+
 @keyframes fade-in {
   0% {
+    height: 0;
     max-height: 0;
     opacity: 0;
+    padding: 0;
   }
 
   100% {
+    height: 100%;
     max-height: 150px;
     opacity: 1;
   }
@@ -146,13 +151,16 @@ li ol>li:before {
 
 @keyframes fade-out {
   0% {
+    height: 100%;
     max-height: 150px;
     opacity: 1;
   }
 
   100% {
+    height: 0;
     max-height: 0;
     opacity: 0;
+    padding: 0;
   }
 }
 
