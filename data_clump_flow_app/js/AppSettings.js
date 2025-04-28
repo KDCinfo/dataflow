@@ -273,6 +273,8 @@ P.S. This dialog will not show again.`;
     this.uiElements.storageButtonDelete.addEventListener('click', this.deleteSelectedStorage.bind(this));
     // id="storageButtonUse"
     this.uiElements.storageButtonUse.addEventListener('click', this.useSelectedStorage.bind(this));
+    // id="storageButtonUseModal"
+    this.uiElements.storageButtonUseModal.addEventListener('click', this.useSelectedStorage.bind(this));
     // id="restoreBackupButton"
     this.uiElements.restoreBackupButton.addEventListener('click', this.restoreSelectedStorage.bind(this));
     // id="newStorageNameButton"
@@ -1065,9 +1067,13 @@ You can now escape, and activate them on the main screen.`;
       if (isActiveSrc) {
         this.uiElements.storageButtonUse.setAttribute('disabled', true);
         this.uiElements.storageButtonUse.setAttribute('title', AppConstants.storageNameErrUseText);
+        this.uiElements.storageButtonUseModal.setAttribute('disabled', true);
+        this.uiElements.storageButtonUseModal.setAttribute('title', AppConstants.storageNameErrUseText);
       } else {
         this.uiElements.storageButtonUse.removeAttribute('disabled');
         this.uiElements.storageButtonUse.removeAttribute('title');
+        this.uiElements.storageButtonUseModal.removeAttribute('disabled');
+        this.uiElements.storageButtonUseModal.removeAttribute('title');
       }
 
       // Button: ['Delete Selected'] | Modal
@@ -1084,6 +1090,8 @@ You can now escape, and activate them on the main screen.`;
       // Button: ['Activate Selected'] | Main
       this.uiElements.storageButtonUse.removeAttribute('disabled');
       this.uiElements.storageButtonUse.removeAttribute('title');
+      this.uiElements.storageButtonUseModal.removeAttribute('disabled');
+      this.uiElements.storageButtonUseModal.removeAttribute('title');
 
       // Button: ['Delete Selected'] | Modal
       this.uiElements.storageButtonDelete.removeAttribute('disabled');

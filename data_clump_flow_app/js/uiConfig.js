@@ -40,6 +40,7 @@ export const uiConfig = {
     newStorageRenameCopy: '#newStorageRenameCopy',
     storageButtonDelete: '#storageButtonDelete',
     storageButtonUse: '#storageButtonUse',
+    storageButtonUseModal: '#storageButtonUseModal',
     storageNamingError: '#storageNamingError'
   },
   infoPanel: {
