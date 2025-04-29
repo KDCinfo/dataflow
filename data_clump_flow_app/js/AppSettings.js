@@ -429,6 +429,8 @@ P.S. This dialog will not show again.`;
 
     // Ensure the currently active storage name is valid (prevent updating a non-existent storage).
     if (!this.checkIfStorageNameStillExists()) {
+      // Show an error.
+      alert('The currently active storage name has been deleted.\n\nPlease refresh the page.');
       return;
     }
 
@@ -444,7 +446,7 @@ P.S. This dialog will not show again.`;
       this.uiElements.linkToId.selectedIndex === 0 &&
       this.uiElements.columnSelect.selectedIndex === -1
     ) {
-      alert('Please select a clump to link to or a column to add to.');
+      alert('Please select a clump to link to, or a column to add to.');
       return;
     }
 
