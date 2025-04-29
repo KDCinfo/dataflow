@@ -389,7 +389,7 @@ I think just being able to rename the storage keys is enough for now, for as the
 
 ## ### ### ### ##
 ##
-## Version: 2.1.1
+## Version: 2.2.0
 ##
 ## ### ### ### ##
 
@@ -400,7 +400,7 @@ I think just being able to rename the storage keys is enough for now, for as the
       - Fortunately I use the 'Export All' button fairly often (because I know what losing data feels like).
       - Unfortunately I have a dozen flows to import.
 - [X] Add 'Activate' button to Flow Manager modal.
-- [ ] Reminder to export after 'n' updates (where 'n' is saved in settings).
+- [X] Reminder to export after 'n' updates (where 'n' is saved in settings).
 
 ## @BUGS:
 
