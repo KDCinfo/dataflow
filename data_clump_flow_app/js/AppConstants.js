@@ -14,7 +14,7 @@ export default class AppConstants {
   static sessionStorageSettingsKey = 'dataClumpFlowAppSessionStorageKey';
 
   static defaultStorageName = 'default';
-  static defaultExportStorageName = 'dataclumps';
+  static defaultExportStorageName = 'default';
 
   // @TODO: Create a 'random message factory'.
   static defaultExportReminderMessage = `Exporting can save yourself some misery.

@@ -410,6 +410,11 @@ I think just being able to rename the storage keys is enough for now, for as the
 
 - [X] Bug: Fixed restore auto-backup; had the wrong key.
 - [X] Change: Added 'df_' prefix to clump lists in localStorage.
+- [X] Change: Let export of 'default' keep the same name.
+  - The 'default' flow was being exported as 'dataclumps.json',
+    but the import didn't reverse the conversion back to 'default'.
+    That aside, now that all clump lists are prefixed with 'df_',
+    there's no need to rename the 'default' anymore.
 - [X] Refactor: Swapped out `localStorage` calls w/ `AppStorage`.
 
 ## @BUGS:
