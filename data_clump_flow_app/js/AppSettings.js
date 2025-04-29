@@ -1741,7 +1741,7 @@ You can now escape, and activate them on the main screen.`;
     if (
       selectedStorageName !== '' &&
       selectedStorageIndex === this.appSettingsInfo.storageIndex &&
-      AppStorage.appStorageCheckItemExists(selectedStorageNameBackup)
+      AppStorage.appStorageCheckItemExists(selectedStorageName)
     ) {
       const storageName = this.appSettingsInfo.storageNames[this.uiElements.storageNameTagModal.value];
       const backupName = `${storageName}_backup`;
