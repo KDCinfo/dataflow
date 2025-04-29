@@ -2,6 +2,10 @@ import AppConstants from "./AppConstants.js";
 import DataDefaultMaps from './DataDefaultMaps.js';
 
 export default class AppStorage {
+  static prefixIgoreKeys = [
+    AppConstants.localStorageSettingsKey,
+    AppConstants.sessionStorageSettingsKey
+  ];
   //
   // # Outline of what should happen with 'sessionStorage' and 'localStorage':
   //
@@ -46,10 +50,17 @@ export default class AppStorage {
     sessionStorage.removeItem(sessionStorageKey);
   }
 
+  static prefixKeyName(key = '') {
+    return AppStorage.prefixIgoreKeys.includes(key)
+          ? key
+          : `${AppConstants.clumpListPrefix}${key}`;
+  }
+
   // Remove from local storage.
   static appStorageRemoveItem(key) {
-    localStorage.removeItem(key);
-    localStorage.removeItem(`${key}_backup`);
+    const keyToRemove = AppStorage.prefixKeyName(key);
+    localStorage.removeItem(keyToRemove);
+    localStorage.removeItem(`${keyToRemove}_backup`);
   }
 
   // Check if the key exists in local storage.
@@ -59,14 +70,16 @@ export default class AppStorage {
     if (!key.match(AppConstants.keyNamePattern)) {
       throw new Error(`[AppStorage] Invalid key: ${key}`);
     }
+    const keyToGet = AppStorage.prefixKeyName(key);
     // Check if the key exists in local storage.
-    return localStorage.getItem(key) !== null;
+    return localStorage.getItem(keyToGet) !== null;
   }
 
   // Store the settings in local storage.
   // Backups are created for existing clumpLists.
   static appStorageSetItem(key, value, isBackup = false) {
     //
+    const prefixedKey = AppStorage.prefixKeyName(key);
     // Check if the key is valid.
     if (!key.match(AppConstants.keyNamePattern)) {
       throw new Error(`[AppStorage] Invalid key: ${key}`);
@@ -77,21 +90,36 @@ export default class AppStorage {
     }
     if (isBackup) {
       // If the key exists, create a backup.
-      const existingValue = localStorage.getItem(key);
+      const existingValue = localStorage.getItem(prefixedKey);
       if (existingValue !== null) {
-        localStorage.setItem(`${key}_backup`, existingValue);
+        localStorage.setItem(`${prefixedKey}_backup`, existingValue);
       }
     }
     // Store the new value.
     localStorage.setItem(
-      key,
+      prefixedKey,
       value
     );
   }
 
   // Retrieve the settings from local storage.
   static appStorageGetItem(key) {
-    return localStorage.getItem(key);
+    // Clump list prefix check:
+    //   If 'key' is not in the ignore list (is a clumpList) and exists
+    //   in localStorage, then it will need to be renamed with a prefix.
+    //   This will not show in the UI, only in DevTools.
+    if (!AppStorage.prefixIgoreKeys.includes(key) && localStorage.getItem(key) !== null) {
+      const prefixedKey = AppStorage.prefixKeyName(key);
+      AppStorage._renameKey(key, prefixedKey);
+      // Also rename '_backup' key (if it exists).
+      const backupKeyOld = `${key}_backup`;
+      const backupKeyNew = `${prefixedKey}_backup`;
+      if (localStorage.getItem(backupKeyOld) !== null) {
+        AppStorage._renameKey(backupKeyOld, backupKeyNew);
+      }
+      return localStorage.getItem(prefixedKey);
+    }
+    return localStorage.getItem(AppStorage.prefixKeyName(key));
   }
 
   // Example usage:
@@ -101,15 +129,19 @@ export default class AppStorage {
       return; // No need to rename if keys are the same
     }
 
-    AppStorage._storeData(oldKey, newKey);
+    const oldKeyToUse = AppStorage.prefixKeyName(oldKey);
+    const newKeyToUse = AppStorage.prefixKeyName(newKey);
+
+    // Rename the key in local storage.
+    AppStorage._renameKey(oldKeyToUse, newKeyToUse);
 
     // Also rename '_backup' key (if it exists).
-    const backupKeyOld = `${oldKey}_backup`;
-    const backupKeyNew = `${newKey}_backup`;
-    AppStorage._storeData(backupKeyOld, backupKeyNew);
+    const backupKeyOld = `${oldKeyToUse}_backup`;
+    const backupKeyNew = `${newKeyToUse}_backup`;
+    AppStorage._renameKey(backupKeyOld, backupKeyNew);
   }
 
-  static _storeData(oldKeyName, newKeyName) {
+  static _renameKey(oldKeyName, newKeyName) {
     const data = localStorage.getItem(oldKeyName);
     if (data !== null) {
       localStorage.setItem(newKeyName, data);

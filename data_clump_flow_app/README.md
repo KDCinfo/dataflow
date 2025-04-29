@@ -402,6 +402,16 @@ I think just being able to rename the storage keys is enough for now, for as the
 - [X] Add 'Activate' button to Flow Manager modal.
 - [X] Reminder to export after 'n' updates (where 'n' is saved in settings).
 
+## ### ### ### ##
+##
+## Version: 2.2.1
+##
+## ### ### ### ##
+
+- [X] Bug: Fixed restore auto-backup; had the wrong key.
+- [X] Change: Added 'df_' prefix to clump lists in localStorage.
+- [X] Refactor: Swapped out `localStorage` calls w/ `AppStorage`.
+
 ## @BUGS:
 
 ### Cannot Recreate

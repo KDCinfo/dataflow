@@ -8,6 +8,7 @@ export default class AppConstants {
   static gridRepeatOptions = ['auto', '1fr', '150px', '200px', '250px', '300px'];
 
   // Local Storage.
+  static clumpListPrefix = 'df_';
   static localStorageSettingsKey = 'dataClumpFlowAppSettings';
   // Session Storage.
   static sessionStorageSettingsKey = 'dataClumpFlowAppSessionStorageKey';
