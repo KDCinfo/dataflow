@@ -272,6 +272,8 @@ P.S. This dialog will not show again.`;
     this.uiElements.exportPanelToggle.addEventListener('click', this.togglePanel.bind(this));
     // id="showIdsCheckbox"
     this.uiElements.showIdsCheckbox.addEventListener('change', this.toggleShowIds.bind(this));
+    // id="exportReminderInput"
+    this.uiElements.exportReminderInput.addEventListener('change', this.updateExportReminder.bind(this));
     // id="gridRepeatRangeInput" | Slider
     this.uiElements.gridRepeatRangeInput.addEventListener('input', this.updateGridRepeat.bind(this));
     // id="storageButtonDelete"
@@ -1172,6 +1174,13 @@ You can now escape, and activate them on the main screen.`;
     this.renderMatrix();
   }
 
+  // [Tested: No]
+  updateExportReminder(event) {
+    AppConfig.debugConsoleLogs && console.log('Value is:', event.target.value);
+    this.appSettingsInfo.exportReminderValue = event.target.value;
+    this.storeSettings();
+  }
+
   // HTML Slider with options that will update the grid repeat:
   // > ['auto', '1fr', '150px', '200px', '250px', '300px']
   //
@@ -1817,8 +1826,12 @@ You can now escape, and activate them on the main screen.`;
 
     // [ SHOW IDS CHECKBOX ]
 
-    // [5] Show IDs | Listener event: 'toggleShowIds()'.
+    // [5a] Show IDs | Listener event: 'toggleShowIds()'.
     this.uiElements.showIdsCheckbox.checked = this.appSettingsInfo.showIds === true;
+
+    // this.uiElements.exportReminderInput.addEventListener('change', this.updateExportReminder
+    // [5b] Export Reminder | Listener event: 'updateExportReminder()'.
+    this.uiElements.exportReminderInput.value = this.appSettingsInfo.exportReminderValue;
 
     // [ STORAGE ]
 

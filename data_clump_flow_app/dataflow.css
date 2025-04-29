@@ -189,6 +189,7 @@ li ol>li:before {
 
 .cross-tab-warning {
   background-color: yellowgreen;
+  border-radius: 15px;
   box-shadow: 5px 5px 50px palegreen;
   color: darkblue;
   display: flex;
@@ -202,6 +203,7 @@ li ol>li:before {
   position: absolute;
   top: 0;
   right: 0;
+  z-index: 20;
 }
 
 .grid {
@@ -663,6 +665,7 @@ li ol>li:before {
 }
 
 /* Layout for Show IDs and Slider blocks */
+.settings-export-reminder,
 .settings-show-ids {
   align-items: center;
   display: flex;
@@ -680,7 +683,12 @@ li ol>li:before {
   width: 100%;
 }
 
+.export-reminder-input {
+  margin-top: 8px;
+}
+
 /* bottom border for all but the last element */
+.settings-export-reminder:not(:last-child),
 .settings-show-ids:not(:last-child) {
   border-bottom: 1px solid #003300;
 }

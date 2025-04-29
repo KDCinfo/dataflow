@@ -118,13 +118,20 @@ export default class AppStorage {
   }
 
   static getJsonSettingsFromStorageOrDefaults() {
+    const defaultSettings = DataDefaultMaps.dataDefaultMap().defaultAppSettings;
+
     const dataFromStorage = AppStorage.appStorageGetItem(AppConstants.localStorageSettingsKey);
-    const dataFromDefaults = JSON.stringify(DataDefaultMaps.dataDefaultMap().defaultAppSettings);
+    const dataFromDefaults = JSON.stringify(defaultSettings);
     const parsedData = JSON.parse(dataFromStorage || dataFromDefaults);
 
+    // @TODO: Convert these into a 'newProps' factory.
     // The 'appSettingsInfo.showIds' property may not exist (added 2025-03).
     if (!parsedData.hasOwnProperty('showIds')) {
-      parsedData.showIds = false;
+      parsedData.showIds = defaultSettings.showIds;
+    }
+    // The 'appSettingsInfo.exportReminderValue' property may not exist (added 2025-04).
+    if (!parsedData.hasOwnProperty('exportReminderValue')) {
+      parsedData.exportReminderValue = defaultSettings.exportReminderValue;
     }
 
     return parsedData;

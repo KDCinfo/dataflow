@@ -22,6 +22,7 @@ export const uiConfig = {
   },
   settings: {
     showIdsCheckbox: '#showIdsCheckbox',
+    exportReminderInput: '#exportReminderInput',
     gridRepeatRangeInput: '#gridRepeatRangeInput',
     gridRepeatHtmlSpan: '#gridRepeatHtmlSpan',
     gridRepeatSliderMarkers: '#gridRepeatSliderMarkers',

@@ -105,6 +105,21 @@ Moving a clump into its own tail is not currently supported.">
             <input type="checkbox" id="showIdsCheckbox" class="show-ids-checkbox" />
           </label>
         </div>
+
+        <div class="settings-block settings-export-reminder">
+          <label for="exportReminderInput" class="export-reminder-label">Export Reminder:<br>
+            <input
+              type="number"
+              id="exportReminderInput"
+              class="export-reminder-input"
+              min="0"
+              max="50"
+              step="5"
+              value="20"
+              title="Set reminder to 0 to disable it."
+            /> saves
+          </label>
+        </div>
         <!--
           HTML Slider with options that will update the grid repeat:
           > ['auto', '1fr', '150px', '200px', '250px', '300px']

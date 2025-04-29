@@ -25,7 +25,8 @@ export default class DataDefaultMMaps {
       showIds: false,
       gridRepeatRangeValue: 0,
       storageNames: ['error'], // camelCase or snake_case.
-      storageIndex: 0
+      storageIndex: 0,
+      exportReminderValue: 0,
     }
   });
 
@@ -62,7 +63,8 @@ export default class DataDefaultMMaps {
       showIds: false,
       gridRepeatRangeValue: 2,
       storageNames: [AppConstants.defaultStorageName], // camelCase or snake_case.
-      storageIndex: 0
+      storageIndex: 0,
+      exportReminderValue: 20,
     }
   });
 }
