@@ -101,7 +101,7 @@ export default class AppStorage {
       return; // No need to rename if keys are the same
     }
 
-    this._storeData(oldKey, newKey);
+    AppStorage._storeData(oldKey, newKey);
 
     // Also rename '_backup' key (if it exists).
     const backupKeyOld = `${oldKey}_backup`;

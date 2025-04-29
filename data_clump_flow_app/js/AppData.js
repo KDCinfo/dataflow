@@ -163,7 +163,7 @@ export default class AppData {
     this.clumpList = [...newClumpList];
   }
   parseClumpListFromStorage(localStorageKeyForClumps = this.localStorageKeyForClumps()) {
-    const storedClumps = localStorage.getItem(localStorageKeyForClumps) || '[]';
+    const storedClumps = AppStorage.appStorageGetItem(localStorageKeyForClumps) || '[]';
     const mappedClumps = this.parseClumpListFromJSON(storedClumps);
     return mappedClumps;
   }
@@ -347,7 +347,7 @@ export default class AppData {
   //   because this function needs to know when the storage is empty,
   //   and cannot be a fallback to 'this.localStorageKeyForClumps()'.
   parseClumpExportListFromStorage(storageNameToGet = '') {
-    return JSON.parse(localStorage.getItem(storageNameToGet) || '[]');
+    return JSON.parse(AppStorage.appStorageGetItem(storageNameToGet) || '[]');
   }
 
   // Backups occur:
