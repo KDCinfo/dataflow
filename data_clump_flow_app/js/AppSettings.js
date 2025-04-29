@@ -253,6 +253,11 @@ P.S. This dialog will not show again.`;
       this.uiElements.storageNameTagModal.value = event.target.value;
       this.toggleStorageButtons();
     });
+    this.uiElements.storageNameTagModal.addEventListener('dblclick', (event) => {
+      if (event.target.tagName === 'OPTION') {
+        this.copyStorageName();
+      }
+    });
     this.uiElements.storageNameTagModal.addEventListener('change', (event) => {
       // Set this.uiElements.storageNameTag to the same value as this.
       this.uiElements.storageNameTag.value = event.target.value;
