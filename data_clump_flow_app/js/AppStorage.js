@@ -133,6 +133,11 @@ export default class AppStorage {
     if (!parsedData.hasOwnProperty('exportReminderValue')) {
       parsedData.exportReminderValue = defaultSettings.exportReminderValue;
     }
+    // The 'appSettingsInfo.exportReminderCounter' property may not exist (added 2025-04).
+    if (!parsedData.hasOwnProperty('exportReminderCounter')) {
+      // {} => { 'flowName1': 0, 'flow_name2': 0, ... }
+      parsedData.exportReminderCounter = defaultSettings.exportReminderCounter;
+    }
 
     return parsedData;
   }

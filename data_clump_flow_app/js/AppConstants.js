@@ -15,6 +15,10 @@ export default class AppConstants {
   static defaultStorageName = 'default';
   static defaultExportStorageName = 'dataclumps';
 
+  // @TODO: Create a 'random message factory'.
+  static defaultExportReminderMessage = `Exporting can save yourself some misery.
+    <br><br><small style="text-align:right;">(tap to dismiss)</small>`;
+
   // Regex checks for either 'camelCase' or 'snake_case'.
   // let storageNameErrorText = ``;
   static storageNameErrTextNameEmpty = `Please provide a storage name.`;

@@ -366,9 +366,9 @@ P.S. This dialog will not show again.`;
           // 'localStorage' has already been updated via the other tab, but we
           // still need to update this app's 'AppSettingsInfo' and 'dataManager'.
           this.storeSettings();
-          this.addTextToCrossTabWarning(
-            allowDismiss,
-            messageToDisplayOnOtherTabs
+          this.addTextToCrossTabMessage(
+            messageToDisplayOnOtherTabs,
+            allowDismiss
           );
 
           //
@@ -385,9 +385,9 @@ P.S. This dialog will not show again.`;
   }
 
   // [Tested]
-  addTextToCrossTabWarning(
-    allowDismiss,
-    messageToDisplayOnOtherTabs
+  addTextToCrossTabMessage(
+    messageToDisplayOnOtherTabs,
+    allowDismiss = true
   ) {
     this.uiElements.crossTabWarning.classList.remove('hidden');
     this.uiElements.crossTabWarning.innerHTML = messageToDisplayOnOtherTabs;
@@ -549,7 +549,44 @@ P.S. This dialog will not show again.`;
     this.uiElements.outputContainer.style.height = howManyExpanded > 0
       ? 'calc(100vh - 42px - 260px)'
       : 'calc(100vh - 42px)';
+
+    // Export Reminders
+    this.checkExportReminders();
   };
+
+  // Export Reminders
+  //
+  checkExportReminders() {
+    // Each flow name has its own counter that keeps track of saves.
+    // The active flow will check its value in the
+    //   'appSettingsInfo.exportReminderCounter' `<String, Int>{}` object.
+    // If its counter doesn't exist, it will be added with a `1`.
+    //   > this.appSettingsInfo.exportReminderValue = { 'flowName1': 0, 'flow_name2': 0, ... }
+    // If its counter is less than 'appSettingsInfo.exportReminderValue', increment it.
+    // If its counter is >= 'appSettingsInfo.exportReminderValue', reset it to `0` and show a reminder.
+    //   > Reminder: AppConstants.defaultExportReminderMessage
+    //
+    const reminderValue = this.appSettingsInfo.exportReminderValue; // 10
+    if (reminderValue === 0) {
+      return; // Reminder is disabled.
+    }
+    const activeFlowName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
+    const reminderCounter = this.appSettingsInfo.exportReminderCounter; // {}
+    const currentCounter = reminderCounter[activeFlowName];
+    if (currentCounter === undefined) {
+      // First save for this flow.
+      reminderCounter[activeFlowName] = 1;
+    } else if ((currentCounter + 1) < reminderValue) {
+      // This save (not the stored number of saves) is less than the reminder value.
+      reminderCounter[activeFlowName] += 1;
+    } else {
+      reminderCounter[activeFlowName] = 0;
+      this.addTextToCrossTabMessage(
+        AppConstants.defaultExportReminderMessage
+      );
+    }
+    this.storeSettings();
+  }
 
   /**
    * Adjusts clump positions in the list when a clump's linkage (parent) changes.

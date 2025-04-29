@@ -27,6 +27,7 @@ export default class DataDefaultMMaps {
       storageNames: ['error'], // camelCase or snake_case.
       storageIndex: 0,
       exportReminderValue: 0,
+      exportReminderCounter: {}
     }
   });
 
@@ -65,6 +66,10 @@ export default class DataDefaultMMaps {
       storageNames: [AppConstants.defaultStorageName], // camelCase or snake_case.
       storageIndex: 0,
       exportReminderValue: 20,
+      // Reminder counter keys should be identical to 'storageNames'.
+      // > { 'flowName1': 0, 'flow_name2': 0, ... }
+      // - [Q] Why an object `{}`? [A] An object is easy to store.
+      exportReminderCounter: {}
     }
   });
 }

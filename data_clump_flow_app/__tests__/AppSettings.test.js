@@ -120,7 +120,7 @@ describe('AppSettings', () => {
     });
   });
 
-  test('addTextToCrossTabWarning allows dismiss when allowDismiss is true', () => {
+  test('addTextToCrossTabMessage allows dismiss when allowDismiss is true', () => {
     document.addEventListener('DOMContentLoaded', function () {
       const warningElement = appSettings.uiElements.crossTabWarning;
       const message = 'Warning: Action needed on other tabs!';
@@ -133,7 +133,7 @@ describe('AppSettings', () => {
       // Ensure the warning element initially has the "hidden" class.
       warningElement.classList.add('hidden');
 
-      appSettings.addTextToCrossTabWarning(true, message);
+      appSettings.addTextToCrossTabMessage(true, message);
 
       // Check that "hidden" class was removed.
       expect(warningElement.classList.contains('hidden')).toBe(false);
@@ -152,7 +152,7 @@ describe('AppSettings', () => {
     });
   });
 
-  test('addTextToCrossTabWarning does not allow dismiss when allowDismiss is false', () => {
+  test('addTextToCrossTabMessage does not allow dismiss when allowDismiss is false', () => {
     document.addEventListener('DOMContentLoaded', function () {
       const warningElement = appSettings.uiElements.crossTabWarning;
       const message = 'Warning: Do not dismiss this message automatically!';
@@ -160,7 +160,7 @@ describe('AppSettings', () => {
       // Ensure the warning element initially has the "hidden" class.
       warningElement.classList.add('hidden');
 
-      appSettings.addTextToCrossTabWarning(false, message);
+      appSettings.addTextToCrossTabMessage(false, message);
 
       // Check that "hidden" class was removed.
       expect(warningElement.classList.contains('hidden')).toBe(false);
@@ -177,7 +177,7 @@ describe('AppSettings', () => {
   // [Tested] | resolveSelectors(selectors) {
   // [Tested] | toggleClumpFormPopUp() {
   // [Tested] | removePopUp() {
-  // [Tested] | addTextToCrossTabWarning(
+  // [Tested] | addTextToCrossTabMessage(
   // [Tested: No] | dismissWarningMessage() {
   // [Tested: No] | checkIfStorageNameStillExists() {
   // [Tested: No] | handleFormSubmit(event) {
