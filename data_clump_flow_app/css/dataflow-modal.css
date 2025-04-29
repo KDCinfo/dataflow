@@ -108,6 +108,9 @@
   padding: 5px;
   width: 100%;
 }
+.storage-name-select-modal option {
+  padding: 3px 0;
+}
 
 /* Add Animation */
 .modal-content-animin {
