@@ -4,6 +4,8 @@ import AppStorage from './AppStorage.js';
 import ClumpInfo from './ClumpInfo.js';
 import DataDefaultMaps from './DataDefaultMaps.js';
 
+// The properties in the 'AppData' class are ephemeral.
+// Long-term properties are pulled from localStorage and kept in the 'appSettingsInfo' instance.
 export default class AppData {
   // DATA: [editingIndex] Updated when edited a clump, and reset when clump is saved.
   editingIndex; // = null;  // Track if we’re editing an existing clump

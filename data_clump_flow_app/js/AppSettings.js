@@ -50,6 +50,11 @@ export default class AppSettings {
 
     this.uiElements = this.resolveSelectors(uiSelectors);
 
+    // Population of 'appSettingsInfo':
+    // 1) Check and retrieve from storage
+    // 2) If storage doesn't exist, grab defaults from DataDefaultMaps.
+    // 3) Check for and add any missing/new properties
+    //    (primarily in the case settings were restored from storage).
     this.appSettingsInfo = AppStorage.getJsonSettingsFromStorageOrDefaults();
 
     // This will override the 'Appsettings.storageIndex' with the 'sessionStorage' value,
