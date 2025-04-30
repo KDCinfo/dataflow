@@ -867,6 +867,14 @@ P.S. This dialog will not show again.`;
     this.clearSelectedClumpNode();
   }
 
+  // Reset the export reminder counter for the active flow.
+  resetExportReminder() {
+    const activeFlowName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
+    const reminderCounter = this.appSettingsInfo.exportReminderCounter; // {}
+    reminderCounter[activeFlowName] = 0;
+    this.storeSettings();
+  }
+
   // [Tested: No]
   handleExportAllData() {
     console.log('[AppSettings] handleExportAllData');
@@ -877,6 +885,8 @@ P.S. This dialog will not show again.`;
       this.dataManager.setClumpExportList(storageName);
       this.exportStorageName(storageName, this.dataManager.clumpExportList);
     });
+
+    this.resetExportReminder();
   }
 
   // [Tested: No]
@@ -887,6 +897,8 @@ P.S. This dialog will not show again.`;
     }
     const currentStorageLabelName = this.uiElements.storageNameLabelCurrent.textContent.trim();
     this.exportStorageName(currentStorageLabelName);
+
+    this.resetExportReminder();
   }
 
   // [Tested: No]

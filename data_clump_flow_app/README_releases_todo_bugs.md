@@ -140,3 +140,10 @@
     That aside, now that all clump lists are prefixed with 'df_',
     there's no need to rename the 'default' anymore.
 - [X] Refactor: Swapped out `localStorage` calls w/ `AppStorage`.
+
+## Version: 2.2.2
+
+> 2025-04-30
+
+- [X] Reset export reminder counter after an export.
+  - Before it was only being reset after it reached its max.
