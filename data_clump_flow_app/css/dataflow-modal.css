@@ -30,7 +30,7 @@
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
   color: #b0e000;
   font-family: Arial, sans-serif;
-  margin: 15% auto; /* 15% from the top and centered */
+  margin: 15% auto 2%;
   max-width: 600px;
   padding: 20px;
   position: relative;
@@ -104,6 +104,7 @@
   margin-bottom: 15px;
 }
 .storage-name-select-modal {
+  max-height: 700px;
   min-width: 200px;
   padding: 5px;
   width: 100%;
