@@ -455,7 +455,7 @@ li ol>li:before {
   position: fixed;
   width: 80vw;
   max-width: none;
-  z-index: 5;
+  z-index: 15;
 }
 
 .clump-form-div-wrapper {
