@@ -15,6 +15,8 @@
 
 ### Light/moderate changes
 
+- [ ] When you export, in addition to resetting the export reminder counter to 0, it should also dismiss the reminder message.
+- [ ] 'showIDs' should show IDs in the lists also.
 - [ ] Flows: Delete -> Show preview of first clump
 - [ ] Flows: Add a URL query param to open a specific data flow // ?flow=docker_flows
   - [ ] That would allow for a "share" link
@@ -50,6 +52,16 @@
   - *An error is shown in the dev tools console.
   - Workaround: Try it again. Subequent attempts usually work.
   - Unsure if this still exists after refactor to classes.
+- [ ] Bug | After exporting 11 flows, 1 of them didn't export.
+    It did export when exported manually, and did again after a 2nd 'export all'.
+    Perhaps they export too fast and shuold be throttled to every 5 or 10 milliseconds.
+- [ ] Bug | With 'showIDs' enabled, somehow I ended up with 2 cells with no IDs.
+    When I edited and saved one, both IDs then showed up (no doubt after another 'renderMatrix').
+  - I tried removing one to the right of the 2nd missing cell and added it back,
+      but the ID stayed, so don't know how to recreate yet.
+  - The ID removal might've been due to viewing the clumps while editing or adding linked clumps.
+  - Side note: Adding the new cell also didn't use the last ID that was deleted.
+    - Deleting the cell again, refreshing the page, and adding one back did reuse the last ID (but still didn't remove the ID).
 
 -----
 
