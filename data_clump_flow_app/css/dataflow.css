@@ -339,6 +339,10 @@ li ol>li:before {
   /* grid-row-end: span 2; */
 }
 
+.topmost {
+  outline: 6px dotted #b0e000 !important;
+}
+
 .panel-from-expanded-to-collapsed,
 .panel-from-collapsed-to-expanded {
   overflow: hidden;
