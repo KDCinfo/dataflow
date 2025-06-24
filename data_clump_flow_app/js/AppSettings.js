@@ -2033,9 +2033,17 @@ You can now escape, and activate them on the main screen.`;
           const cellzIndex = parseInt(currentSpanPre?.style.zIndex, 10) || 0;
 
           let largestExpandedZIndex = 0;
+          let allZIndexes = {}; // zindex: cellParentWrapper
+
+          // document.getElementById('clumpContainer').querySelectorAll('.clump-node.expanded .content-span pre');
           const elements = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded .content-span pre');
           for (const clumpCellPre of elements) {
+            // Remove 'topmost' class from all existing expanded cell wrappers.
+            const cellParentWrapper = clumpCellPre.parentElement.parentElement;
+            cellParentWrapper.classList.remove('topmost');
+
             const zIndex = parseInt(clumpCellPre.style.zIndex, 10) || 0;
+            allZIndexes[zIndex] = cellParentWrapper;
             if (zIndex > largestExpandedZIndex) {
               largestExpandedZIndex = zIndex;
             }
@@ -2047,6 +2055,8 @@ You can now escape, and activate them on the main screen.`;
           //   top, run it through the full toggle flow below,
           if (currentCell.classList.contains('expanded') && cellzIndex < largestExpandedZIndex) {
             currentSpanPre.style.zIndex = largestExpandedZIndex + 10;
+            // Move 'topmost' class to the current cell.
+            currentCell.classList.add('topmost');
             return;
           } else {
             // Update 'largestExpandedZIndex' if 'cellzIndex' is greater.
@@ -2085,6 +2095,19 @@ You can now escape, and activate them on the main screen.`;
           //
           if (!isCellCollapsed) {
             currentContentSpan.querySelector('pre').style.zIndex = largestExpandedZIndex + 10;
+            // Add 'topmost' class to the current cell.
+            currentCell.classList.add('topmost');
+          } else {
+            // Add 'topmost' class to the cell with the highest zIndex.
+            if (Object.keys(allZIndexes).length > 0) {
+              // Remove the current cell from 'allZIndexes'.
+              delete allZIndexes[cellzIndex];
+              // Then find the highest zIndex from the remaining cells.
+              const highestZIndex = Math.max(...Object.keys(allZIndexes).map(Number));
+              if (highestZIndex in allZIndexes) {
+                allZIndexes[highestZIndex].classList.add('topmost');
+              }
+            }
           }
         };
 

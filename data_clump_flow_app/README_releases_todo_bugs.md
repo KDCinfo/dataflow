@@ -15,7 +15,17 @@
 
 ### Light/moderate changes
 
-- [ ] When you export, in addition to resetting the export reminder counter to 0, it should also dismiss the reminder message.
+- [ ] Feature: Change browser title to be active flow name
+- [ ] 'clump edit count'
+  - [ ] Bug: Exporting (current or all) doesn't reset 'clump edit count' in `dataClumpFlowAppSettings: exportReminderCounter`.
+      - It is currently only being reset after it reaches its max.
+  - [ ] Bug: Exporting (current or all) should dismiss the reminder message.
+  - [ ] Feature: Add HTML element for showing current 'clump edit count'.
+  - [ ] Before switching flows, maybe have an preference setting to prompt for exporting prior to switching ... maybe do a backup of the current flow
+    > When a flow is activated, --- there's already a count for how many changes have been made | dataClumpFlowAppSettings: exportReminderCounter
+        Use that count and if not 0, ask if you would like to export before switching flows
+- [ ] Consideration: When moving a cell given an 'above' link that is replacing an existing cell already linked to that same 'above', the existing
+    cell is grafted to the end of the moved cell's tail. The existing cell should perhaps be moved to the end of its own column instead.
 - [ ] 'showIDs' should show IDs in the lists also.
 - [ ] Flows: Delete -> Show preview of first clump
 - [ ] Flows: Add a URL query param to open a specific data flow // ?flow=docker_flows
@@ -32,6 +42,8 @@
 
 ### Potentially slightly bigger changes
 
+- [ ] Feature: Add a filter to the flow list in the Flow Manager
+- [ ] Feature: Add a filter that only shows filtered clumps
 - [ ] Add grouping for project-level flows.
 - [ ] Add a 'Flow Naming' controller: custom flow names + consistent localStorage keys (e.g. 'df_1', 'df_2', 'df_3').
   - [ ] Allow storage names to be descriptive; use a 'join table' to track descriptive names with the actual storage key names.
@@ -45,17 +57,22 @@
 
 ## @BUGS:
 
-### Cannot Recreate
+### Could Not Recreate (at least not initially)
 
-- [ ] Bug | View a clump -> Add a 'New Flow' | The open clump closes, but the space remains
-- [ ] Bug | Sometimes 'Import Data' will fail silently*.
+- [ ] Bug: Wrong data shown after creating a new flow
+    1) Activate a populated data flow [auth_kdrecall_files] or [_app]
+    2) Create a new data flow [app_init_flows]
+    3) Activate the newly-created data flow
+    4) Observe: data is shown behind modal
+- [ ] Bug: View a clump -> Add a 'New Flow' | The clump that was open does close, but the space remains.
+- [ ] Bug: Sometimes 'Import Data' will fail silently*.
   - *An error is shown in the dev tools console.
   - Workaround: Try it again. Subequent attempts usually work.
   - Unsure if this still exists after refactor to classes.
-- [ ] Bug | After exporting 11 flows, 1 of them didn't export.
+- [ ] Bug: After exporting 11 flows, 1 of them didn't export.
     It did export when exported manually, and did again after a 2nd 'export all'.
     Perhaps they export too fast and shuold be throttled to every 5 or 10 milliseconds.
-- [ ] Bug | With 'showIDs' enabled, somehow I ended up with 2 cells with no IDs.
+- [ ] Bug: With 'showIDs' enabled, somehow I ended up with 2 cells with no IDs.
     When I edited and saved one, both IDs then showed up (no doubt after another 'renderMatrix').
   - I tried removing one to the right of the 2nd missing cell and added it back,
       but the ID stayed, so don't know how to recreate yet.
@@ -155,7 +172,6 @@
 
 ## Version: 2.2.2
 
-> 2025-04-30
+> 2025-06-24
 
-- [X] Reset export reminder counter after an export.
-  - Before it was only being reset after it reached its max.
+- [X] Feature: The topmost open cell should be highlighted.
