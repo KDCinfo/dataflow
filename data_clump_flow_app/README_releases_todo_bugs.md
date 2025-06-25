@@ -15,7 +15,6 @@
 
 ### Light/moderate changes
 
-- [ ] Feature: Change browser title to be active flow name
 - [ ] 'clump edit count'
   - [ ] Bug: Exporting (current or all) doesn't reset 'clump edit count' in `dataClumpFlowAppSettings: exportReminderCounter`.
       - It is currently only being reset after it reaches its max.
@@ -175,3 +174,4 @@
 > 2025-06-24
 
 - [X] Feature: The topmost open cell should be highlighted.
+- [X] Feature: Change browser title to be active flow name
