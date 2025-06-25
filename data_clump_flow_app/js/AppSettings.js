@@ -78,6 +78,9 @@ export default class AppSettings {
     //
     this.initEventListeners();
 
+    // Update page title.
+    document.title = this.getAppTitle();
+
     // Initial render call
     this.renderMatrix();
 
@@ -96,6 +99,17 @@ export default class AppSettings {
     // Show the welcome alert only once.
     // Removing this popup: If anyone is using the tool they will have seen this by now.
     // this.showOneTimeAlert();
+  }
+
+  getAppTitle() {
+    // If the active flow is 'default', show the full app title.
+    return this.appSettingsInfo.storageIndex === 0
+        ? `${AppConstants.appFullName}`
+        : `${AppConstants.dynamicAppTitlePrefix} [${this.getCurrentFlowName()}]`;
+  }
+
+  getCurrentFlowName() {
+    return this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
   }
 
   // Future function to trigger appModalBtn click.
@@ -343,7 +357,7 @@ P.S. This dialog will not show again.`;
             // If deleted name is same as currently active name,
             // inform the user their data is stale and to export before refreshing,
             // and do not allow the message to be dismissed.
-            if (deletedName === this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex]) {
+            if (deletedName === this.getCurrentFlowName()) {
               allowDismiss = false;
               messageToDisplayOnOtherTabs = `The currently active storage was deleted:
                   <br><br>
@@ -418,7 +432,7 @@ P.S. This dialog will not show again.`;
   // it will overwrite all the data in the next storage in the list and replace it with this data.
   // [Tested: No]
   checkIfStorageNameStillExists() {
-    const currentStorageName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex].toLowerCase();
+    const currentStorageName = this.getCurrentFlowName().toLowerCase();
     const storageNameLabelTrimmed = this.uiElements.storageNameLabelCurrent.textContent.trim().toLowerCase();
     if (currentStorageName !== storageNameLabelTrimmed) {
       alert('The currently active storage name has been deleted.\n\nPlease refresh the page.');
@@ -575,7 +589,7 @@ P.S. This dialog will not show again.`;
     if (reminderValue === 0) {
       return; // Reminder is disabled.
     }
-    const activeFlowName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
+    const activeFlowName = this.getCurrentFlowName();
     const reminderCounter = this.appSettingsInfo.exportReminderCounter; // {}
     const currentCounter = reminderCounter[activeFlowName];
     if (currentCounter === undefined) {
@@ -869,7 +883,7 @@ P.S. This dialog will not show again.`;
 
   // Reset the export reminder counter for the active flow.
   resetExportReminder() {
-    const activeFlowName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
+    const activeFlowName = this.getCurrentFlowName();
     const reminderCounter = this.appSettingsInfo.exportReminderCounter; // {}
     reminderCounter[activeFlowName] = 0;
     this.storeSettings();
@@ -1064,7 +1078,7 @@ You can now escape, and activate them on the main screen.`;
   // [Tested: No]
   storeSettings(updateDataManager = true) {
     // Sort storageNames prior to storage.
-    const oldSelectedFlowName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
+    const oldSelectedFlowName = this.getCurrentFlowName();
     const sortedStorageNames = this.sortStorageNames();
     this.appSettingsInfo.storageNames = sortedStorageNames;
     const newIndex = sortedStorageNames.indexOf(oldSelectedFlowName);
@@ -1727,8 +1741,11 @@ You can now escape, and activate them on the main screen.`;
       this.dataManager.resetClumpListConverted();
       this.dataManager.addClumpsToMatrix();
 
+      // Update page title.
+      document.title = this.getAppTitle();
+
       // Update UI.
-      const currentStorageName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
+      const currentStorageName = this.getCurrentFlowName();
       this.uiElements.clumpFormId.reset();
       this.uiElements.outputContainer.style.marginBottom = '0';
       this.uiElements.outputContainer.style.height = 'calc(100vh - 42px)';
@@ -1893,7 +1910,7 @@ You can now escape, and activate them on the main screen.`;
 
     // [6] Update the 'storageName' dropdown from settings.storage
     this.updateStorageNameDropdownOptions();
-    const currentStorageName = this.appSettingsInfo.storageNames[this.appSettingsInfo.storageIndex];
+    const currentStorageName = this.getCurrentFlowName();
     this.uiElements.storageNameLabelCurrent.textContent = currentStorageName;
     this.uiElements.storageNameLabelCurrent.setAttribute('title', currentStorageName);
     this.uiElements.storageNameLabelCurrentModal.textContent = currentStorageName;
