@@ -1,4 +1,8 @@
 export default class AppConstants {
+  // App Name.
+  static appFullName = 'Data Mapping Flow Analysis Tool';
+  static dynamicAppTitlePrefix = 'Data Flow:';
+
   // [Q] ChatGPT Prompt: Can a JavaScript regex pattern check for either "camelCase" or
   //                    "snake_case" (both initial lowercase) without them being mixed?
   // [A] Yes: Here is a pattern for either camelCase OR snake_case, but not mixed.
