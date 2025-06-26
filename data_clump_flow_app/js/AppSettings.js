@@ -46,7 +46,7 @@ export default class AppSettings {
 
   constructor(uiSelectors) {
     const date = new Date();
-    console.log('AppSettings initialized on:', date.toLocaleString());
+    AppConfig.debugConsoleLogs && console.log('AppSettings initialized on:', date.toLocaleString());
 
     this.uiElements = this.resolveSelectors(uiSelectors);
 
@@ -570,41 +570,64 @@ P.S. This dialog will not show again.`;
       : 'calc(100vh - 42px)';
 
     // Export Reminders
-    this.checkExportReminders();
+    this.adjustExportReminders();
   };
 
-  // Export Reminders
   //
-  checkExportReminders() {
-    // Each flow name has its own counter that keeps track of saves.
-    // The active flow will check its value in the
-    //   'appSettingsInfo.exportReminderCounter' `<String, Int>{}` object.
-    // If its counter doesn't exist, it will be added with a `1`.
-    //   > this.appSettingsInfo.exportReminderValue = { 'flowName1': 0, 'flow_name2': 0, ... }
-    // If its counter is less than 'appSettingsInfo.exportReminderValue', increment it.
-    // If its counter is >= 'appSettingsInfo.exportReminderValue', reset it to `0` and show a reminder.
-    //   > Reminder: AppConstants.defaultExportReminderMessage
-    //
-    const reminderValue = this.appSettingsInfo.exportReminderValue; // 10
-    if (reminderValue === 0) {
-      return; // Reminder is disabled.
-    }
+  // Each flow name has its own counter that keeps track of the number of edits made.
+  //
+  // > 'exportReminderCounter': `<String, Int>{ 'flowName1': 0, 'flow_name2': 0, ... }`
+  //
+  // This function will increment the 'edit counter' for the active flow, and show a
+  // dialog if the flow's counter is maxed according to the max reminder input setting.
+  //
+  // - After Form Submit - increment
+  // - After Clump Delete - increment
+  // - After Export Reset - set to 0 (set directly; doesn't use this function)
+  //
+  // > Max reminder (0 disables popup): this.appSettingsInfo.exportReminderValue
+  // > (Max Reminder Setting: this.uiElements.exportReminderInput.value)
+  //
+  adjustExportReminders() {
+    const reminderMaxValue = this.appSettingsInfo.exportReminderValue; // 10
+
     const activeFlowName = this.getCurrentFlowName();
-    const reminderCounter = this.appSettingsInfo.exportReminderCounter; // {}
-    const currentCounter = reminderCounter[activeFlowName];
-    if (currentCounter === undefined) {
-      // First save for this flow.
-      reminderCounter[activeFlowName] = 1;
-    } else if ((currentCounter + 1) < reminderValue) {
-      // This save (not the stored number of saves) is less than the reminder value.
-      reminderCounter[activeFlowName] += 1;
+    const currentCounter = this.appSettingsInfo.exportReminderCounter[activeFlowName];
+    let newCount = 0;
+
+    // If the storage name is not in the counter map,
+    // or if its value was corrupted, initialize it to 1.
+    if (
+      !(activeFlowName in this.appSettingsInfo.exportReminderCounter) ||
+      currentCounter === undefined
+    ) {
+      newCount = 1; // First save for this flow.
     } else {
-      reminderCounter[activeFlowName] = 0;
+      newCount = currentCounter + 1;
+    }
+
+    // Show reminder message if max reminder is not disabled,
+    // and the new count is an even multiple of the reminder max value.
+    if (
+      reminderMaxValue > 0 &&
+      (newCount % reminderMaxValue) === 0
+    ) {
       this.addTextToCrossTabMessage(
         AppConstants.defaultExportReminderMessage
       );
     }
+
+    // Update live app settings.
+    this.appSettingsInfo.exportReminderCounter[activeFlowName] = newCount;
+    // Update status panel.
+    this.uiElements.exportReminderCount.textContent = newCount.toString();
+    // Persist settings.
     this.storeSettings();
+
+    AppConfig.debugConsoleLogs && console.log(
+      '*** [AppSettings] [Export Reminder Counter] [Incremented]:',
+      `[${this.appSettingsInfo.exportReminderCounter[activeFlowName]}]`
+    );
   }
 
   /**
@@ -886,21 +909,40 @@ P.S. This dialog will not show again.`;
     const activeFlowName = this.getCurrentFlowName();
     const reminderCounter = this.appSettingsInfo.exportReminderCounter; // {}
     reminderCounter[activeFlowName] = 0;
+    // Update status panel.
+    this.uiElements.exportReminderCount.textContent = 0;
+    // Persist settings.
+    this.storeSettings();
+  }
+
+  resetAllExportReminders() {
+    Object.keys(this.appSettingsInfo.exportReminderCounter).forEach((flowName) => {
+      this.appSettingsInfo.exportReminderCounter[flowName] = 0;
+    });
+    // Update status panel.
+    this.uiElements.exportReminderCount.textContent = '0';
+    // Persist settings.
     this.storeSettings();
   }
 
   // [Tested: No]
   handleExportAllData() {
-    console.log('[AppSettings] handleExportAllData');
+    AppConfig.debugConsoleLogs && console.log('[AppSettings] handleExportAllData');
 
     // Populate the 'export list' by retrieving the data
     // from localStorage based on the storage name.
-    this.appSettingsInfo.storageNames.forEach((storageName) => {
-      this.dataManager.setClumpExportList(storageName);
-      this.exportStorageName(storageName, this.dataManager.clumpExportList);
-    });
-
-    this.resetExportReminder();
+    (async () => {
+      for (const storageName of this.appSettingsInfo.storageNames) {
+        this.dataManager.setClumpExportList(storageName);
+        AppConfig.debugConsoleLogs &&
+            console.log(`[AppSettings] Exporting storage name: ${storageName}`);
+        // Add a small breather between exports.
+        await new Promise(resolve => setTimeout(resolve, 50));
+        this.exportStorageName(storageName, this.dataManager.clumpExportList);
+      }
+      this.resetAllExportReminders();
+      this.dismissWarningMessage();
+    })();
   }
 
   // [Tested: No]
@@ -913,6 +955,9 @@ P.S. This dialog will not show again.`;
     this.exportStorageName(currentStorageLabelName);
 
     this.resetExportReminder();
+
+    // Dismiss export reminder message if showing.
+    this.dismissWarningMessage();
   }
 
   // [Tested: No]
@@ -1291,6 +1336,10 @@ You can now escape, and activate them on the main screen.`;
     this.uiElements.editingIdTag.textContent = currentEditingIndex === null
       ? '_'
       : this.dataManager.getData('clumpList')[currentEditingIndex].id.toString();
+
+    // Export reminder count.
+    this.uiElements.exportReminderCount.textContent =
+        this.appSettingsInfo.exportReminderCounter[this.getCurrentFlowName()] || 0;
   }
 
   //
@@ -1478,11 +1527,6 @@ You can now escape, and activate them on the main screen.`;
     eventTarget.parentElement.parentElement.classList.add('clump-node-selected');
   }
 
-  // Deleting individual cells is not easily possible due to linked clumps. For instance,
-  //   what happens when you delete a clump that has a clump linked to it from its right?
-  // And the shifting involved for cells below, left and right, will require some complexity.
-  // For now, we'll just provide the ability to remove the last clump added (an undo).
-  // [Tested: No]
   deleteLastClump(event, clumpId) {
     event.stopPropagation();
 
@@ -1559,8 +1603,11 @@ You can now escape, and activate them on the main screen.`;
       // Clear matrix and re-add all clumps.
       this.dataManager.resetClumpListConverted();
       this.dataManager.addClumpsToMatrix();
-
       this.dataManager.storeClumps();
+
+      // Increment the export reminder counter.
+      this.adjustExportReminders();
+
       this.updateDataInHtml();
       this.renderMatrix();
 
@@ -1684,6 +1731,16 @@ You can now escape, and activate them on the main screen.`;
 
         this.hideStorageError();
 
+        // The following simply takes the index for the currently selected storage in the modal
+        // list (which is the same list as what's in 'appSettingsInfo.storageNames' because the
+        // list is built from that array) and using that index to update the 'storageNames' list.
+        //
+        // References:
+        //   > this.appSettingsInfo.storageNames => <string>[], // camelCase or snake_case.
+        //       => As the list is built, each index is set to the HTML element's `.value`.
+        //   > uiElements.storageNameTagModal
+        //       => Storage name list in modal: `<select id="storageNameTagModal"`
+        //
         const selectedStorageIndex = parseInt(this.uiElements.storageNameTagModal.value, 10);
         const selectedStorageName = this.appSettingsInfo.storageNames[selectedStorageIndex];
 
@@ -1695,6 +1752,9 @@ You can now escape, and activate them on the main screen.`;
           this.appSettingsInfo.storageIndex--;
           AppStorage.updateSessionStorageIndex(this.appSettingsInfo.storageIndex);
         }
+
+        // Remove flow from export reminder list.
+        delete this.appSettingsInfo.exportReminderCounter[selectedStorageName];
 
         this.storeSettings();
 

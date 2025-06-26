@@ -5,7 +5,7 @@ export const uiConfig = {
     popItIcon: '#popItIcon',
     settingsPanelToggle: '#settingsPanelToggle',
     exportPanelToggle: '#exportPanelToggle',
-    crossTabWarning: '#crossTabWarning'
+    crossTabWarning: '#crossTabWarning',
   },
   clumpPanel: {
     clumpFormId: '#clumpFormId',
@@ -16,7 +16,7 @@ export const uiConfig = {
     linkedToLeft: '#linkedToLeft',
     // 'linkedToAbove' used to be named 'column'.
     linkedToAbove: '#linkedToAbove',
-    saveClumpButton: '#clumpFormButtonSubmit'
+    saveClumpButton: '#clumpFormButtonSubmit',
     // Not used
     // resetClumpButton: '#clumpFormButtonReset'
   },
@@ -26,7 +26,7 @@ export const uiConfig = {
     gridRepeatRangeInput: '#gridRepeatRangeInput',
     gridRepeatHtmlSpan: '#gridRepeatHtmlSpan',
     gridRepeatSliderMarkers: '#gridRepeatSliderMarkers',
-    restoreBackupButton: '#restoreBackupButton'
+    restoreBackupButton: '#restoreBackupButton',
   },
   storage: {
     exportDataButton: '#exportDataButton',
@@ -42,13 +42,14 @@ export const uiConfig = {
     storageButtonDelete: '#storageButtonDelete',
     storageButtonUse: '#storageButtonUse',
     storageButtonUseModal: '#storageButtonUseModal',
-    storageNamingError: '#storageNamingError'
+    storageNamingError: '#storageNamingError',
   },
   infoPanel: {
     lastAddedClumpIdTag: '#lastAddedClumpIdTag',
     lastAddedColTag: '#lastAddedColTag',
     editingIndexTag: '#editingIndexTag',
-    editingIdTag: '#editingIdTag'
+    editingIdTag: '#editingIdTag',
+    exportReminderCount: '#exportReminderCount',
   },
   modal: {
     appModal: '#appModal',
@@ -56,6 +57,6 @@ export const uiConfig = {
     modalContent: '#appModalContent',
     modalCloseButton: '#modalCloseButton',
     storageNameTagModal: '#storageNameTagModal',
-    storageNameLabelCurrentModal: '#storageNameLabelCurrentModal'
-  }
+    storageNameLabelCurrentModal: '#storageNameLabelCurrentModal',
+  },
 };

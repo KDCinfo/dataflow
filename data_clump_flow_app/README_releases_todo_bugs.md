@@ -16,10 +16,6 @@
 ### Light/moderate changes
 
 - [ ] 'clump edit count'
-  - [ ] Bug: Exporting (current or all) doesn't reset 'clump edit count' in `dataClumpFlowAppSettings: exportReminderCounter`.
-      - It is currently only being reset after it reaches its max.
-  - [ ] Bug: Exporting (current or all) should dismiss the reminder message.
-  - [ ] Feature: Add HTML element for showing current 'clump edit count'.
   - [ ] Before switching flows, maybe have an preference setting to prompt for exporting prior to switching ... maybe do a backup of the current flow
     > When a flow is activated, --- there's already a count for how many changes have been made | dataClumpFlowAppSettings: exportReminderCounter
         Use that count and if not 0, ask if you would like to export before switching flows
@@ -171,7 +167,13 @@
 
 ## Version: 2.2.2
 
-> 2025-06-24
+> 2025-06-24--26
 
 - [X] Feature: The topmost open cell should be highlighted.
-- [X] Feature: Change browser title to be active flow name
+- [X] Feature: Change browser title to be active flow name.
+- [X] Feature: Export reminders: 'clump edit count'
+  - [X] Added an HTML element for showing current 'clump edit count'.
+  - [X] 'Export All' resets 'clump edit count' for all flows.
+  - [X] Deleting a flow also deletes its 'export reminder count'.
+- [X] Bug: Exporting (current or all) should dismiss the reminder message.
+- [X] Added small ms delay to 'Export All' loop and file link download click.
