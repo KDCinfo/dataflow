@@ -619,8 +619,15 @@ P.S. This dialog will not show again.`;
 
     // Update live app settings.
     this.appSettingsInfo.exportReminderCounter[activeFlowName] = newCount;
+    // Update status panel.
+    this.uiElements.exportReminderCount.textContent = newCount.toString();
     // Persist settings.
     this.storeSettings();
+
+    AppConfig.debugConsoleLogs && console.log(
+      '*** [AppSettings] [Export Reminder Counter] [Incremented]:',
+      `[${this.appSettingsInfo.exportReminderCounter[activeFlowName]}]`
+    );
   }
 
   /**
@@ -902,6 +909,9 @@ P.S. This dialog will not show again.`;
     const activeFlowName = this.getCurrentFlowName();
     const reminderCounter = this.appSettingsInfo.exportReminderCounter; // {}
     reminderCounter[activeFlowName] = 0;
+    // Update status panel.
+    this.uiElements.exportReminderCount.textContent = 0;
+    // Persist settings.
     this.storeSettings();
   }
 
@@ -1307,6 +1317,10 @@ You can now escape, and activate them on the main screen.`;
     this.uiElements.editingIdTag.textContent = currentEditingIndex === null
       ? '_'
       : this.dataManager.getData('clumpList')[currentEditingIndex].id.toString();
+
+    // Export reminder count.
+    this.uiElements.exportReminderCount.textContent =
+        this.appSettingsInfo.exportReminderCounter[this.getCurrentFlowName()] || 0;
   }
 
   //
@@ -1570,8 +1584,11 @@ You can now escape, and activate them on the main screen.`;
       // Clear matrix and re-add all clumps.
       this.dataManager.resetClumpListConverted();
       this.dataManager.addClumpsToMatrix();
-
       this.dataManager.storeClumps();
+
+      // Increment the export reminder counter.
+      this.adjustExportReminders();
+
       this.updateDataInHtml();
       this.renderMatrix();
 
