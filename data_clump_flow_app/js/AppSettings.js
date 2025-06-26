@@ -937,7 +937,7 @@ P.S. This dialog will not show again.`;
         AppConfig.debugConsoleLogs &&
             console.log(`[AppSettings] Exporting storage name: ${storageName}`);
         // Add a small breather between exports.
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 500));
         this.exportStorageName(storageName, this.dataManager.clumpExportList);
       }
       this.resetAllExportReminders();
