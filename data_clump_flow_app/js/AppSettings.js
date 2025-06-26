@@ -915,6 +915,16 @@ P.S. This dialog will not show again.`;
     this.storeSettings();
   }
 
+  resetAllExportReminders() {
+    Object.keys(this.appSettingsInfo.exportReminderCounter).forEach((flowName) => {
+      this.appSettingsInfo.exportReminderCounter[flowName] = 0;
+    });
+    // Update status panel.
+    this.uiElements.exportReminderCount.textContent = '0';
+    // Persist settings.
+    this.storeSettings();
+  }
+
   // [Tested: No]
   handleExportAllData() {
     console.log('[AppSettings] handleExportAllData');
@@ -926,7 +936,7 @@ P.S. This dialog will not show again.`;
       this.exportStorageName(storageName, this.dataManager.clumpExportList);
     });
 
-    this.resetExportReminder();
+    this.resetAllExportReminders();
   }
 
   // [Tested: No]
