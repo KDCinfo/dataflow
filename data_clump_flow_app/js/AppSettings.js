@@ -570,40 +570,56 @@ P.S. This dialog will not show again.`;
       : 'calc(100vh - 42px)';
 
     // Export Reminders
-    this.checkExportReminders();
+    this.adjustExportReminders();
   };
 
-  // Export Reminders
   //
-  checkExportReminders() {
-    // Each flow name has its own counter that keeps track of saves.
-    // The active flow will check its value in the
-    //   'appSettingsInfo.exportReminderCounter' `<String, Int>{}` object.
-    // If its counter doesn't exist, it will be added with a `1`.
-    //   > this.appSettingsInfo.exportReminderValue = { 'flowName1': 0, 'flow_name2': 0, ... }
-    // If its counter is less than 'appSettingsInfo.exportReminderValue', increment it.
-    // If its counter is >= 'appSettingsInfo.exportReminderValue', reset it to `0` and show a reminder.
-    //   > Reminder: AppConstants.defaultExportReminderMessage
-    //
-    const reminderValue = this.appSettingsInfo.exportReminderValue; // 10
-    if (reminderValue === 0) {
-      return; // Reminder is disabled.
-    }
+  // Each flow name has its own counter that keeps track of the number of edits made.
+  //
+  // > 'exportReminderCounter': `<String, Int>{ 'flowName1': 0, 'flow_name2': 0, ... }`
+  //
+  // This function will increment the 'edit counter' for the active flow, and show a
+  // dialog if the flow's counter is maxed according to the max reminder input setting.
+  //
+  // - After Form Submit - increment
+  // - After Clump Delete - increment
+  // - After Export Reset - set to 0 (set directly; doesn't use this function)
+  //
+  // > Max reminder (0 disables popup): this.appSettingsInfo.exportReminderValue
+  // > (Max Reminder Setting: this.uiElements.exportReminderInput.value)
+  //
+  adjustExportReminders() {
+    const reminderMaxValue = this.appSettingsInfo.exportReminderValue; // 10
+
     const activeFlowName = this.getCurrentFlowName();
-    const reminderCounter = this.appSettingsInfo.exportReminderCounter; // {}
-    const currentCounter = reminderCounter[activeFlowName];
-    if (currentCounter === undefined) {
-      // First save for this flow.
-      reminderCounter[activeFlowName] = 1;
-    } else if ((currentCounter + 1) < reminderValue) {
-      // This save (not the stored number of saves) is less than the reminder value.
-      reminderCounter[activeFlowName] += 1;
+    const currentCounter = this.appSettingsInfo.exportReminderCounter[activeFlowName];
+    let newCount = 0;
+
+    // If the storage name is not in the counter map,
+    // or if its value was corrupted, initialize it to 1.
+    if (
+      !(activeFlowName in this.appSettingsInfo.exportReminderCounter) ||
+      currentCounter === undefined
+    ) {
+      newCount = 1; // First save for this flow.
     } else {
-      reminderCounter[activeFlowName] = 0;
+      newCount = currentCounter + 1;
+    }
+
+    // Show reminder message if max reminder is not disabled,
+    // and the new count is an even multiple of the reminder max value.
+    if (
+      reminderMaxValue > 0 &&
+      (newCount % reminderMaxValue) === 0
+    ) {
       this.addTextToCrossTabMessage(
         AppConstants.defaultExportReminderMessage
       );
     }
+
+    // Update live app settings.
+    this.appSettingsInfo.exportReminderCounter[activeFlowName] = newCount;
+    // Persist settings.
     this.storeSettings();
   }
 
@@ -1478,11 +1494,6 @@ You can now escape, and activate them on the main screen.`;
     eventTarget.parentElement.parentElement.classList.add('clump-node-selected');
   }
 
-  // Deleting individual cells is not easily possible due to linked clumps. For instance,
-  //   what happens when you delete a clump that has a clump linked to it from its right?
-  // And the shifting involved for cells below, left and right, will require some complexity.
-  // For now, we'll just provide the ability to remove the last clump added (an undo).
-  // [Tested: No]
   deleteLastClump(event, clumpId) {
     event.stopPropagation();
 
