@@ -5,7 +5,24 @@ export default class FileHandler {
     return obj instanceof Map;
   }
 
-  static handleExportData({
+  // A note on awaiting the file dialog:
+  //
+  // In standard web JavaScript, it is not possible to detect the completion or
+  //   cancellation of a file download dialog. The browser does not expose
+  //   any events or Promises for this process in the standard web API.
+  //
+  // The current inner code for downloading a file (creating a Blob, making a download
+  //   link, and clicking it) is fully synchronous and does not provide any way to know
+  //   when the file has actually been saved, or if the user canceled the download dialog.
+  //
+  // Workaround: If you want to know when a file is saved, you could use a server-side
+  //   solution where the file is generated and downloaded via a controlled endpoint.
+  //
+  // Summary: You cannot make any part of the current inner code awaitable to reliably
+  //   know when a file was saved or if the user canceled the download dialog using
+  //   standard browser APIs. The process is fire-and-forget from JavaScript’s perspective.
+  //
+  static async handleExportData({
     clumpListToExport = null,
     storageName = AppConstants.defaultExportStorageName
   }) {
@@ -18,6 +35,8 @@ export default class FileHandler {
       const link = document.createElement('a');
       link.href = url;
       link.download = `dataflow_${storageName}.json`;
+      // Pause for 20 ms to ensure the link is added to the DOM.
+      await new Promise(resolve => setTimeout(resolve, 20));
       link.click();
       URL.revokeObjectURL(url);
     }

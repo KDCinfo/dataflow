@@ -46,7 +46,7 @@ export default class AppSettings {
 
   constructor(uiSelectors) {
     const date = new Date();
-    console.log('AppSettings initialized on:', date.toLocaleString());
+    AppConfig.debugConsoleLogs && console.log('AppSettings initialized on:', date.toLocaleString());
 
     this.uiElements = this.resolveSelectors(uiSelectors);
 
@@ -927,19 +927,22 @@ P.S. This dialog will not show again.`;
 
   // [Tested: No]
   handleExportAllData() {
-    console.log('[AppSettings] handleExportAllData');
+    AppConfig.debugConsoleLogs && console.log('[AppSettings] handleExportAllData');
 
     // Populate the 'export list' by retrieving the data
     // from localStorage based on the storage name.
-    this.appSettingsInfo.storageNames.forEach((storageName) => {
-      this.dataManager.setClumpExportList(storageName);
-      this.exportStorageName(storageName, this.dataManager.clumpExportList);
-    });
-
-    this.resetAllExportReminders();
-
-    // Dismiss export reminder message if showing.
-    this.dismissWarningMessage();
+    (async () => {
+      for (const storageName of this.appSettingsInfo.storageNames) {
+        this.dataManager.setClumpExportList(storageName);
+        AppConfig.debugConsoleLogs &&
+            console.log(`[AppSettings] Exporting storage name: ${storageName}`);
+        // Add a small breather between exports.
+        await new Promise(resolve => setTimeout(resolve, 50));
+        this.exportStorageName(storageName, this.dataManager.clumpExportList);
+      }
+      this.resetAllExportReminders();
+      this.dismissWarningMessage();
+    })();
   }
 
   // [Tested: No]
