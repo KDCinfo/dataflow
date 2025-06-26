@@ -5,7 +5,7 @@ There are two projects in this repository:
 - The '[Data Clump Flow App](https://github.com/KDCinfo/dataflow/tree/main/data_clump_flow_app)' is a fully working app with a live demo.
 - The 'Function Flow' app was barely started and never followed up on.
 
-## 1. Data Mapping Flow Analysis Tool
+## 1. Data Clump Flow App / Analysis Tool
 
 <img src="./data_clump_flow_app/images/icon128.png" align="right" width="64" height="64">
 
