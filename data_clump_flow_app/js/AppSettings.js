@@ -1722,6 +1722,16 @@ You can now escape, and activate them on the main screen.`;
 
         this.hideStorageError();
 
+        // The following simply takes the index for the currently selected storage in the modal
+        // list (which is the same list as what's in 'appSettingsInfo.storageNames' because the
+        // list is built from that array) and using that index to update the 'storageNames' list.
+        //
+        // References:
+        //   > this.appSettingsInfo.storageNames => <string>[], // camelCase or snake_case.
+        //       => As the list is built, each index is set to the HTML element's `.value`.
+        //   > uiElements.storageNameTagModal
+        //       => Storage name list in modal: `<select id="storageNameTagModal"`
+        //
         const selectedStorageIndex = parseInt(this.uiElements.storageNameTagModal.value, 10);
         const selectedStorageName = this.appSettingsInfo.storageNames[selectedStorageIndex];
 
@@ -1733,6 +1743,9 @@ You can now escape, and activate them on the main screen.`;
           this.appSettingsInfo.storageIndex--;
           AppStorage.updateSessionStorageIndex(this.appSettingsInfo.storageIndex);
         }
+
+        // Remove flow from export reminder list.
+        delete this.appSettingsInfo.exportReminderCounter[selectedStorageName];
 
         this.storeSettings();
 
