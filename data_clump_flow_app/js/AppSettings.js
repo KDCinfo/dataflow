@@ -937,6 +937,9 @@ P.S. This dialog will not show again.`;
     });
 
     this.resetAllExportReminders();
+
+    // Dismiss export reminder message if showing.
+    this.dismissWarningMessage();
   }
 
   // [Tested: No]
@@ -949,6 +952,9 @@ P.S. This dialog will not show again.`;
     this.exportStorageName(currentStorageLabelName);
 
     this.resetExportReminder();
+
+    // Dismiss export reminder message if showing.
+    this.dismissWarningMessage();
   }
 
   // [Tested: No]
