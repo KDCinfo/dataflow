@@ -59,4 +59,10 @@ export const uiConfig = {
     storageNameTagModal: '#storageNameTagModal',
     storageNameLabelCurrentModal: '#storageNameLabelCurrentModal',
   },
+  tipsModal: {
+    tipsModal: '#tipsModal',
+    tipsModalRefBtn: '#tipsModalRefBtn',
+    tipsModalContent: '#tipsModalContent',
+    tipsModalCloseButton: '#tipsModalCloseButton',
+  },
 };

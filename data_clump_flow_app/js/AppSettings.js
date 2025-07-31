@@ -43,6 +43,7 @@ export default class AppSettings {
 
   // The 'appModal' is setup to show the 'Project Flow Manager' form.
   appModal;
+  tipsModal;
 
   constructor(uiSelectors) {
     const date = new Date();
@@ -84,7 +85,16 @@ export default class AppSettings {
     // Initial render call
     this.renderMatrix();
 
+    AppHelpers.injectHtml(
+      './htmlh/tips-page.htmlh',
+      this.uiElements.tipsModalContent.querySelector('.modal-body'),
+      (target) => {
+        AppConfig.debugConsoleLogs && console.log('Content injected into:', target);
+        target.style.color = '#ffffff';
+      }
     );
+
+    // Initialize AppModal -- moved to 'renderMatrix()' inside 'injectHtml().then()'.
 
     // Uncomment the trigger below when debugging the Flow Manager modal.
     // this.triggerAppModalBtnClick();
@@ -180,6 +190,8 @@ P.S. This dialog will not show again.`;
         // If modal is open, close it. Else, toggle the clump form pop up.
         if (this.appModal.isOpen) {
           this.appModal.modalClose();
+        } else if (this.tipsModal.isOpen) {
+          this.tipsModal.modalClose();
         } else {
           this.toggleClumpFormPopUp();
         }
@@ -1930,6 +1942,17 @@ You can now escape, and activate them on the main screen.`;
           modalCloseButton: this.uiElements.modalCloseButton,
           newStorageNameInput: this.uiElements.newStorageNameInput,
           clumpNameInput: this.uiElements.clumpNameInput,
+        });
+
+        // The empty (.htmlh) page is injected during this `renderMatrix()` call,
+        //   which is run after the 'uiElements' are resolved (at the top of the constructor),
+        //   so we'll have to grab the HTML <a> element directly.
+        const tipsModalRefBtn = this.uiElements.clumpContainer.querySelector('#tipsModalRefBtn');
+        this.tipsModal = new AppModal({
+          appModal: this.uiElements.tipsModal,
+          // These two buttons open the modal (as passed into and from within the modal).
+          appModalBtnAlt: tipsModalRefBtn,
+          modalCloseButton: this.uiElements.tipsModalCloseButton,
         });
       });
     } else {
