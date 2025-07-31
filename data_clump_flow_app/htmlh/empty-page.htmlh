@@ -1,36 +1,23 @@
-<div class="empty-notes">
-  <h2>Data Clump Flow App</h2>
-
-  <p>Tips:</p>
-  <ul>
-    <li>Cell clumps flow from top down by default, and left to right when linked.</li>
-    <li>To export, 'activate' the desired storage, then click the 'Export Data' button.</li>
-  </ul>
-  <ul>
-    <li>Clicking cells will show clump contents in a window at the bottom of the screen.</li>
-    <li>Multiple cell contents can be expanded, each will be layered on top of the previous.</li>
-  </ul>
-  <ul>
-    <li>When a clump is shown, highlighting text inside the content window
-      will not close the window (as long as text is highlighted).</li>
-  </ul>
-
-  <p>Keyboard shortcuts:</p>
-  <ul>
-    <li>Escape will toggle popping out the clump add/edit form.</li>
-  </ul>
-
-  <p>
-    <code>@TODO:</code> <small>(also see
-      <a href='https://github.com/KDCinfo/dataflow/tree/main/data_clump_flow_app' target='kdcinfo'>Readme</a>)</small>:
-  </p>
+<div class='empty-notes'>
+  <h2 class='notes-h2'>Data Flow: Quick Start</h2>
+  <p>Get started in 2 Steps:</p>
   <ol>
-    <li>Implement drag-n-drop (facilitated by <a href='https://github.com/KDCinfo/dataflow/pull/2' target='kdcinfo'>merge #2</a> of the <a href='https://github.com/KDCinfo/dataflow/tree/feature-clump-movement' target='kdcinfo'>clump movement</a> branch).</li>
-    <li>Bug: Sometimes 'Import Data' will fail silently*.
-      <ol>
-        <li>*An error is shown in the dev tools console.</li>
-        <li>Workaround: Try again. A second attempt usually works.</li>
-      </ol>
+    <li style='position: relative;'>
+      <div class='larr'>&larr;</div>
+      Start typing your first clump name.
     </li>
+    <li>Press enter to save it.</li>
   </ol>
+
+  <h2 class='notes-h2'>References</h2>
+  <ul class='notes-ul-1st-tier'>
+    <li>Open <a id="tipsModalRefBtn" class="help-button">instructions and tips</a>.</li>
+    <li>
+      View the <a
+        href="https://github.com/KDCinfo/dataflow/tree/main/data_clump_flow_app"
+        class="help-button"
+        target="_dataClumpFlow"
+      >code on GitHub</a>.
+    </li>
+  </ul>
 </div>

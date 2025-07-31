@@ -1,6 +1,6 @@
-<div class="empty-notes">
-  <h2 style='color: #b0e000;'>Instructions</h2>
-  <ul style='line-height: 1.6; padding-left: 15px;'>
+<div class="tips-notes">
+  <h2 class='notes-h2'>Instructions</h2>
+  <ul class='notes-ul-1st-tier'>
     <li>Cell <b>clumps flow from top down by default, and left to right when linked</b>.</li>
     <li><b>To export</b>, 'activate' the desired storage, then click the 'Export Data' button.</li>
     <li><b>Clicking cells will show clump contents</b> in a window at the bottom of the screen.</li>
@@ -9,16 +9,16 @@
       will not close the window</b> (as long as text is highlighted).</li>
   </ul>
 
-  <h2 style='color: #b0e000;'>Keyboard Shortcuts</h2>
-  <ul style='line-height: 1.6; padding-left: 15px;'>
+  <h2 class='notes-h2'>Keyboard Shortcuts</h2>
+  <ul class='notes-ul-1st-tier'>
     <li>Escape will toggle a popped-out add/edit form.</li>
   </ul>
 
-  <h2 style='color: #b0e000;'><code>@TODO:</code></h2>
-  <ul style='line-height: 1.6; padding-left: 15px;'>
-    <li>See <a href='https://github.com/KDCinfo/dataflow/tree/main/data_clump_flow_app' target='kdcinfo'>Readme</a></li>
+  <h2 class='notes-h2'><code>@TODO:</code></h2>
+  <ul class='notes-ul-1st-tier'>
+    <li>See <a href='https://github.com/KDCinfo/dataflow/blob/main/data_clump_flow_app/README_releases_todo_bugs.md' target='kdcinfo'>Readme</a></li>
     <li>Example bug: Sometimes 'Import Data' will fail silently*.
-      <ul style='line-height: 1.4; padding-left: 15px;'>
+      <ul class='notes-ul-2nd-tier'>
         <li>*An error is shown in the dev tools console.</li>
         <li>Workaround: Try again. A second attempt usually works.</li>
       </ul>
