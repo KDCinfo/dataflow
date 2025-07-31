@@ -1902,7 +1902,7 @@ You can now escape, and activate them on the main screen.`;
 
     panelHotspot.getElementsByClassName('collapse-arrow')[0].textContent =
         panelToExpand.classList.contains('panel-from-expanded-to-collapsed')
-      ? '▶'
+        ? '◀'
       : '▼';
   }
 
