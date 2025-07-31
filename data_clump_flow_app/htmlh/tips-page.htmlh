@@ -16,7 +16,11 @@
 
   <h2 class='notes-h2'><code>@TODO:</code></h2>
   <ul class='notes-ul-1st-tier'>
-    <li>See <a href='https://github.com/KDCinfo/dataflow/blob/main/data_clump_flow_app/README_releases_todo_bugs.md' target='kdcinfo'>Readme</a></li>
+    <li>See <a
+      href='https://github.com/KDCinfo/dataflow/blob/main/data_clump_flow_app/README_releases_todo_bugs.md'
+      class='help-button'
+      target='kdcinfo'
+    >Readme</a></li>
     <li>Example bug: Sometimes 'Import Data' will fail silently*.
       <ul class='notes-ul-2nd-tier'>
         <li>*An error is shown in the dev tools console.</li>

@@ -97,6 +97,12 @@ button:hover:enabled {
   min-width: 0;
   text-align: center;
 }
+.h2-inset-wrapper {
+  border-bottom: 1px dotted #306000;
+  margin: 0 auto;
+  max-width: 200px;
+  padding-bottom: 7px;
+}
 .dcfa-tool-header a {
   /* display: inline-block; */
   float: right;
@@ -298,7 +304,7 @@ li ol>li:before {
   padding-bottom: 10px;
 }
 
-.grid .tips-notes,
+/* .grid .tips-notes, */
 .grid .empty-notes {
   background-color: midnightblue;
   background: linear-gradient(
@@ -309,7 +315,7 @@ li ol>li:before {
   border-radius: 10px;
   box-shadow: -2px -2px 9px #00c000 inset;
   line-height: 1.5;
-  margin-top: 20px;
+  margin-top: 0;
   padding: 10px 10px 35px 30px;
   position: relative;
 }
