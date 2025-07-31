@@ -3,7 +3,13 @@
 // Starting inspiration: https://www.w3schools.com/howto/howto_css_modals.asp
 //
 export default class AppModal {
-  constructor(appModal, appModalBtn, modalCloseButton, newStorageNameInput) {
+  constructor(
+    appModal,
+    appModalBtn,
+    modalCloseButton,
+    newStorageNameInput = null,
+    clumpNameInput = null,
+  ) {
     this.appModal = appModal;
     this.appModalBtn = appModalBtn;
     this.modalCloseButton = modalCloseButton;
@@ -37,10 +43,13 @@ export default class AppModal {
     this.appModal.classList.remove('modal-content-animout');
     this.appModal.style.display = 'block';
     this.appModal.classList.add('modal-content-animin');
-    // Wait for animation to finish before opening.
-    setTimeout(() => {
-      this.newStorageNameInput.focus();
-    }, 500);
+
+    if (this.newStorageNameInput) {
+      // Wait for animation to finish before opening.
+      setTimeout(() => {
+        this.newStorageNameInput.focus();
+      }, 500);
+    }
   }
   modalClose() {
     this.appModal.classList.remove('modal-content-animin');
@@ -49,7 +58,10 @@ export default class AppModal {
     const onAnimEnd = () => {
       this.appModal.style.display = 'none';
       this.appModal.removeEventListener('animationend', onAnimEnd);
-      this.clumpNameInput.focus();
+
+      if (this.clumpNameInput) {
+        this.clumpNameInput.focus();
+      }
     };
     this.appModal.addEventListener('animationend', onAnimEnd);
   }
