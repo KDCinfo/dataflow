@@ -84,13 +84,6 @@ export default class AppSettings {
     // Initial render call
     this.renderMatrix();
 
-    // Initialize AppModal.
-    this.appModal = new AppModal(
-      this.uiElements.appModal,
-      this.uiElements.appModalBtn,
-      this.uiElements.modalCloseButton,
-      this.uiElements.newStorageNameInput,
-      this.uiElements.clumpNameInput
     );
 
     // Uncomment the trigger below when debugging the Flow Manager modal.
@@ -1928,7 +1921,17 @@ You can now escape, and activate them on the main screen.`;
           AppConfig.debugConsoleLogs && console.log('Content injected into:', target);
           target.style.color = '#ffffff';
         }
-      );
+      ).then(() => {
+        // Initialize AppModal.
+        this.appModal = new AppModal({
+          appModal: this.uiElements.appModal,
+          // This button opens the modal (as passed into and from within the modal).
+          appModalBtn: this.uiElements.appModalBtn,
+          modalCloseButton: this.uiElements.modalCloseButton,
+          newStorageNameInput: this.uiElements.newStorageNameInput,
+          clumpNameInput: this.uiElements.clumpNameInput,
+        });
+      });
     } else {
       this.uiElements.clumpContainer.innerHTML = '';
       // Set color to same as '.output-container'.
