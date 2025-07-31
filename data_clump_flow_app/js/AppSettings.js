@@ -122,6 +122,12 @@ export default class AppSettings {
     this.appModal.appModalBtn.click();
   }
 
+  async triggerTipsModalBtnClick() {
+    // Delay the click for 'n' seconds.
+    await new Promise(resolve => setTimeout(resolve, 500));
+    this.tipsModal.tipsModalBtn.click();
+  }
+
   // [Tested]
   showOneTimeAlert() {
     const alertText = `Welcome to the Data Clump Flow App!\n
@@ -1951,6 +1957,7 @@ You can now escape, and activate them on the main screen.`;
         this.tipsModal = new AppModal({
           appModal: this.uiElements.tipsModal,
           // These two buttons open the modal (as passed into and from within the modal).
+          appModalBtn: this.uiElements.tipsModalBtn,
           appModalBtnAlt: tipsModalRefBtn,
           modalCloseButton: this.uiElements.tipsModalCloseButton,
         });

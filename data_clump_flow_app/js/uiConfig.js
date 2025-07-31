@@ -61,6 +61,7 @@ export const uiConfig = {
   },
   tipsModal: {
     tipsModal: '#tipsModal',
+    tipsModalBtn: '#tipsModalBtn',
     tipsModalRefBtn: '#tipsModalRefBtn',
     tipsModalContent: '#tipsModalContent',
     tipsModalCloseButton: '#tipsModalCloseButton',

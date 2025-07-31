@@ -110,6 +110,38 @@ button:hover:enabled {
   width: 64px;
 }
 
+.dcfa-tool-links {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  /* margin-top: 7px; */
+}
+/* Some of these are overriden for 'empty-page.htmlh' */
+/* below in: .tips-notes a, .empty-notes a */
+.help-button:visited,
+.help-button,
+.dcfa-tool-links a:visited,
+.dcfa-tool-links a {
+  border-radius: 6px;
+  color: #4a8cc7;
+  font-size: 0.9rem;
+  padding: 2px 4px;
+  text-decoration: none;
+  transition: color 0.23s;
+}
+.help-button:hover,
+.dcfa-tool-links a:hover {
+  color: #bbffff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+@media (max-width: 895px) {
+  .dcfa-tool-links {
+    margin-top: 7px;
+  }
+}
+
 /* .floating-icon -> .dcfa-tool-icon */
 .floating-icon {
   position: absolute;
@@ -266,21 +298,75 @@ li ol>li:before {
   padding-bottom: 10px;
 }
 
+.grid .tips-notes,
 .grid .empty-notes {
   background-color: midnightblue;
+  background: linear-gradient(
+    to right,
+    midnightblue 300px,
+    #003300 100%
+  );
   border-radius: 10px;
   box-shadow: -2px -2px 9px #00c000 inset;
   line-height: 1.5;
   margin-top: 20px;
-  padding: 10px 20px 35px;
+  padding: 10px 10px 35px 30px;
+  position: relative;
 }
-
+.tips-notes .notes-h2,
+.empty-notes .notes-h2 {
+  color: #b0e000;
+}
+.tips-notes .notes-ul-1st-tier,
+.empty-notes .notes-ul-1st-tier {
+  line-height: 1.6;
+  padding-left: 15px;
+}
+.tips-notes .notes-ul-2nd-tier,
+.empty-notes .notes-ul-2nd-tier {
+  line-height: 1.4;
+  padding-left: 15px;
+}
+.tips-notes a,
 .empty-notes a {
   color: #b0e000;
+  font-size: 1rem;
+  text-decoration: dotted underline white;
+}
+.empty-notes .larr {
+  animation: moveXWithBounce 7s infinite linear;
+  color: green;
+  font-size: 1.2rem;
+  font-weight: bold;
+  position: absolute;
+  top: -3px;
+  left: -25px;
 }
 
 .empty {
   background-color: transparent !important;
+}
+
+/* Thanks to: https://webcode.tools/css-generator/keyframe-animation */
+@keyframes moveXWithBounce {
+  /* 0 */
+	0% { animation-timing-function: ease-in; transform: translateX(0); }
+  /* 38 -> 19 -> 9.5 (+10) */
+	10% { animation-timing-function: ease-out; transform: translateX(-10px); }
+  /* 17 -> 8.5 (+9) */
+	19% { animation-timing-function: ease-in; transform: translateX(-3px); }
+  /* 17 -> 8.5 (+9) */
+	28% { animation-timing-function: ease-out; transform: translateX(-10px); }
+  /* 9 -> 4.5 (+5) */
+	33% { animation-timing-function: ease-in; transform: translateX(-6px); }
+  /* 9 -> 4.5 (+5) */
+	38% { animation-timing-function: ease-out; transform: translateX(-10px); }
+  /* 5 -> 2.5 (+3) */
+	41% { animation-timing-function: ease-in; transform: translateX(-8px); }
+  /* 5 -> 2.5 (+3) */
+	44% { animation-timing-function: ease-out; transform: translateX(-10px); }
+	97% { animation-timing-function: ease-in; transform: translateX(-10px); }
+	100% { animation-timing-function: ease-out; transform: translateX(0); }
 }
 
 .column {
