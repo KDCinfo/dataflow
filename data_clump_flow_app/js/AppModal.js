@@ -3,24 +3,32 @@
 // Starting inspiration: https://www.w3schools.com/howto/howto_css_modals.asp
 //
 export default class AppModal {
-  constructor(
+  constructor({
     appModal,
     appModalBtn,
     modalCloseButton,
     newStorageNameInput = null,
     clumpNameInput = null,
-  ) {
+    appModalBtnAlt = null,
+  }) {
     this.appModal = appModal;
     this.appModalBtn = appModalBtn;
+    this.appModalBtnAlt = appModalBtnAlt;
     this.modalCloseButton = modalCloseButton;
     this.newStorageNameInput = newStorageNameInput;
     this.clumpNameInput = clumpNameInput;
 
     // Bind event listeners
     //
-    // When the user clicks on the button, open the modal
+    // Primary 'open modal' button.
     this.appModalBtn.onclick = () => {
       this.modalOpen();
+    }
+    // If an alternative 'open modal' reference is provided, bind it as well.
+    if (this.appModalBtnAlt) {
+      this.appModalBtnAlt.onclick = () => {
+        this.modalOpen();
+      };
     }
 
     // When the user clicks on <span> (x), close the modal.
@@ -76,6 +84,7 @@ export default class AppModal {
 
   // Get the button that opens the modal.
   appModalBtn;
+  appModalBtnAlt;
 
   // Get the element that closes the modal.
   // span = document.getElementsByClassName('close')[0];
