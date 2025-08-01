@@ -1940,32 +1940,16 @@ You can now escape, and activate them on the main screen.`;
           target.style.color = '#ffffff';
         }
       ).then(() => {
-        // Initialize AppModal.
-        this.appModal = new AppModal({
-          appModal: this.uiElements.appModal,
-          // This button opens the modal (as passed into and from within the modal).
-          appModalBtn: this.uiElements.appModalBtn,
-          modalCloseButton: this.uiElements.modalCloseButton,
-          newStorageNameInput: this.uiElements.newStorageNameInput,
-          clumpNameInput: this.uiElements.clumpNameInput,
-        });
-
-        // The empty (.htmlh) page is injected during this `renderMatrix()` call,
-        //   which is run after the 'uiElements' are resolved (at the top of the constructor),
-        //   so we'll have to grab the HTML <a> element directly.
-        const tipsModalRefBtn = this.uiElements.clumpContainer.querySelector('#tipsModalRefBtn');
-        this.tipsModal = new AppModal({
-          appModal: this.uiElements.tipsModal,
-          // These two buttons open the modal (as passed into and from within the modal).
-          appModalBtn: this.uiElements.tipsModalBtn,
-          appModalBtnAlt: tipsModalRefBtn,
-          modalCloseButton: this.uiElements.tipsModalCloseButton,
-        });
+        // Initialize AppModals.
+        this.initializeAppModals();
       });
     } else {
       this.uiElements.clumpContainer.innerHTML = '';
       // Set color to same as '.output-container'.
       this.uiElements.clumpContainer.style.color = '#000000';
+
+      // Initialize AppModals.
+      this.initializeAppModals();
     }
 
     // [ GRID REPEAT SLIDER ]
@@ -2254,5 +2238,28 @@ You can now escape, and activate them on the main screen.`;
     } else {
       this.uiElements.clumpNameInput.focus();
     }
+  }
+
+  initializeAppModals() {
+    this.appModal = new AppModal({
+      appModal: this.uiElements.appModal,
+      // This button opens the modal (as passed into and from within the modal).
+      appModalBtn: this.uiElements.appModalBtn,
+      modalCloseButton: this.uiElements.modalCloseButton,
+      newStorageNameInput: this.uiElements.newStorageNameInput,
+      clumpNameInput: this.uiElements.clumpNameInput,
+    });
+
+    // The empty (.htmlh) page is injected during this `renderMatrix()` call,
+    //   which is run after the 'uiElements' are resolved (at the top of the constructor),
+    //   so we'll have to grab the HTML <a> element directly.
+    const tipsModalRefBtn = this.uiElements.clumpContainer.querySelector('#tipsModalRefBtn');
+    this.tipsModal = new AppModal({
+      appModal: this.uiElements.tipsModal,
+      // These two buttons open the modal (as passed into and from within the modal).
+      appModalBtn: this.uiElements.tipsModalBtn,
+      appModalBtnAlt: tipsModalRefBtn,
+      modalCloseButton: this.uiElements.tipsModalCloseButton,
+    });
   }
 }
