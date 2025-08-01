@@ -13,6 +13,13 @@
 
 ## @TODO:
 
+### Maintenance
+
+- [ ] Graft '/data_clump_flow_app' subfolder to root '/dataflow':
+	- Move the entire '/data_clump_flow_app' directory up, and delete the other (obsolete) data flow project.
+	- Keep existing direrctory and some files with note about redirect to new location (repository root).
+	- This will require a tiny bit of file work on the live site.
+
 ### Light/moderate changes
 
 - [ ] 'clump edit count'
@@ -177,3 +184,13 @@
   - [X] Deleting a flow also deletes its 'export reminder count'.
 - [X] Bug: Exporting (current or all) should dismiss the reminder message.
 - [X] Added small ms delay to 'Export All' loop and file link download click.
+
+## Version: 2.2.3
+
+> 2025-07-31
+
+- [X] Put entire empty landing page into its own `.htmlh` file as content for a new modal.
+  - Created a new tips/instructions modal with old 'empty landing page' contents (`tips-page.htmlh`).
+  - Simplified landing page (`empty-page.htmlh`).
+  - Prettied up title and logo, and added two links ('tips' and 'github').
+  - Created and committed a screenshot of the new layout.
