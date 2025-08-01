@@ -124,8 +124,8 @@ button:hover:enabled {
 }
 /* Some of these are overriden for 'empty-page.htmlh' */
 /* below in: .tips-notes a, .empty-notes a */
-.help-button:visited,
-.help-button,
+.dcfa-tool-links .help-button:visited,
+.dcfa-tool-links .help-button,
 .dcfa-tool-links a:visited,
 .dcfa-tool-links a {
   border-radius: 6px;
@@ -133,10 +133,11 @@ button:hover:enabled {
   font-size: 0.9rem;
   padding: 2px 4px;
   text-decoration: none;
-  transition: color 0.23s;
+  transition: background-color 0.23s ease-in-out, color 0.23s ease-in-out, color 0.23s ease-in-out;
 }
-.help-button:hover,
+.dcfa-tool-links .help-button:hover,
 .dcfa-tool-links a:hover {
+  background-color: darkgreen;
   color: #bbffff;
   cursor: pointer;
   text-decoration: underline;
@@ -335,9 +336,20 @@ li ol>li:before {
 }
 .tips-notes a,
 .empty-notes a {
+  border-radius: 6px;
   color: #b0e000;
   font-size: 1rem;
+  padding: 2px 4px;
   text-decoration: dotted underline white;
+  transition: background-color 0.23s ease-in-out, color 0.23s ease-in-out, color 0.23s ease-in-out;
+}
+.tips-notes a:hover,
+.empty-notes a:hover {
+  /* background-color: darkgreen; */
+  border: 1px dotted cyan;
+  color: #00f000;
+  cursor: pointer;
+  text-decoration: none;
 }
 .empty-notes .larr {
   animation: moveXWithBounce 7s infinite linear;
