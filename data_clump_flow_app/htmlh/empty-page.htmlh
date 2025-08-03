@@ -21,3 +21,28 @@
     </li>
   </ul>
 </div>
+<div style="
+  border-radius: 10px;
+  color: #b0e000;
+  padding: 5px;
+  text-align: center;
+  width: 510px;
+">
+  <span style="
+    display: block;
+    padding: 7px 5px 0;
+    text-align: left;
+  ">Example flow:</span>
+  <br>
+  <a href="images/dataflow_example_export_reminders.png" target="_blank"><img 
+    src="images/dataflow_example_export_reminders.png" 
+    alt="Example of a data clump flow."
+    style="
+      border: 0px solid darkgreen;
+      border-radius: 5px;
+      box-shadow: 0 0 10px yellowgreen;
+      margin: 0 auto;
+      max-width: 500px;
+      width: 100%;
+  "></a>
+</div>
