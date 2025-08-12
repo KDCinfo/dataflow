@@ -1,6 +1,6 @@
 <div class='empty-notes'>
-  <h2 class='notes-h2'>Data Flow: Quick Start</h2>
-  <p>Get started in 2 Steps:</p>
+  <h2 class='notes-h2'>Quick Start</h2>
+  <p>Start your flow in 2 Steps:</p>
   <ol>
     <li style='position: relative;'>
       <div class='larr'>&larr;</div>
@@ -11,13 +11,16 @@
 
   <h2 class='notes-h2'>References</h2>
   <ul class='notes-ul-1st-tier'>
-    <li>Open <a id="tipsModalRefBtn" class="help-button">instructions and tips</a>.</li>
+    <li>View <a id="tipsModalRefBtn" class="help-button">instructions and tips</a></li>
     <li>
-      View the <a
+      Open the <a
         href="https://github.com/KDCinfo/dataflow/tree/main/data_clump_flow_app"
         class="help-button"
         target="_dataClumpFlow"
-      >code on GitHub</a>.
+      >code on GitHub</a> <a
+        href="https://github.com/KDCinfo/dataflow/tree/main/data_clump_flow_app"
+        target="_dataClumpFlow"
+      ><img src="images/external-link-tiny.svg"></a>
     </li>
   </ul>
 </div>
@@ -34,8 +37,8 @@
     text-align: left;
   ">Example flow:</span>
   <br>
-  <a href="images/dataflow_example_export_reminders_orig.png" target="_blank"><img 
-    src="images/dataflow_example_export_reminders.png" 
+  <a href="images/dataflow_example_export_reminders_orig.png" target="_blank"><img
+    src="images/dataflow_example_export_reminders.png"
     alt="Example of a data clump flow."
     style="
       border: 0px solid darkgreen;
