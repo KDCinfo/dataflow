@@ -459,23 +459,30 @@ li ol>li:before {
   width: 22px;
   position: absolute;
 }
-
-.edit-icon {
-  outline: 1px dashed lightsalmon;
-  margin: 6px 0 0;
-  padding: 4px 2px 0px 2px;
-  right: 5px;
-  top: 0;
-}
-
-.delete-icon {
-  height: 14px;
-  margin: 6px 2px 0;
-  padding: 1px 2px 3px 2px;
-  right: 36px;
-  top: 5px;
-  width: 14px;
-}
+  .edit-icon {
+    margin: 6px 0 0;
+    outline: 1px dashed lightsalmon;
+    padding: 4px 2px 0px 2px;
+    right: 5px;
+    top: 0;
+  }
+    .edit-icon:hover {
+      background-color: greenyellow;
+      outline: 3px solid blue;
+    }
+  .delete-icon {
+    height: 14px;
+    margin: 6px 2px 0;
+    /* padding: 1px 2px 3px 2px; */
+    padding: 0px 3px 4px 2px;
+    right: 36px;
+    top: 5px;
+    width: 14px;
+  }
+    .delete-icon:hover {
+      background-color: greenyellow;
+      outline: 3px solid red;
+    }
 
 .collapsed {
   overflow: hidden;
