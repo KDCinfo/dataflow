@@ -200,5 +200,6 @@
 > 2025-08-12
 
 - [X] Restricted clump edit form `textarea` resizing to vertical.
+- [X] Added a 'min-height' to clump edit form `textarea`.
 - [X] Tweaked wording in, and added an 'external link' svg icon to 'empty-page.htmlh'.
 - [X] Added hovers to clump 'edit' and 'delete' icons.

@@ -681,6 +681,7 @@ li ol>li:before {
   max-width: fit-content;
 }
 .clump-form-div > textarea {
+  min-height: 50px;
   resize: vertical;
 }
 
