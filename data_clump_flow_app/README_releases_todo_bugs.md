@@ -194,3 +194,9 @@
   - Simplified landing page (`empty-page.htmlh`).
   - Prettied up title and logo, and added two links ('tips' and 'github').
   - Created and committed a screenshot of the new layout.
+
+## Version: 2.2.4
+
+> 2025-08-12
+
+- [X] Restricted clump edit form `textarea` resizing to vertical.

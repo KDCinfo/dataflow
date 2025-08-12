@@ -673,6 +673,9 @@ li ol>li:before {
 .clump-form-div > select {
   max-width: fit-content;
 }
+.clump-form-div > textarea {
+  resize: vertical;
+}
 
 .clump-form-div-inline {
   display: inline-flex;
