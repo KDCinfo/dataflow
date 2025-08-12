@@ -296,13 +296,15 @@ li ol>li:before {
 }
 
 .grid {
-  display: grid;
+  display: inline-grid;
   /* grid-template-columns: repeat(2, 150px); */
   grid-auto-rows: 40px;
   grid-auto-rows: minmax(40px, auto);
   gap: 5px;
+  margin-right: 20px;
   overflow: auto;
   padding-bottom: 10px;
+  width: 100%;
 }
 
 /* .grid .tips-notes, */
@@ -319,6 +321,7 @@ li ol>li:before {
   margin-top: 0;
   padding: 10px 10px 35px 30px;
   position: relative;
+  width: 91%;
 }
 .tips-notes .notes-h2,
 .empty-notes .notes-h2 {

@@ -13,11 +13,11 @@
   <ul class='notes-ul-1st-tier'>
     <li>View <a id="tipsModalRefBtn" class="help-button">instructions and tips</a></li>
     <li>
-      Open the <a
+      Open <a
         href="https://github.com/KDCinfo/dataflow/tree/main/data_clump_flow_app"
         class="help-button"
         target="_dataClumpFlow"
-      >code on GitHub</a> <a
+      >the code on GitHub</a> <a
         href="https://github.com/KDCinfo/dataflow/tree/main/data_clump_flow_app"
         target="_dataClumpFlow"
       ><img src="images/external-link-tiny.svg"></a>
