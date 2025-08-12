@@ -301,7 +301,7 @@ li ol>li:before {
   grid-auto-rows: 40px;
   grid-auto-rows: minmax(40px, auto);
   gap: 5px;
-  margin-right: 20px;
+  margin-right: 0;
   overflow: auto;
   padding-bottom: 10px;
   width: 100%;
