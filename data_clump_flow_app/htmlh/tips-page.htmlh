@@ -9,9 +9,16 @@
       will not close the window</b> (as long as text is highlighted).</li>
   </ul>
 
+  <h2 class='notes-h2'>Clump Outline Colors</h2>
+  <ul class='notes-ul-1st-tier'>
+    <li>Yellow --- represents the 'topmost' expanded clump being actively viewed in the preview pane.</li>
+    <li>Green --- depicts the clump currently being edited.</li>
+    <li>Cyan --- the one highlighted clump is both being edited, and the 'topmost' expanded clump.</li>
+  </ul>
+
   <h2 class='notes-h2'>Keyboard Shortcuts</h2>
   <ul class='notes-ul-1st-tier'>
-    <li>Escape will toggle a popped-out add/edit form.</li>
+    <li><b>Escape</b> will toggle a popped-out add/edit form. If a dialog is open, escape will first close the dialog, then begin toggling the add/edit form.</li>
   </ul>
 
   <h2 class='notes-h2'><code>@TODO:</code></h2>
