@@ -204,3 +204,4 @@
 - [X] Tweaked wording in, and added an 'external link' svg icon to 'empty-page.htmlh'.
 - [X] Added hovers to clump 'edit' and 'delete' icons.
 - [X] Fixed the 'currently edited' clump outline --- it was the same as the 'topmost' outline.
+- [X] Clump Name and Code Clump input labels will no longer move from above the inputs to the left of the inputs on wider screens because there was no reason to sacrifice the horizontal real estate for the Code Clump textarea.
