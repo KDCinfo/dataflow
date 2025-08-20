@@ -1,6 +1,10 @@
 # Data Flow App &nbsp; <img src="./images/icon128.png" align="center" width="64" height="64">
 
-### README Files:
+## Project Overview
+
+- Please see the project's [main readme](https://github.com/KDCinfo/dataflow/blob/main/README.md) for an overview of the project.
+
+## Other README Files:
 
 - [README_releases_todo_bugs](https://github.com/KDCinfo/dataflow/blob/main/data_clump_flow_app/README_releases_todo_bugs.md)
 - [README_testing](https://github.com/KDCinfo/dataflow/blob/main/data_clump_flow_app/README_testing.md)
@@ -8,7 +12,7 @@
 
 -----
 
-> **Live Demo**: [kdcinfo.com/app/dataflow/](https://kdcinfo.com/app/dataflow/)
+- **Live Demo**: [kdcinfo.com/app/dataflow/](https://kdcinfo.com/app/dataflow/)
 
 <br>
 
