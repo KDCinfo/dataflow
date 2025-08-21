@@ -356,6 +356,7 @@ li ol>li:before {
 }
 .empty-notes .larr {
   animation: moveXWithBounce 7s infinite linear;
+  animation-iteration-count: 20;
   color: green;
   font-size: 1.2rem;
   font-weight: bold;
