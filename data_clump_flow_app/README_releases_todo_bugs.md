@@ -197,7 +197,7 @@
 
 ## Version: 2.2.4
 
-> 2025-08-12--20
+> 2025-08-12--21
 
 - [X] Restricted clump edit form `textarea` resizing to vertical.
 - [X] Added a 'min-height' to clump edit form `textarea`.
@@ -206,3 +206,6 @@
 - [X] Fixed the 'currently edited' clump outline --- it was the same as the 'topmost' outline.
 - [X] Clump Name and Code Clump input labels will no longer move from above the inputs to the left of the inputs on wider screens because there was no reason to sacrifice the horizontal real estate for the Code Clump textarea.
 - [X] Removed sibling project 'function_flow', so this repository can be focused solely on the Data Clump Flow Analysis Tool.
+- [X] Added `animation-iteration-count:20` to empty page
+  - Ref: The bouncing arrow on the empty page pointing to the Clump Name field.
+  - Reason: It can draw quite a bit on the GPU..
