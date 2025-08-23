@@ -701,6 +701,9 @@ li ol>li:before {
   min-height: 50px;
   resize: vertical;
 }
+form.popped .clump-form-div > textarea {
+  height: 150px;
+}
 
 .clump-form-div-inline {
   display: inline-flex;
