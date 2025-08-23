@@ -21,20 +21,43 @@ export default class AppModal {
     // Bind event listeners
     //
     // Primary 'open modal' button.
-    this.appModalBtn.onclick = () => {
+    this.appModalBtn.onclick = (event) => {
       this.modalOpen();
+      event.preventDefault();
     }
+    // Keyboard accessibility for main button.
+    this.appModalBtn.onkeydown = (event) => {
+      if (event.key === ' ' || event.key === 'Enter') {
+        this.modalOpen();
+        event.preventDefault();
+      }
+    };
     // If an alternative 'open modal' reference is provided, bind it as well.
     if (this.appModalBtnAlt) {
-      this.appModalBtnAlt.onclick = () => {
+      this.appModalBtnAlt.onclick = (event) => {
         this.modalOpen();
+        event.preventDefault();
+      };
+      // Keyboard accessibility for alternate link.
+      this.appModalBtnAlt.onkeydown = (event) => {
+        if (event.key === ' ' || event.key === 'Enter') {
+          this.modalOpen();
+          event.preventDefault();
+        }
       };
     }
 
     // When the user clicks on <span> (x), close the modal.
-    this.modalCloseButton.onclick = () => {
+    this.modalCloseButton.onclick = (event) => {
       this.modalClose();
+      event.preventDefault();
     }
+    this.modalCloseButton.onkeydown = (event) => {
+      if (event.key === ' ' || event.key === 'Enter') {
+        this.modalClose();
+        event.preventDefault();
+      }
+    };
 
     // When the user clicks anywhere outside of the modal, close it
     // Using 'onclick' would overwrite any existing window event listeners.
@@ -52,12 +75,15 @@ export default class AppModal {
     this.appModal.style.display = 'block';
     this.appModal.classList.add('modal-content-animin');
 
-    if (this.newStorageNameInput) {
-      // Wait for animation to finish before opening.
-      setTimeout(() => {
+    setTimeout(() => {
+      if (this.newStorageNameInput) {
+        // Wait for animation to finish before opening.
         this.newStorageNameInput.focus();
-      }, 500);
-    }
+      } else {
+        // Set focus to close button.
+        this.modalCloseButton.focus();
+      }
+    }, 500);
   }
   modalClose() {
     this.appModal.classList.remove('modal-content-animin');
@@ -67,9 +93,13 @@ export default class AppModal {
       this.appModal.style.display = 'none';
       this.appModal.removeEventListener('animationend', onAnimEnd);
 
-      if (this.clumpNameInput) {
-        this.clumpNameInput.focus();
-      }
+      setTimeout(() => {
+        if (this.clumpNameInput) {
+          this.clumpNameInput.focus();
+        } else {
+          this.appModalBtn.focus();
+        }
+      }, 100);
     };
     this.appModal.addEventListener('animationend', onAnimEnd);
   }
