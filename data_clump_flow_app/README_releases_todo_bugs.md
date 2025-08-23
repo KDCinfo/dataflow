@@ -197,7 +197,7 @@
 
 ## Version: 2.2.4
 
-> 2025-08-12--22
+> 2025-08-12--23
 
 - [X] Restricted clump edit form `textarea` resizing to vertical.
 - [X] Added a 'min-height' to clump edit form `textarea`.
@@ -210,3 +210,4 @@
   - Ref: The bouncing arrow on the empty page pointing to the Clump Name field.
   - Reason: It can draw quite a bit on the GPU..
 - [X] Defaulted `<textarea>` height to `150px` when popped out. Can still be manually sized, and will revert to the default on the next page refresh or load.
+- [X] Bug fix: previewing more than 2 clumps would obfuscate the 'edit form' when popped out. Increased 'z-index' of the 'edit form' to '999999' to help avoid such conflicts.

@@ -631,7 +631,11 @@ li ol>li:before {
   /* width: 80vw; */
   width: 88vw;
   max-width: none;
-  z-index: 15;
+  /* With the 'pre' panel incrementing at 10 levels each time,
+   *   setting this z-index to 1 million at 10 per jump allows
+   *   for near a hundred thousand clump clicks before a conflict.
+   */
+  z-index: 999999; /* 1 million - 1 = 100,000 clump clicks. */
 }
 
 .clump-form-div-wrapper {
