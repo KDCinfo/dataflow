@@ -85,6 +85,8 @@ export default class AppSettings {
     // Initial render call
     this.renderMatrix();
 
+    this.initializeAppModalsOnce();
+
     AppHelpers.injectHtml(
       './htmlh/tips-page.htmlh',
       this.uiElements.tipsModalContent.querySelector('.modal-body'),
@@ -2249,7 +2251,9 @@ You can now escape, and activate them on the main screen.`;
       newStorageNameInput: this.uiElements.newStorageNameInput,
       clumpNameInput: this.uiElements.clumpNameInput,
     });
+  }
 
+  initializeAppModalsOnce() {
     // The empty (.htmlh) page is injected during this `renderMatrix()` call,
     //   which is run after the 'uiElements' are resolved (at the top of the constructor),
     //   so we'll have to grab the HTML <a> element directly.
