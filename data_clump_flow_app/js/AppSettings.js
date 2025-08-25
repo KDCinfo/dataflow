@@ -326,6 +326,20 @@ P.S. This dialog will not show again.`;
     this.uiElements.newStorageRenameCopy.addEventListener('click', this.copyStorageName.bind(this));
     this.uiElements.newStorageRenameCopy.setAttribute('title', AppConstants.storageNameCopyFlowNameText);
 
+    // Add toggle click listener to 'contentSpan'.
+    // Old: contentSpan.addEventListener('click', (event) => {
+    this.uiElements.clumpContainer.addEventListener('click', (event) => {
+      const contentSpan = event.target.closest('.content-span');
+      if (contentSpan && this.uiElements.clumpContainer.contains(contentSpan)) {
+        if (window.getSelection().toString()) {
+          // Prevent toggle if there's a selection.
+          event.stopPropagation();
+          return;
+        }
+        this.toggleCell(event);
+      }
+    });
+
     // [Q] What's the purpose of this listener?
     // [A] It listens for changes to the 'AppSettingsInfo' in other tabs.
     window.addEventListener('storage', (event) => {
@@ -1921,6 +1935,118 @@ You can now escape, and activate them on the main screen.`;
       : '▼';
   }
 
+  // Toggle function to handle cell expansion/collapse.
+  toggleCell = async (event) => {
+    const currentCell = event.target.closest('.clump-node');
+
+    // if (currentCell && this.uiElements.clumpContainer.contains(currentCell)) {
+    if (!currentCell) {
+      AppConfig.debugConsoleLogs && console.log('[AppSettings] [toggleCell] Clump node cell could not be found:', event.target);
+      return;
+    }
+
+    const currentContentSpan = currentCell.querySelector('.content-span');
+    const currentSpanPre = currentContentSpan.querySelector('pre');
+
+    const cellzIndex = parseInt(currentSpanPre?.style.zIndex, 10) || 0;
+
+    let largestExpandedZIndex = 0;
+    let allZIndexes = {}; // zindex: cellParentWrapper
+
+    // This section cycles through all expanded cells to find the largest zIndex.
+    // document.getElementById('clumpContainer').querySelectorAll('.clump-node.expanded .content-span pre');
+    const elements = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded .content-span pre');
+    for (const clumpCellPre of elements) {
+      // Remove 'topmost' class from all existing expanded cell wrappers.
+      const cellParentWrapper = clumpCellPre.parentElement.parentElement;
+      cellParentWrapper.classList.remove('topmost');
+
+      const zIndex = parseInt(clumpCellPre.style.zIndex, 10) || 0;
+      allZIndexes[zIndex] = cellParentWrapper;
+      if (zIndex > largestExpandedZIndex) {
+        largestExpandedZIndex = zIndex;
+      }
+    }
+
+    // If the cell is already open but is not the highest zIndex,
+    //   just bring the cell clump to the top, else close it.
+    // If the cell is collapsed, or expanded and already on
+    //   top, run it through the full toggle flow below,
+    if (currentCell.classList.contains('expanded') && cellzIndex < largestExpandedZIndex) {
+      currentSpanPre.style.zIndex = largestExpandedZIndex + 10;
+      // Move 'topmost' class to the current cell.
+      currentCell.classList.add('topmost');
+      return;
+    } else {
+      // Update 'largestExpandedZIndex' if 'cellzIndex' is greater.
+      if (cellzIndex > largestExpandedZIndex) {
+        largestExpandedZIndex = cellzIndex;
+      }
+    }
+
+    // This expands or collapses the clump cell (has nothing to do with the <pre> tag).
+    currentCell.classList.toggle('expanded');
+    currentCell.classList.toggle('collapsed');
+
+    const isCellCollapsed = currentCell.classList.contains('collapsed');
+    const expandedCellsContent = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded');
+    const howManyExpanded = expandedCellsContent.length;
+
+    if (isCellCollapsed) {
+      currentSpanPre?.classList.add('flat');
+      // Pause the app to let the transition finish.
+      await AppHelpers.delayTransition(50);
+    }
+    this.toggleBottomMargin(howManyExpanded);
+
+    // Get the clump info from 'clumpList' using the 'data-clump-id' attribute.
+    //
+    const dataClumpId = parseInt(currentContentSpan.getAttribute('data-clump-id'), 10);
+    const getClumpList = this.dataManager.getData('clumpList');
+    const clumpListIndex = getClumpList.findIndex(clump => clump.id === dataClumpId);
+    if (clumpListIndex === -1) {
+      AppConfig.debugConsoleLogs && console.log('[AppSettings] [toggleCell] Clump ID not found in clump list:', dataClumpId);
+      return;
+    }
+    const clumpInfoFound = getClumpList[clumpListIndex];
+
+    // Update the content span with clump name and code.
+    //
+    let clumpCellContents = `<strong>${AppHelpers.unescapeHTML(clumpInfoFound.clumpName)}</strong>
+      <br>${isCellCollapsed
+        ? AppHelpers.unescapeHTML(clumpInfoFound.clumpCode).split('\n')[0]
+        : AppHelpers.unescapeHTML(clumpInfoFound.clumpCode).split('\n').slice(0, 2).join('<br>')}`;
+    if (!isCellCollapsed) {
+      // Show both 'clumpName' and 'clumpCode' in bottom panel.
+      clumpCellContents += `<pre class="flat"><b>${AppHelpers.unescapeHTML(clumpInfoFound.clumpName)}</b><br><br>${AppHelpers.unescapeHTML(clumpInfoFound.clumpCode)}</pre>`;
+    }
+    currentContentSpan.innerHTML = clumpCellContents;
+
+    // Set the z-index if the cell is expanded.
+    //
+    if (!isCellCollapsed) {
+      currentContentSpan.querySelector('pre').style.zIndex = largestExpandedZIndex + 10;
+      // Add 'topmost' class to the current cell.
+      currentCell.classList.add('topmost');
+    } else {
+      // Add 'topmost' class to the cell with the highest zIndex.
+      if (Object.keys(allZIndexes).length > 0) {
+        // Remove the current cell from 'allZIndexes'.
+        delete allZIndexes[cellzIndex];
+        // Then find the highest zIndex from the remaining cells.
+        const highestZIndex = Math.max(...Object.keys(allZIndexes).map(Number));
+        if (highestZIndex in allZIndexes) {
+          allZIndexes[highestZIndex].classList.add('topmost');
+        }
+      }
+    }
+    if (!isCellCollapsed) {
+      setTimeout(() => {
+        currentContentSpan.querySelector('pre')?.classList.remove('flat');
+      }, 10);
+    }
+  };
+
   // [Tested: No]
   renderMatrix() {
     // Set CSS property dynamically to control number of columns.
@@ -2120,112 +2246,6 @@ You can now escape, and activate them on the main screen.`;
           iconSpan.appendChild(deleteIcon);
         }
         clumpCellDiv.appendChild(iconSpan);
-
-        // Toggle function to handle cell expansion/collapse.
-        const toggleCell = async (event) => {
-
-          const currentCell = event.target.closest('.clump-node');
-          const currentContentSpan = currentCell.querySelector('.content-span');
-          const currentSpanPre = currentContentSpan.querySelector('pre');
-
-          const cellzIndex = parseInt(currentSpanPre?.style.zIndex, 10) || 0;
-
-          let largestExpandedZIndex = 0;
-          let allZIndexes = {}; // zindex: cellParentWrapper
-
-          // This section cycles through all expanded cells to find the largest zIndex.
-          // document.getElementById('clumpContainer').querySelectorAll('.clump-node.expanded .content-span pre');
-          const elements = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded .content-span pre');
-          for (const clumpCellPre of elements) {
-            // Remove 'topmost' class from all existing expanded cell wrappers.
-            const cellParentWrapper = clumpCellPre.parentElement.parentElement;
-            cellParentWrapper.classList.remove('topmost');
-
-            const zIndex = parseInt(clumpCellPre.style.zIndex, 10) || 0;
-            allZIndexes[zIndex] = cellParentWrapper;
-            if (zIndex > largestExpandedZIndex) {
-              largestExpandedZIndex = zIndex;
-            }
-          }
-
-          // If the cell is already open but is not the highest zIndex,
-          //   just bring the cell clump to the top, else close it.
-          // If the cell is collapsed, or expanded and already on
-          //   top, run it through the full toggle flow below,
-          if (currentCell.classList.contains('expanded') && cellzIndex < largestExpandedZIndex) {
-            currentSpanPre.style.zIndex = largestExpandedZIndex + 10;
-            // Move 'topmost' class to the current cell.
-            currentCell.classList.add('topmost');
-            return;
-          } else {
-            // Update 'largestExpandedZIndex' if 'cellzIndex' is greater.
-            if (cellzIndex > largestExpandedZIndex) {
-              largestExpandedZIndex = cellzIndex;
-            }
-          }
-
-          // This expands or collapses the clump cell (has nothing to do with the <pre> tag).
-          currentCell.classList.toggle('expanded');
-          currentCell.classList.toggle('collapsed');
-
-          const isCellCollapsed = currentCell.classList.contains('collapsed');
-          const expandedCellsContent = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded');
-          const howManyExpanded = expandedCellsContent.length;
-
-          if (isCellCollapsed) {
-            currentSpanPre?.classList.add('flat');
-            // Pause the app to let the transition finish.
-            await AppHelpers.delayTransition(50);
-          }
-          this.toggleBottomMargin(howManyExpanded);
-
-          // Update the content span with clump name and code.
-          //
-          let clumpCellContents = `<strong>${AppHelpers.unescapeHTML(clumpInfoFound.clumpName)}</strong>
-            <br>${isCellCollapsed
-              ? AppHelpers.unescapeHTML(clumpInfoFound.clumpCode).split('\n')[0]
-              : AppHelpers.unescapeHTML(clumpInfoFound.clumpCode).split('\n').slice(0, 2).join('<br>')}`;
-          if (!isCellCollapsed) {
-            // Show both 'clumpName' and 'clumpCode' in bottom panel.
-            clumpCellContents += `<pre class="flat"><b>${AppHelpers.unescapeHTML(clumpInfoFound.clumpName)}</b><br><br>${AppHelpers.unescapeHTML(clumpInfoFound.clumpCode)}</pre>`;
-          }
-          currentContentSpan.innerHTML = clumpCellContents;
-
-          // Set the z-index if the cell is expanded.
-          //
-          if (!isCellCollapsed) {
-            currentContentSpan.querySelector('pre').style.zIndex = largestExpandedZIndex + 10;
-            // Add 'topmost' class to the current cell.
-            currentCell.classList.add('topmost');
-          } else {
-            // Add 'topmost' class to the cell with the highest zIndex.
-            if (Object.keys(allZIndexes).length > 0) {
-              // Remove the current cell from 'allZIndexes'.
-              delete allZIndexes[cellzIndex];
-              // Then find the highest zIndex from the remaining cells.
-              const highestZIndex = Math.max(...Object.keys(allZIndexes).map(Number));
-              if (highestZIndex in allZIndexes) {
-                allZIndexes[highestZIndex].classList.add('topmost');
-              }
-            }
-          }
-          if (!isCellCollapsed) {
-            setTimeout(() => {
-              currentContentSpan.querySelector('pre')?.classList.remove('flat');
-            }, 10);
-          }
-        };
-
-        // Add toggle click listener to contentSpan but without any inner <pre> tags.
-        contentSpan.addEventListener('click', (event) => {
-          // event.stopPropagation(); // Prevent bubbling to avoid unintended behavior.
-          if (window.getSelection().toString()) {
-            // Prevent toggle if there's a selection.
-            event.stopPropagation();
-            return;
-          }
-          toggleCell(event);
-        });
 
         // Append cell to the container
         this.uiElements.clumpContainer.appendChild(clumpCellDiv);
