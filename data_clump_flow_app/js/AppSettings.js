@@ -577,10 +577,7 @@ P.S. This dialog will not show again.`;
     this.renderMatrix();            // Re-render the clump matrix in the UI to reflect changes
 
     const howManyExpanded = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded').length;
-    this.uiElements.outputContainer.style.marginBottom = howManyExpanded > 0 ? '260px' : '0';
-    this.uiElements.outputContainer.style.height = howManyExpanded > 0
-      ? 'calc(100vh - 42px - 260px)'
-      : 'calc(100vh - 42px)';
+    this.toggleBottomMargin(howManyExpanded);
 
     // Export Reminders
     this.adjustExportReminders();
@@ -1006,8 +1003,7 @@ P.S. This dialog will not show again.`;
 
       // Update UI.
       this.uiElements.clumpFormId.reset();
-      this.uiElements.outputContainer.style.marginBottom = '0';
-      this.uiElements.outputContainer.style.height = 'calc(100vh - 42px)';
+      this.toggleBottomMargin();
       this.updateDataInHtml();
       this.renderMatrix();
     }
@@ -1300,6 +1296,16 @@ You can now escape, and activate them on the main screen.`;
     this.appSettingsInfo.showIds = event.target.checked;
     this.storeSettings();
     this.renderMatrix();
+  }
+
+  // [Tested: No]
+  // Provide a margin at the bottom of the screen when at least one cell is expanded.
+  // To be kept in sync with the 'pre' tag.
+  toggleBottomMargin(howManyExpanded = 0) {
+    this.uiElements.outputContainer.style.marginBottom = howManyExpanded > 0 ? '260px' : '0';
+    this.uiElements.outputContainer.style.height = howManyExpanded > 0
+      ? 'calc(100vh - 42px - 260px)'
+      : 'calc(100vh - 42px)';
   }
 
   // [Tested: No]
@@ -1625,10 +1631,7 @@ You can now escape, and activate them on the main screen.`;
       this.renderMatrix();
 
       const howManyExpanded = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded').length;
-      this.uiElements.outputContainer.style.marginBottom = howManyExpanded > 0 ? '260px' : '0';
-      this.uiElements.outputContainer.style.height = howManyExpanded > 0
-        ? 'calc(100vh - 42px - 260px)'
-        : 'calc(100vh - 42px)';
+      this.toggleBottomMargin(howManyExpanded);
     }
   }
 
@@ -1820,8 +1823,7 @@ You can now escape, and activate them on the main screen.`;
       // Update UI.
       const currentStorageName = this.getCurrentFlowName();
       this.uiElements.clumpFormId.reset();
-      this.uiElements.outputContainer.style.marginBottom = '0';
-      this.uiElements.outputContainer.style.height = 'calc(100vh - 42px)';
+      this.toggleBottomMargin();
       this.uiElements.storageNameLabelCurrent.textContent = currentStorageName;
       this.uiElements.storageNameLabelCurrent.setAttribute('title', currentStorageName);
       this.uiElements.storageNameLabelCurrentModal.textContent = currentStorageName;
@@ -1877,8 +1879,7 @@ You can now escape, and activate them on the main screen.`;
 
           // Update UI.
           this.uiElements.clumpFormId.reset();
-          this.uiElements.outputContainer.style.marginBottom = '0';
-          this.uiElements.outputContainer.style.height = 'calc(100vh - 42px)';
+          this.toggleBottomMargin();
           this.updateDataInHtml();
           this.renderMatrix();
         } else {
@@ -2131,6 +2132,7 @@ You can now escape, and activate them on the main screen.`;
           let largestExpandedZIndex = 0;
           let allZIndexes = {}; // zindex: cellParentWrapper
 
+          // This section cycles through all expanded cells to find the largest zIndex.
           // document.getElementById('clumpContainer').querySelectorAll('.clump-node.expanded .content-span pre');
           const elements = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded .content-span pre');
           for (const clumpCellPre of elements) {
@@ -2168,12 +2170,7 @@ You can now escape, and activate them on the main screen.`;
           const expandedCellsContent = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded');
           const howManyExpanded = expandedCellsContent.length;
 
-          // Provide a margin at the bottom of the screen when at least one cell is expanded.
-          //
-          this.uiElements.outputContainer.style.marginBottom = howManyExpanded > 0 ? '260px' : '0';
-          this.uiElements.outputContainer.style.height = howManyExpanded > 0
-            ? 'calc(100vh - 42px - 260px)'
-            : 'calc(100vh - 42px)';
+          this.toggleBottomMargin(howManyExpanded);
 
           // Update the content span with clump name and code.
           //
