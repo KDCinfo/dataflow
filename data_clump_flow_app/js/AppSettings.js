@@ -1294,6 +1294,7 @@ You can now escape, and activate them on the main screen.`;
   toggleShowIds(event) {
     AppConfig.debugConsoleLogs && console.log('Checkbox is checked:', event.target.checked);
     this.appSettingsInfo.showIds = event.target.checked;
+    this.toggleBottomMargin();
     this.storeSettings();
     this.renderMatrix();
   }
