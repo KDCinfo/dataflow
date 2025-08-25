@@ -2122,7 +2122,7 @@ You can now escape, and activate them on the main screen.`;
         clumpCellDiv.appendChild(iconSpan);
 
         // Toggle function to handle cell expansion/collapse.
-        const toggleCell = (event) => {
+        const toggleCell = async (event) => {
 
           const currentCell = event.target.closest('.clump-node');
           const currentContentSpan = currentCell.querySelector('.content-span');
@@ -2164,6 +2164,7 @@ You can now escape, and activate them on the main screen.`;
             }
           }
 
+          // This expands or collapses the clump cell (has nothing to do with the <pre> tag).
           currentCell.classList.toggle('expanded');
           currentCell.classList.toggle('collapsed');
 
@@ -2171,6 +2172,11 @@ You can now escape, and activate them on the main screen.`;
           const expandedCellsContent = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded');
           const howManyExpanded = expandedCellsContent.length;
 
+          if (isCellCollapsed) {
+            currentSpanPre?.classList.add('flat');
+            // Pause the app to let the transition finish.
+            await AppHelpers.delayTransition(50);
+          }
           this.toggleBottomMargin(howManyExpanded);
 
           // Update the content span with clump name and code.
@@ -2181,7 +2187,7 @@ You can now escape, and activate them on the main screen.`;
               : AppHelpers.unescapeHTML(clumpInfoFound.clumpCode).split('\n').slice(0, 2).join('<br>')}`;
           if (!isCellCollapsed) {
             // Show both 'clumpName' and 'clumpCode' in bottom panel.
-            clumpCellContents += `<pre><b>${AppHelpers.unescapeHTML(clumpInfoFound.clumpName)}</b><br><br>${AppHelpers.unescapeHTML(clumpInfoFound.clumpCode)}</pre>`;
+            clumpCellContents += `<pre class="flat"><b>${AppHelpers.unescapeHTML(clumpInfoFound.clumpName)}</b><br><br>${AppHelpers.unescapeHTML(clumpInfoFound.clumpCode)}</pre>`;
           }
           currentContentSpan.innerHTML = clumpCellContents;
 
@@ -2202,6 +2208,11 @@ You can now escape, and activate them on the main screen.`;
                 allZIndexes[highestZIndex].classList.add('topmost');
               }
             }
+          }
+          if (!isCellCollapsed) {
+            setTimeout(() => {
+              currentContentSpan.querySelector('pre')?.classList.remove('flat');
+            }, 10);
           }
         };
 

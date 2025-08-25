@@ -1,4 +1,8 @@
 export default class AppHelpers {
+  static delayTransition(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   static formatDate(date) {
     return new Date(date).toLocaleDateString();
   }
