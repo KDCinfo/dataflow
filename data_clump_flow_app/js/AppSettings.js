@@ -2035,6 +2035,15 @@ You can now escape, and activate them on the main screen.`;
     }
     const clumpInfoFound = getClumpList[clumpListIndex];
 
+    // Adding 'flat' changes the height of the 'pre' tag to '0' before it is removed.
+    if (isCellCollapsed) {
+      currentlyOpenSpanPre?.classList.add('flat');
+      AppConfig.debugConsoleLogs &&
+          console.log('[AppSettings] [toggleCell] Pre anim 2:', currentlyOpenSpanPre?.classList);
+      // Pause the app to let the transition finish.
+      await AppHelpers.delayTransition(100);
+    }
+
     // Update the content span with clump name and code.
     //
     let clumpCellContents = `<strong>${AppHelpers.unescapeHTML(clumpInfoFound.clumpName)}</strong>
@@ -2047,12 +2056,6 @@ You can now escape, and activate them on the main screen.`;
     }
     currentContentSpan.innerHTML = clumpCellContents;
 
-    // Adding 'flat' changes the height of the 'pre' tag to '0' before it is removed.
-    if (isCellCollapsed) {
-      currentlyOpenSpanPre?.classList.add('flat');
-      // Pause the app to let the transition finish.
-      await AppHelpers.delayTransition(50);
-    }
     this.toggleBottomMargin(howManyExpanded);
 
     // Assign the new 'pre' tag.
@@ -2077,6 +2080,7 @@ You can now escape, and activate them on the main screen.`;
         }
       }
     }
+
     if (!isCellCollapsed) {
       setTimeout(() => {
         newCurrentPre?.classList.remove('flat');
