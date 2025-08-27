@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Data Clump Flow Analysis Tool</title>
-  <link rel="stylesheet" href="./css/dataflow.css?v=0021">
+  <link rel="stylesheet" href="./css/dataflow.css?v=0022">
   <link rel="stylesheet" href="./css/dataflow-modal.css?v=0004">
   <meta name="description" content="A tool to map and visualize branching data flows.">
   <meta name="keywords" content="data clumps, data flow, data mapping, data visualization">
@@ -202,7 +202,8 @@ Moving a clump into its own tail is not currently supported.">
         </p>
       </div>
     </div>
-    <div id="outputContainer" class="output-container">
+    <div id="outputContainer" class="output-container resize-container">
+      <div class="resize-handle" id="resizeHandle"></div>
       <div class="grid" id="clumpContainer"></div>
       <div class="cross-tab-warning hidden" id="crossTabWarning"></div>
     </div>
@@ -297,6 +298,6 @@ Moving a clump into its own tail is not currently supported.">
     </div>
   </div>
 
-  <script src="./js/main.js?v=0009" type="module"></script>
+  <script src="./js/main.js?v=0010" type="module"></script>
 </body>
 </html>

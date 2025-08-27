@@ -2,6 +2,7 @@ export const uiConfig = {
   ui: {
     outputContainer: '#outputContainer',
     clumpContainer: '#clumpContainer',
+    resizeHandle: '#resizeHandle',
     popItIcon: '#popItIcon',
     settingsPanelToggle: '#settingsPanelToggle',
     exportPanelToggle: '#exportPanelToggle',

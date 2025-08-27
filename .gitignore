@@ -6,4 +6,5 @@
 **/old/
 **/node_modules/
 **/*-lock.yaml
+**/*-lock.json
 **/dataflow_notes/

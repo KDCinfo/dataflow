@@ -45,6 +45,15 @@ export default class AppSettings {
   appModal;
   tipsModal;
 
+  // Resizing the Preview Pane.
+  isResizing = false;
+  startY;
+  startHeight;
+  maxHeight;
+  newHeight;
+  dragElementPre;
+  ignoreNextClick;
+
   constructor(uiSelectors) {
     const date = new Date();
     AppConfig.debugConsoleLogs && console.log('AppSettings initialized on:', date.toLocaleString());
@@ -329,8 +338,19 @@ P.S. This dialog will not show again.`;
     // Add toggle click listener to 'contentSpan'.
     // Old: contentSpan.addEventListener('click', (event) => {
     this.uiElements.clumpContainer.addEventListener('click', (event) => {
+      // if (this.isResizing) return;
+
+      // Prevent 'pre' click collapse:
+      if (this.ignoreNextClick) {
+        event.stopPropagation();
+        event.preventDefault();
+        this.ignoreNextClick = false;
+        return;
+      }
+
       const contentSpan = event.target.closest('.content-span');
       if (contentSpan && this.uiElements.clumpContainer.contains(contentSpan)) {
+        // If anything is selected, don't close the 'pre' preview window pane.
         if (window.getSelection().toString()) {
           // Prevent toggle if there's a selection.
           event.stopPropagation();
@@ -339,6 +359,8 @@ P.S. This dialog will not show again.`;
         this.toggleCell(event);
       }
     });
+
+    this.uiElements.resizeHandle.addEventListener('mousedown', this.initResize, false);
 
     // [Q] What's the purpose of this listener?
     // [A] It listens for changes to the 'AppSettingsInfo' in other tabs.
@@ -1992,6 +2014,7 @@ You can now escape, and activate them on the main screen.`;
     const expandedCellsContent = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded');
     const howManyExpanded = expandedCellsContent.length;
 
+    // Adding 'flat' changes the height of the 'pre' tag to '0' before it is removed.
     if (isCellCollapsed) {
       currentSpanPre?.classList.add('flat');
       // Pause the app to let the transition finish.
@@ -2045,7 +2068,145 @@ You can now escape, and activate them on the main screen.`;
         currentContentSpan.querySelector('pre')?.classList.remove('flat');
       }, 10);
     }
+
+    // *****            Draggable: 'pre'view pane            *****
+    // *****                                                 *****
+    // ***** ***** ***** ***** ***** ***** ***** ***** ***** *****
+    // Adding 'show' will transition the handle into view.
+    // Removeing 'show' will collapse the handle.
+    if (howManyExpanded > 0) {
+      setTimeout(() => {
+        this.uiElements.resizeHandle.classList.add('show');
+      }, 50);
+    } else {
+      this.uiElements.resizeHandle.classList.remove('show');
+    }
   };
+
+  // ***** ***** ***** ***** ***** ***** ***** ***** ***** *****
+  // *****                                                 *****
+  // *****                                                 *****
+  // *****            Draggable: 'pre'view pane            *****
+  // *****                                                 *****
+  // *****                                                 *****
+  // ***** ***** ***** ***** ***** ***** ***** ***** ***** *****
+
+  initResize = (evt) => {
+    evt.stopPropagation();
+    evt.preventDefault();
+
+    // Capture the starting vertical position of the mouse, and
+    // store the initial height of the container.
+    this.isResizing = true;
+    this.startY = evt.clientY;
+
+    // Get topmost z-index/zIndex 'pre' tag.
+    const expandedPreTags = Array.from(this.uiElements.clumpContainer.querySelectorAll('pre'));
+    let topmostPreTag = null;
+    let highestZIndex = -1;
+    for (const preTag of expandedPreTags) {
+      const zIndex = parseFloat(getComputedStyle(preTag).zIndex);
+      if (!isNaN(zIndex) && zIndex > highestZIndex) {
+        highestZIndex = zIndex;
+        topmostPreTag = preTag;
+      }
+    }
+
+    // Store the highest pre tag for later use.
+    if (topmostPreTag) {
+      this.dragElementPre = topmostPreTag;
+    } else {
+      this.dragElementPre = evt.target.parentElement.querySelector('pre');
+    }
+    this.startHeight = this.dragElementPre.offsetHeight;
+
+    // Calculate maximum allowed 'tempHeight' to ensure
+    // at least 150px remains for the output container.
+    this.maxHeight = this.dragElementPre.offsetHeight
+        + this.uiElements.outputContainer.clientHeight
+        - 150;
+
+    // Temporarily remove all transitiona.
+    //
+    // .output-container .resize-handle.show {
+    //   transition: height 0.2s ease, bottom 0.2s ease;
+    this.uiElements.resizeHandle.style.transition = 'none';
+    // .content-span pre {
+    //   transition: height 0.4s ease;
+    this.dragElementPre.style.transition = 'none';
+    // .output-container {
+    //   transition: height 0.3s ease, margin-bottom 0.3s ease;
+    this.uiElements.outputContainer.style.transition = 'none';
+
+    document.addEventListener('mousemove', this.mouseMoveHandler);
+    document.addEventListener('mouseup', this.mouseUpHandler);
+  };
+
+  mouseMoveHandler = (evt) => {
+    if (!this.isResizing) return;
+
+    // Calculate how much the mouse has moved vertically and the new height.
+    const deltaY = this.startY - evt.clientY;
+    const tempHeight = this.startHeight + deltaY;
+
+    console.log('[AppSettings] [mouseMoveHandler] tempHeight:' , tempHeight, this.uiElements.outputContainer.clientHeight);
+
+    if (tempHeight >= 50 && tempHeight <= this.maxHeight) {
+      this.newHeight = tempHeight;
+    } else {
+      if (tempHeight < 50) {
+        this.newHeight = 50;
+      } else {
+        // When 'tempHeight > this.maxHeight' clamp it to the maximum.
+        this.newHeight = this.maxHeight;
+      }
+    }
+
+    // Resize elements for visual feedback.
+    //
+    // Resize handler.
+    this.uiElements.resizeHandle.style.bottom = `${this.newHeight + 10}px`;
+    // Container wrapper.
+    this.uiElements.outputContainer.style.marginBottom = `${this.newHeight + 20}px`;
+    this.uiElements.outputContainer.style.height = `calc(100vh - 42px - ${this.newHeight + 20}px)`;
+    // Topmost 'pre' panel.
+    this.dragElementPre.style.height = `${this.newHeight - 40}px`;
+  };
+
+  mouseUpHandler = (evt) => {
+    // Prevent 'pre' click collapse.
+    this.ignoreNextClick = true;
+    setTimeout(() => { this.ignoreNextClick = false; }, 0);
+
+    // Reenable all transitiona.
+    this.dragElementPre.style.transition = 'height 0.4s ease';
+    this.uiElements.resizeHandle.style.transition = 'height 0.2s ease, bottom 0.2s ease';
+    this.uiElements.outputContainer.style.transition = 'height 0.3s ease, margin-bottom 0.3s ease';
+
+    // Adjust height on all <pre> elements.
+    this.uiElements.clumpContainer.querySelectorAll('pre').forEach(pre => {
+      pre.style.height = `${this.newHeight - 40}px`;
+      AppConfig.debugConsoleLogs &&
+        console.log('[AppSettings] [mouseUpHandler] Setting pre height:', this.newHeight);
+    });
+
+    // Remove the event listeners to stop resizing.
+    document.removeEventListener('mousemove', this.mouseMoveHandler);
+    document.removeEventListener('mouseup', this.mouseUpHandler);
+
+    evt.preventDefault();
+    evt.stopPropagation();
+
+    this.isResizing = false;
+  };
+
+  // ***** ***** ***** ***** ***** ***** ***** ***** ***** *****
+  // *****                                                 *****
+  // *****                                                 *****
+  // *****                  renderMatrix                   *****
+  // *****                                                 *****
+  // *****                                                 *****
+  // ***** ***** ***** ***** ***** ***** ***** ***** ***** *****
 
   // [Tested: No]
   renderMatrix() {

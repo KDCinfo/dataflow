@@ -398,7 +398,6 @@ li ol>li:before {
   /* margin-right: 20px; */
 }
 
-
 .content-span pre {
   background-color: #eeeecc;
   bottom: 10px;
@@ -417,6 +416,35 @@ li ol>li:before {
   height: 0;
   transition: height 0.4s ease;
 }
+
+.output-container.resize-container {
+  position: relative;
+  overflow: hidden;
+}
+  .output-container .resize-handle {
+    background-color: green;
+    bottom: 0;
+    cursor: grab;
+    display: flex;
+    flex-shrink: 0;
+    height: 0;
+    left: calc(30% + 25px);
+    margin: 0 auto;
+    outline: 0px solid red;
+    padding: 0;
+    position: fixed;
+    right: 10px;
+    width: 75px;
+    z-index: 99999999;
+  }
+  .output-container .resize-handle.show {
+    bottom: 250px;
+    height: 10px;
+    transition: height 0.2s ease, bottom 0.2s ease;
+  }
+  .content-span pre {
+    flex-grow: 1; /* Allow the pre tag to expand/contract */
+  }
 
 .clump-node {
   align-items: center;
