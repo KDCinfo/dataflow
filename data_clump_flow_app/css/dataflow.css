@@ -422,7 +422,6 @@ li ol>li:before {
 
 .output-container.resize-container {
   position: relative;
-  overflow: hidden;
 }
   .output-container .resize-handle {
     background-color: green;
