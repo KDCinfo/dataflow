@@ -1339,10 +1339,24 @@ You can now escape, and activate them on the main screen.`;
   // Provide a margin at the bottom of the screen when at least one cell is expanded.
   // To be kept in sync with the 'pre' tag.
   toggleBottomMargin(howManyExpanded = 0) {
-    this.uiElements.outputContainer.style.marginBottom = howManyExpanded > 0 ? '260px' : '0';
+    const thisHeight = this.newHeight ? this.newHeight : 260;
+
+    // Resize elements for visual feedback.
+    //
+    // Resize handler.
+    this.uiElements.resizeHandle.style.bottom = howManyExpanded > 0 ? `${thisHeight + 10}px` : 0;
+    //
+    // Container wrapper.
+    const new260 = `${thisHeight + 20}px`;
+    this.uiElements.outputContainer.style.marginBottom = howManyExpanded > 0 ? new260 : '0';
     this.uiElements.outputContainer.style.height = howManyExpanded > 0
-      ? 'calc(100vh - 42px - 260px)'
+      ? 'calc(100vh - 42px - ' + new260 + ')'
       : 'calc(100vh - 42px)';
+    //
+    // All <pre> elements.
+    this.uiElements.clumpContainer.querySelectorAll('pre').forEach(pre => {
+      pre.style.height = `${thisHeight - 40}px`;
+    });
   }
 
   // [Tested: No]
@@ -1968,15 +1982,13 @@ You can now escape, and activate them on the main screen.`;
     }
 
     const currentContentSpan = currentCell.querySelector('.content-span');
-    const currentSpanPre = currentContentSpan.querySelector('pre');
+    const currentlyOpenSpanPre = currentContentSpan.querySelector('pre');
 
-    const cellzIndex = parseInt(currentSpanPre?.style.zIndex, 10) || 0;
-
+    const cellzIndex = parseInt(currentlyOpenSpanPre?.style.zIndex, 10) || 0;
     let largestExpandedZIndex = 0;
     let allZIndexes = {}; // zindex: cellParentWrapper
 
     // This section cycles through all expanded cells to find the largest zIndex.
-    // document.getElementById('clumpContainer').querySelectorAll('.clump-node.expanded .content-span pre');
     const elements = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded .content-span pre');
     for (const clumpCellPre of elements) {
       // Remove 'topmost' class from all existing expanded cell wrappers.
@@ -1990,12 +2002,10 @@ You can now escape, and activate them on the main screen.`;
       }
     }
 
-    // If the cell is already open but is not the highest zIndex,
-    //   just bring the cell clump to the top, else close it.
-    // If the cell is collapsed, or expanded and already on
-    //   top, run it through the full toggle flow below,
+    // When cell is open but not the highest zIndex, bring it to the top.
+    // If cell is collapsed or already on top, run it through the full toggle flow below,
     if (currentCell.classList.contains('expanded') && cellzIndex < largestExpandedZIndex) {
-      currentSpanPre.style.zIndex = largestExpandedZIndex + 10;
+      currentlyOpenSpanPre.style.zIndex = largestExpandedZIndex + 10;
       // Move 'topmost' class to the current cell.
       currentCell.classList.add('topmost');
       return;
@@ -2013,14 +2023,6 @@ You can now escape, and activate them on the main screen.`;
     const isCellCollapsed = currentCell.classList.contains('collapsed');
     const expandedCellsContent = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded');
     const howManyExpanded = expandedCellsContent.length;
-
-    // Adding 'flat' changes the height of the 'pre' tag to '0' before it is removed.
-    if (isCellCollapsed) {
-      currentSpanPre?.classList.add('flat');
-      // Pause the app to let the transition finish.
-      await AppHelpers.delayTransition(50);
-    }
-    this.toggleBottomMargin(howManyExpanded);
 
     // Get the clump info from 'clumpList' using the 'data-clump-id' attribute.
     //
@@ -2045,10 +2047,22 @@ You can now escape, and activate them on the main screen.`;
     }
     currentContentSpan.innerHTML = clumpCellContents;
 
+    // Adding 'flat' changes the height of the 'pre' tag to '0' before it is removed.
+    if (isCellCollapsed) {
+      currentlyOpenSpanPre?.classList.add('flat');
+      // Pause the app to let the transition finish.
+      await AppHelpers.delayTransition(50);
+    }
+    this.toggleBottomMargin(howManyExpanded);
+
+    // Assign the new 'pre' tag.
+    const newCurrentPre = currentContentSpan.querySelector('pre');
+
     // Set the z-index if the cell is expanded.
     //
     if (!isCellCollapsed) {
-      currentContentSpan.querySelector('pre').style.zIndex = largestExpandedZIndex + 10;
+      // This is a new 'pre' tag which will be assigned the highest z-index.
+      newCurrentPre.style.zIndex = largestExpandedZIndex + 10;
       // Add 'topmost' class to the current cell.
       currentCell.classList.add('topmost');
     } else {
@@ -2065,7 +2079,7 @@ You can now escape, and activate them on the main screen.`;
     }
     if (!isCellCollapsed) {
       setTimeout(() => {
-        currentContentSpan.querySelector('pre')?.classList.remove('flat');
+        newCurrentPre?.classList.remove('flat');
       }, 10);
     }
 
@@ -2130,13 +2144,13 @@ You can now escape, and activate them on the main screen.`;
     //
     // .output-container .resize-handle.show {
     //   transition: height 0.2s ease, bottom 0.2s ease;
-    this.uiElements.resizeHandle.style.transition = 'none';
+    this.uiElements.resizeHandle.classList.add('no-transition');
     // .content-span pre {
     //   transition: height 0.4s ease;
-    this.dragElementPre.style.transition = 'none';
+    this.dragElementPre.classList.add('no-transition');
     // .output-container {
     //   transition: height 0.3s ease, margin-bottom 0.3s ease;
-    this.uiElements.outputContainer.style.transition = 'none';
+    this.uiElements.outputContainer.classList.add('no-transition');
 
     document.addEventListener('mousemove', this.mouseMoveHandler);
     document.addEventListener('mouseup', this.mouseUpHandler);
@@ -2179,16 +2193,11 @@ You can now escape, and activate them on the main screen.`;
     setTimeout(() => { this.ignoreNextClick = false; }, 0);
 
     // Reenable all transitiona.
-    this.dragElementPre.style.transition = 'height 0.4s ease';
-    this.uiElements.resizeHandle.style.transition = 'height 0.2s ease, bottom 0.2s ease';
-    this.uiElements.outputContainer.style.transition = 'height 0.3s ease, margin-bottom 0.3s ease';
+    this.uiElements.outputContainer.classList.remove('no-transition');
+    this.uiElements.resizeHandle.classList.remove('no-transition');
+    this.dragElementPre.classList.remove('no-transition');
 
-    // Adjust height on all <pre> elements.
-    this.uiElements.clumpContainer.querySelectorAll('pre').forEach(pre => {
-      pre.style.height = `${this.newHeight - 40}px`;
-      AppConfig.debugConsoleLogs &&
-        console.log('[AppSettings] [mouseUpHandler] Setting pre height:', this.newHeight);
-    });
+    this.toggleBottomMargin(1);
 
     // Remove the event listeners to stop resizing.
     document.removeEventListener('mousemove', this.mouseMoveHandler);

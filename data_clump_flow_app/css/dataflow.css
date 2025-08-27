@@ -412,10 +412,13 @@ li ol>li:before {
   width: calc(70% - 75px);
   z-index: 2;
 }
-.content-span pre.flat {
-  height: 0;
-  transition: height 0.4s ease;
-}
+  .content-span pre {
+    flex-grow: 1; /* Allow the pre tag to expand/contract */
+  }
+  .content-span pre.flat {
+    height: 0;
+    transition: height 0.4s ease;
+  }
 
 .output-container.resize-container {
   position: relative;
@@ -434,17 +437,19 @@ li ol>li:before {
     padding: 0;
     position: fixed;
     right: 10px;
+    transition: height 0.5s ease, bottom 0.2s ease;
     width: 75px;
     z-index: 99999999;
   }
   .output-container .resize-handle.show {
     bottom: 250px;
     height: 10px;
-    transition: height 0.2s ease, bottom 0.2s ease;
+    /* transition: height 0.5s ease, bottom 0.2s ease; */
   }
-  .content-span pre {
-    flex-grow: 1; /* Allow the pre tag to expand/contract */
-  }
+
+.no-transition {
+  transition: none !important;
+}
 
 .clump-node {
   align-items: center;
