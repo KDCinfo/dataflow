@@ -1344,7 +1344,7 @@ You can now escape, and activate them on the main screen.`;
     // Resize elements for visual feedback.
     //
     // Resize handler.
-    this.uiElements.resizeHandle.style.bottom = howManyExpanded > 0 ? `${thisHeight + 10}px` : 0;
+    this.uiElements.resizeHandle.style.bottom = howManyExpanded > 0 ? `${thisHeight + 10}px` : `-10px`;
     //
     // Container wrapper.
     const new260 = `${thisHeight + 20}px`;
