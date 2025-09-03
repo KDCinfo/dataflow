@@ -424,21 +424,38 @@ li ol>li:before {
   position: relative;
 }
   .output-container .resize-handle {
+    align-items: center; /* Centers lines horizontally within the container */
     background-color: green;
+    border-radius: 5px;
     bottom: 0;
+    box-sizing: border-box; /* Includes padding in the total height */
     cursor: grab;
     display: flex;
+    flex-direction: column; /* Stacks lines vertically */
     flex-shrink: 0;
     height: 0;
+    justify-content: space-around; /* Distributes space evenly between and around lines */
     left: calc(30% + 25px);
     margin: 0 auto;
     outline: 0px solid red;
-    padding: 0;
+    padding: 2px 0; /* Adds a small vertical padding for better spacing visibility */
     position: fixed;
     right: 10px;
     transition: height 0.3s ease, bottom 0.3s ease;
     width: 75px;
     z-index: 99999999;
+  }
+  .resize-handle .handle-line {
+    background: linear-gradient(
+      to right,
+      transparent, /* Starts transparent */
+      #ddeedd99 25%,  /* Fades to solid by 25% of the element */
+      #ddeedd99 75%,  /* Stays solid until 75% of the element */
+      transparent /* Fades back to transparent by 100% of the element */
+    );
+    border-radius: 15px;
+    height: 1px;
+    width: 75%;
   }
   .output-container .resize-handle.show {
     bottom: 250px;
