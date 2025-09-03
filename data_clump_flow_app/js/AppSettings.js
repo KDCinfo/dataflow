@@ -51,8 +51,12 @@ export default class AppSettings {
   startHeight;
   maxHeight;
   newHeight;
+  topHeightBoundary = 100;
+  bottomHeightBoundary = 50;
+  defaultPrePanelHeight = 260;
   dragElementPre;
   ignoreNextClick;
+  timeoutId;
 
   constructor(uiSelectors) {
     const date = new Date();
