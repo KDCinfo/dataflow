@@ -2113,6 +2113,51 @@ You can now escape, and activate them on the main screen.`;
   // *****                                                 *****
   // ***** ***** ***** ***** ***** ***** ***** ***** ***** *****
 
+  setAdjustedBottomHeight = () => {
+    this.newHeight = this.getAdjustedBottomHeight();
+  }
+
+  setMaxBottomHeight = () => {
+    this.maxHeight = this.availableBottomHeight();
+  }
+
+  // The 'parentElement' of the 'outputContainer' is simply
+  //   the wrapper '<div class="container">' which contains both
+  //   the '<div class="form-container">'
+  //   and '<div id="outputContainer" class="output-container resize-container">'.
+  // The 'outputContainer' itself cannot be used because it could have a 'bottom-margin'
+  //   (if a 'pre' panel is open) which reduces the 'clientHeight'.
+  availableBottomHeight = () => this.uiElements.outputContainer.parentElement.clientHeight
+      - this.topHeightBoundary;
+
+  // Determine a height for the 'pre' panel.
+  //   No taller or shorter than preset limits.
+  //   - top | topHeightBoundary
+  //   - bottom | bottomHeightBoundary
+  // E.g.: 254px (clientHeight) - 100px (min top height) = 104px maxHeight for 'pre' panel.
+  // This is a refactor of a ternary approach thanks to perplexity.ai.
+  getAdjustedBottomHeight = () => {
+    // Use proposed new height or fallback default.
+    const preferredBottomHeight = this.newHeight ?? this.defaultPrePanelHeight;
+    // Calculate available space for bottom pane.
+    const availableBottomHeight = this.availableBottomHeight();
+    // Ensure available space isn't negative.
+    const safeBottomHeight = Math.max(this.bottomHeightBoundary, availableBottomHeight);
+    // Return constrained height respecting boundaries.
+    const adjustedBottomPane = Math.max(
+      this.bottomHeightBoundary,
+      Math.min(preferredBottomHeight, safeBottomHeight)
+    );
+    // this.newHeight = adjustedBottomPane;
+    return adjustedBottomPane;
+  };
+
+  get numberOfOpenPrePanels() {
+    return Array.from(
+      this.uiElements.clumpContainer.querySelectorAll('pre')
+    ).length;
+  };
+
   initResize = (evt) => {
     evt.stopPropagation();
     evt.preventDefault();
