@@ -13,29 +13,29 @@
 
 ## @TODO:
 
-### Maintenance
-
-- [ ] Graft '/data_clump_flow_app' subfolder to root '/dataflow':
-	- Move the entire '/data_clump_flow_app' directory up, and delete the other (obsolete) data flow project.
-	- Keep existing direrctory and some files with note about redirect to new location (repository root).
-	- This will require a tiny bit of file work on the live site.
-
 ### Light/moderate changes
 
+- [ ] Make current 'edit' icon cancel the current edit
+- [ ] Allow for collapsing of left panel
+- [ ] Feature: Find missing flows (orphaned localStorage entries that start with 'df_' that aren't in the storage names list)
+- [ ] Bug: Renaming flows | if the Data Flow App is open in another window or tab
+    - When you create a new flow, it shows up in other open lists
+    - When you rename a flow, it does not, and actually can get removed/orphaned from the list
+- [ ] Code improvement: Group resize settings into their own map or class
 - [ ] 'clump edit count'
   - [ ] Before switching flows, maybe have an preference setting to prompt for exporting prior to switching ... maybe do a backup of the current flow
     > When a flow is activated, --- there's already a count for how many changes have been made | dataClumpFlowAppSettings: exportReminderCounter
         Use that count and if not 0, ask if you would like to export before switching flows
 - [ ] Consideration: When moving a cell given an 'above' link that is replacing an existing cell already linked to that same 'above', the existing
     cell is grafted to the end of the moved cell's tail. The existing cell should perhaps be moved to the end of its own column instead.
-- [ ] 'showIDs' should show IDs in the lists also.
+- [ ] 'showIDs' should show IDs in the lists also
 - [ ] Flows: Delete -> Show preview of first clump
 - [ ] Flows: Add a URL query param to open a specific data flow // ?flow=docker_flows
   - [ ] That would allow for a "share" link
 - [ ] Collapsible side menu
 - [ ] Add color picker for cells
-- [ ] Add a queue for expanded clumps that can be reapplied after repainting the matrix (so cells can stay open after adding or updating).
-- [ ] Add a link to pop up the empty page message for pages with data.
+- [ ] Add a queue for expanded clumps that can be reapplied after repainting the matrix (so cells can stay open after adding or updating)
+- [ ] Add a link to pop up the empty page message for pages with data
 - [ ] Swap IDs for `data-` attributes
   - Leave IDs for labels
   - Add all `data-` selectors to config file
@@ -44,6 +44,7 @@
 
 ### Potentially slightly bigger changes
 
+- [ ] Feature: 'pre' panel right-click -> Select all (and/or confine Ctrl-A to that panel)
 - [ ] Feature: Add a filter to the flow list in the Flow Manager
 - [ ] Feature: Add a filter that only shows filtered clumps
 - [ ] Add grouping for project-level flows.
@@ -53,7 +54,18 @@
   - [ ] Add a property to 'AppSettingInfo' for a 'custom name' Map (a 2-column lookup table) that ties
         a custom name to a specific localStorage name (which this app restricts to either snake_case or camelCase).
   - [ ] Allow for the renaming of both custom names and localStorage names. Having a custom key name should not break the controller (e.g. grandfathered flow names).
-- [ ] Implement: Drag-n-drop
+- [ ] Implement: Drag-n-drop of clumps
+
+-----
+
+## @TODONE:
+
+### Maintenance
+
+- [X] Graft '/data_clump_flow_app' subfolder to root '/dataflow':
+	- Move the entire '/data_clump_flow_app' directory up, and delete the other (obsolete) data flow project.
+	- Keep existing direrctory and some files with note about redirect to new location (repository root).
+	- This will require a tiny bit of file work on the live site.
 
 -----
 
