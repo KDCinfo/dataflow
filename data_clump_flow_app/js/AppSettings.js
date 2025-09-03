@@ -366,6 +366,16 @@ P.S. This dialog will not show again.`;
 
     this.uiElements.resizeHandle.addEventListener('mousedown', this.initResize, false);
 
+    window.addEventListener(
+      'resize',
+      AppHelpers.debounceMove(
+        this.toggleBottomMargin.bind(this), // Fn to call after debounce
+        this.timeoutId,
+        500, // Delay
+        () => this.numberOfOpenPrePanels, // Number of open 'pre' panels
+      ),
+    );
+
     // [Q] What's the purpose of this listener?
     // [A] It listens for changes to the 'AppSettingsInfo' in other tabs.
     window.addEventListener('storage', (event) => {
@@ -1343,9 +1353,14 @@ You can now escape, and activate them on the main screen.`;
   // Provide a margin at the bottom of the screen when at least one cell is expanded.
   // To be kept in sync with the 'pre' tag.
   toggleBottomMargin(howManyExpanded = 0) {
-    const thisHeight = this.newHeight ? this.newHeight : 260;
+    // 'this.newHeight' is height of 'pre' panel.
+    this.setAdjustedBottomHeight(); // Updates 'this.newHeight' based on available content height.
 
     // Resize elements for visual feedback.
+    //
+    // const thisHeight = this.newHeight ? this.newHeight : 260;
+    // ^^^ 'this.newHeight' is now preset via the 'setAdjustedBottomHeight()' call.
+    const thisHeight = this.newHeight;
     //
     // Resize handler.
     this.uiElements.resizeHandle.style.bottom = howManyExpanded > 0 ? `${thisHeight + 10}px` : `-10px`;
@@ -1361,6 +1376,9 @@ You can now escape, and activate them on the main screen.`;
     this.uiElements.clumpContainer.querySelectorAll('pre').forEach(pre => {
       pre.style.height = `${thisHeight - 40}px`;
     });
+
+    AppConfig.debugConsoleLogs &&
+        console.log('[AppSettings] [toggleBottomMargin] thisHeight:', thisHeight, new260);
   }
 
   // [Tested: No]
@@ -2187,11 +2205,8 @@ You can now escape, and activate them on the main screen.`;
     }
     this.startHeight = this.dragElementPre.offsetHeight;
 
-    // Calculate maximum allowed 'tempHeight' to ensure
-    // at least 150px remains for the output container.
-    this.maxHeight = this.dragElementPre.offsetHeight
-        + this.uiElements.outputContainer.clientHeight
-        - 150;
+    // Calculate maximum allowed 'tempHeight'.
+    this.setMaxBottomHeight();
 
     // Temporarily remove all transitiona.
     //
@@ -2218,11 +2233,11 @@ You can now escape, and activate them on the main screen.`;
 
     console.log('[AppSettings] [mouseMoveHandler] tempHeight:' , tempHeight, this.uiElements.outputContainer.clientHeight);
 
-    if (tempHeight >= 50 && tempHeight <= this.maxHeight) {
+    if (tempHeight >= this.bottomHeightBoundary && tempHeight <= this.maxHeight) {
       this.newHeight = tempHeight;
     } else {
-      if (tempHeight < 50) {
-        this.newHeight = 50;
+      if (tempHeight < this.bottomHeightBoundary) {
+        this.newHeight = this.bottomHeightBoundary;
       } else {
         // When 'tempHeight > this.maxHeight' clamp it to the maximum.
         this.newHeight = this.maxHeight;
