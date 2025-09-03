@@ -427,7 +427,7 @@ li ol>li:before {
     align-items: center; /* Centers lines horizontally within the container */
     background-color: green;
     border-radius: 5px;
-    bottom: 0;
+    bottom: -4px; /* Allows for 2px top/bottom padding */
     box-sizing: border-box; /* Includes padding in the total height */
     cursor: grab;
     display: flex;
