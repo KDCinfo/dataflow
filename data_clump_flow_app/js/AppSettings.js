@@ -2231,8 +2231,6 @@ You can now escape, and activate them on the main screen.`;
     const deltaY = this.startY - evt.clientY;
     const tempHeight = this.startHeight + deltaY;
 
-    console.log('[AppSettings] [mouseMoveHandler] tempHeight:' , tempHeight, this.uiElements.outputContainer.clientHeight);
-
     if (tempHeight >= this.bottomHeightBoundary && tempHeight <= this.maxHeight) {
       this.newHeight = tempHeight;
     } else {

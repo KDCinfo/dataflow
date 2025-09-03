@@ -1,3 +1,8 @@
+/**
+ * @jest-environment jsdom
+ */
+import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
+
 import AppData from '../js/AppData.js';
 import AppSettings from '../js/AppSettings.js';
 import AppStorage from '../js/AppStorage.js';
@@ -31,6 +36,9 @@ describe('AppSettings', () => {
   let alertSpy;
 
   beforeEach(() => {
+    // Mock window object for Jest environment
+    globalThis.window = globalThis.window || {};
+    globalThis.window.alert = globalThis.window.alert || jest.fn();
     // Reset alert spy before each test.
     alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
     // Create a new instance.
