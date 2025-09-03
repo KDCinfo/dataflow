@@ -2139,6 +2139,17 @@ You can now escape, and activate them on the main screen.`;
     this.maxHeight = this.availableBottomHeight();
   }
 
+  toggleOpenPreTags = (expandedPreTags) => {
+    const openPreTags = expandedPreTags ?? Array.from(
+      this.uiElements.clumpContainer.querySelectorAll('pre')
+    );
+    for (const preTag of openPreTags) {
+      if (preTag !== this.dragElementPre) {
+        preTag.classList.toggle('hidden');
+      }
+    }
+  }
+
   // The 'parentElement' of the 'outputContainer' is simply
   //   the wrapper '<div class="container">' which contains both
   //   the '<div class="form-container">'
@@ -2208,6 +2219,9 @@ You can now escape, and activate them on the main screen.`;
     // Calculate maximum allowed 'tempHeight'.
     this.setMaxBottomHeight();
 
+    // Temporarily hide all open, non-topmost 'pre' tags.
+    this.toggleOpenPreTags(expandedPreTags);
+
     // Temporarily remove all transitiona.
     //
     // .output-container .resize-handle.show {
@@ -2264,6 +2278,9 @@ You can now escape, and activate them on the main screen.`;
     this.dragElementPre.classList.remove('no-transition');
 
     this.toggleBottomMargin(1);
+
+    // Unhide all 'pre' tags.
+    this.toggleOpenPreTags();
 
     // Remove the event listeners to stop resizing.
     document.removeEventListener('mousemove', this.mouseMoveHandler);
