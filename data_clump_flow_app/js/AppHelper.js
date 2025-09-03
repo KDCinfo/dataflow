@@ -3,6 +3,23 @@ export default class AppHelpers {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
+  static debounceMove(func, timeoutId, delay, numberOfOpenPanels) {
+    return function() {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const panelCount = typeof numberOfOpenPanels !== 'undefined' ? numberOfOpenPanels() : 0;
+        if (Number.isInteger(panelCount) && panelCount > 0) {
+          // When this debounce is used to call the `toggleBottomMargin` function,
+          // it needs to know if there are any open panels to make its calculations.
+          // Any param integer greater than zero indicates an open panel (0 is default).
+          func(panelCount);
+        } else {
+          func();
+        }
+      }, delay);
+    };
+  }
+
   static formatDate(date) {
     return new Date(date).toLocaleDateString();
   }

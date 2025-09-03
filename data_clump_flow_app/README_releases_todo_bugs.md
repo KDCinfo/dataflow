@@ -131,7 +131,7 @@
 
 ## Version: 2.1.0
 
-> 2025-04-17--22
+> 2025-04-17 -- 04-22
 
 - Added a modal for a new 'Project Flow Manager' panel.
   - It will allow for more flexible naming, renaming, grouping, and other project-type features.
@@ -148,7 +148,7 @@
 
 ## Version: 2.2.0
 
-> 2025-04-22--28
+> 2025-04-22 -- 04-28
 
 - [X] Removed one-time alert message suggesting to export all your storage.
   - If anyone is actually using this tool they will have seen this by now.
@@ -161,7 +161,7 @@
 
 ## Version: 2.2.1
 
-> 2025-04-28--29
+> 2025-04-28 -- 04-29
 
 - [X] Bug: Fixed restore auto-backup; had the wrong key.
 - [X] Change: Added 'df_' prefix to clump lists in localStorage.
@@ -174,7 +174,7 @@
 
 ## Version: 2.2.2
 
-> 2025-06-24--26
+> 2025-06-24 -- 06-26
 
 - [X] Feature: The topmost open cell should be highlighted.
 - [X] Feature: Change browser title to be active flow name.
@@ -195,9 +195,15 @@
   - Prettied up title and logo, and added two links ('tips' and 'github').
   - Created and committed a screenshot of the new layout.
 
-## Version: 2.2.4
+## Version: 2.3.0
 
-> 2025-08-12--24
+> 2025-08-12 -- 09-03
+
+### Feature Highlight
+
+- Added resizing of the preview panel.
+
+### Actioned Items
 
 - [X] Restricted clump edit form `textarea` resizing to vertical.
 - [X] Added a 'min-height' to clump edit form `textarea`.
@@ -213,3 +219,5 @@
 - [X] Bug fix: previewing more than 2 clumps would obfuscate the 'edit form' when popped out. Increased 'z-index' of the 'edit form' to '999999' to help avoid such conflicts.
 - [X] Bug fix: Toggling IDs with a preview open wasn't closing the bottom-margin (left a 200px black gap where the preview was).
 - [X] Added an up/down sliding transition to the preview panel.
+- [X] Made preview panel height adjustable.
+

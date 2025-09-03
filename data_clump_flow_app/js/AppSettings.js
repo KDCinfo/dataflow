@@ -45,6 +45,19 @@ export default class AppSettings {
   appModal;
   tipsModal;
 
+  // Resizing the Preview Pane.
+  isResizing = false;
+  startY;
+  startHeight;
+  maxHeight;
+  newHeight;
+  topHeightBoundary = 100;
+  bottomHeightBoundary = 50;
+  defaultPrePanelHeight = 260;
+  dragElementPre;
+  ignoreNextClick;
+  timeoutId;
+
   constructor(uiSelectors) {
     const date = new Date();
     AppConfig.debugConsoleLogs && console.log('AppSettings initialized on:', date.toLocaleString());
@@ -329,8 +342,19 @@ P.S. This dialog will not show again.`;
     // Add toggle click listener to 'contentSpan'.
     // Old: contentSpan.addEventListener('click', (event) => {
     this.uiElements.clumpContainer.addEventListener('click', (event) => {
+      // if (this.isResizing) return;
+
+      // Prevent 'pre' click collapse:
+      if (this.ignoreNextClick) {
+        event.stopPropagation();
+        event.preventDefault();
+        this.ignoreNextClick = false;
+        return;
+      }
+
       const contentSpan = event.target.closest('.content-span');
       if (contentSpan && this.uiElements.clumpContainer.contains(contentSpan)) {
+        // If anything is selected, don't close the 'pre' preview window pane.
         if (window.getSelection().toString()) {
           // Prevent toggle if there's a selection.
           event.stopPropagation();
@@ -339,6 +363,18 @@ P.S. This dialog will not show again.`;
         this.toggleCell(event);
       }
     });
+
+    this.uiElements.resizeHandle.addEventListener('mousedown', this.initResize, false);
+
+    window.addEventListener(
+      'resize',
+      AppHelpers.debounceMove(
+        this.toggleBottomMargin.bind(this), // Fn to call after debounce
+        this.timeoutId,
+        500, // Delay
+        () => this.numberOfOpenPrePanels, // Number of open 'pre' panels
+      ),
+    );
 
     // [Q] What's the purpose of this listener?
     // [A] It listens for changes to the 'AppSettingsInfo' in other tabs.
@@ -1317,10 +1353,32 @@ You can now escape, and activate them on the main screen.`;
   // Provide a margin at the bottom of the screen when at least one cell is expanded.
   // To be kept in sync with the 'pre' tag.
   toggleBottomMargin(howManyExpanded = 0) {
-    this.uiElements.outputContainer.style.marginBottom = howManyExpanded > 0 ? '260px' : '0';
+    // 'this.newHeight' is height of 'pre' panel.
+    this.setAdjustedBottomHeight(); // Updates 'this.newHeight' based on available content height.
+
+    // Resize elements for visual feedback.
+    //
+    // const thisHeight = this.newHeight ? this.newHeight : 260;
+    // ^^^ 'this.newHeight' is now preset via the 'setAdjustedBottomHeight()' call.
+    const thisHeight = this.newHeight;
+    //
+    // Resize handler.
+    this.uiElements.resizeHandle.style.bottom = howManyExpanded > 0 ? `${thisHeight + 10}px` : `-10px`;
+    //
+    // Container wrapper.
+    const new260 = `${thisHeight + 20}px`;
+    this.uiElements.outputContainer.style.marginBottom = howManyExpanded > 0 ? new260 : '0';
     this.uiElements.outputContainer.style.height = howManyExpanded > 0
-      ? 'calc(100vh - 42px - 260px)'
+      ? 'calc(100vh - 42px - ' + new260 + ')'
       : 'calc(100vh - 42px)';
+    //
+    // All <pre> elements.
+    this.uiElements.clumpContainer.querySelectorAll('pre').forEach(pre => {
+      pre.style.height = `${thisHeight - 40}px`;
+    });
+
+    AppConfig.debugConsoleLogs &&
+        console.log('[AppSettings] [toggleBottomMargin] thisHeight:', thisHeight, new260);
   }
 
   // [Tested: No]
@@ -1946,15 +2004,13 @@ You can now escape, and activate them on the main screen.`;
     }
 
     const currentContentSpan = currentCell.querySelector('.content-span');
-    const currentSpanPre = currentContentSpan.querySelector('pre');
+    const currentlyOpenSpanPre = currentContentSpan.querySelector('pre');
 
-    const cellzIndex = parseInt(currentSpanPre?.style.zIndex, 10) || 0;
-
+    const cellzIndex = parseInt(currentlyOpenSpanPre?.style.zIndex, 10) || 0;
     let largestExpandedZIndex = 0;
     let allZIndexes = {}; // zindex: cellParentWrapper
 
     // This section cycles through all expanded cells to find the largest zIndex.
-    // document.getElementById('clumpContainer').querySelectorAll('.clump-node.expanded .content-span pre');
     const elements = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded .content-span pre');
     for (const clumpCellPre of elements) {
       // Remove 'topmost' class from all existing expanded cell wrappers.
@@ -1968,12 +2024,10 @@ You can now escape, and activate them on the main screen.`;
       }
     }
 
-    // If the cell is already open but is not the highest zIndex,
-    //   just bring the cell clump to the top, else close it.
-    // If the cell is collapsed, or expanded and already on
-    //   top, run it through the full toggle flow below,
+    // When cell is open but not the highest zIndex, bring it to the top.
+    // If cell is collapsed or already on top, run it through the full toggle flow below,
     if (currentCell.classList.contains('expanded') && cellzIndex < largestExpandedZIndex) {
-      currentSpanPre.style.zIndex = largestExpandedZIndex + 10;
+      currentlyOpenSpanPre.style.zIndex = largestExpandedZIndex + 10;
       // Move 'topmost' class to the current cell.
       currentCell.classList.add('topmost');
       return;
@@ -1992,13 +2046,6 @@ You can now escape, and activate them on the main screen.`;
     const expandedCellsContent = this.uiElements.clumpContainer.querySelectorAll('.clump-node.expanded');
     const howManyExpanded = expandedCellsContent.length;
 
-    if (isCellCollapsed) {
-      currentSpanPre?.classList.add('flat');
-      // Pause the app to let the transition finish.
-      await AppHelpers.delayTransition(50);
-    }
-    this.toggleBottomMargin(howManyExpanded);
-
     // Get the clump info from 'clumpList' using the 'data-clump-id' attribute.
     //
     const dataClumpId = parseInt(currentContentSpan.getAttribute('data-clump-id'), 10);
@@ -2009,6 +2056,15 @@ You can now escape, and activate them on the main screen.`;
       return;
     }
     const clumpInfoFound = getClumpList[clumpListIndex];
+
+    // Adding 'flat' changes the height of the 'pre' tag to '0' before it is removed.
+    if (isCellCollapsed) {
+      currentlyOpenSpanPre?.classList.add('flat');
+      AppConfig.debugConsoleLogs &&
+          console.log('[AppSettings] [toggleCell] Pre anim 2:', currentlyOpenSpanPre?.classList);
+      // Pause the app to let the transition finish.
+      await AppHelpers.delayTransition(100);
+    }
 
     // Update the content span with clump name and code.
     //
@@ -2022,10 +2078,16 @@ You can now escape, and activate them on the main screen.`;
     }
     currentContentSpan.innerHTML = clumpCellContents;
 
+    this.toggleBottomMargin(howManyExpanded);
+
+    // Assign the new 'pre' tag.
+    const newCurrentPre = currentContentSpan.querySelector('pre');
+
     // Set the z-index if the cell is expanded.
     //
     if (!isCellCollapsed) {
-      currentContentSpan.querySelector('pre').style.zIndex = largestExpandedZIndex + 10;
+      // This is a new 'pre' tag which will be assigned the highest z-index.
+      newCurrentPre.style.zIndex = largestExpandedZIndex + 10;
       // Add 'topmost' class to the current cell.
       currentCell.classList.add('topmost');
     } else {
@@ -2040,12 +2102,186 @@ You can now escape, and activate them on the main screen.`;
         }
       }
     }
+
     if (!isCellCollapsed) {
       setTimeout(() => {
-        currentContentSpan.querySelector('pre')?.classList.remove('flat');
+        newCurrentPre?.classList.remove('flat');
       }, 10);
     }
+
+    // *****            Draggable: 'pre'view pane            *****
+    // *****                                                 *****
+    // ***** ***** ***** ***** ***** ***** ***** ***** ***** *****
+    // Adding 'show' will transition the handle into view.
+    // Removeing 'show' will collapse the handle.
+    if (howManyExpanded > 0) {
+      setTimeout(() => {
+        this.uiElements.resizeHandle.classList.add('show');
+      }, 50);
+    } else {
+      this.uiElements.resizeHandle.classList.remove('show');
+    }
   };
+
+  // ***** ***** ***** ***** ***** ***** ***** ***** ***** *****
+  // *****                                                 *****
+  // *****                                                 *****
+  // *****            Draggable: 'pre'view pane            *****
+  // *****                                                 *****
+  // *****                                                 *****
+  // ***** ***** ***** ***** ***** ***** ***** ***** ***** *****
+
+  setAdjustedBottomHeight = () => {
+    this.newHeight = this.getAdjustedBottomHeight();
+  }
+
+  setMaxBottomHeight = () => {
+    this.maxHeight = this.availableBottomHeight();
+  }
+
+  // The 'parentElement' of the 'outputContainer' is simply
+  //   the wrapper '<div class="container">' which contains both
+  //   the '<div class="form-container">'
+  //   and '<div id="outputContainer" class="output-container resize-container">'.
+  // The 'outputContainer' itself cannot be used because it could have a 'bottom-margin'
+  //   (if a 'pre' panel is open) which reduces the 'clientHeight'.
+  availableBottomHeight = () => this.uiElements.outputContainer.parentElement.clientHeight
+      - this.topHeightBoundary;
+
+  // Determine a height for the 'pre' panel.
+  //   No taller or shorter than preset limits.
+  //   - top | topHeightBoundary
+  //   - bottom | bottomHeightBoundary
+  // E.g.: 254px (clientHeight) - 100px (min top height) = 104px maxHeight for 'pre' panel.
+  // This is a refactor of a ternary approach thanks to perplexity.ai.
+  getAdjustedBottomHeight = () => {
+    // Use proposed new height or fallback default.
+    const preferredBottomHeight = this.newHeight ?? this.defaultPrePanelHeight;
+    // Calculate available space for bottom pane.
+    const availableBottomHeight = this.availableBottomHeight();
+    // Ensure available space isn't negative.
+    const safeBottomHeight = Math.max(this.bottomHeightBoundary, availableBottomHeight);
+    // Return constrained height respecting boundaries.
+    const adjustedBottomPane = Math.max(
+      this.bottomHeightBoundary,
+      Math.min(preferredBottomHeight, safeBottomHeight)
+    );
+    // this.newHeight = adjustedBottomPane;
+    return adjustedBottomPane;
+  };
+
+  get numberOfOpenPrePanels() {
+    return Array.from(
+      this.uiElements.clumpContainer.querySelectorAll('pre')
+    ).length;
+  };
+
+  initResize = (evt) => {
+    evt.stopPropagation();
+    evt.preventDefault();
+
+    // Capture the starting vertical position of the mouse, and
+    // store the initial height of the container.
+    this.isResizing = true;
+    this.startY = evt.clientY;
+
+    // Get topmost z-index/zIndex 'pre' tag.
+    const expandedPreTags = Array.from(this.uiElements.clumpContainer.querySelectorAll('pre'));
+    let topmostPreTag = null;
+    let highestZIndex = -1;
+    for (const preTag of expandedPreTags) {
+      const zIndex = parseFloat(getComputedStyle(preTag).zIndex);
+      if (!isNaN(zIndex) && zIndex > highestZIndex) {
+        highestZIndex = zIndex;
+        topmostPreTag = preTag;
+      }
+    }
+
+    // Store the highest pre tag for later use.
+    if (topmostPreTag) {
+      this.dragElementPre = topmostPreTag;
+    } else {
+      this.dragElementPre = evt.target.parentElement.querySelector('pre');
+    }
+    this.startHeight = this.dragElementPre.offsetHeight;
+
+    // Calculate maximum allowed 'tempHeight'.
+    this.setMaxBottomHeight();
+
+    // Temporarily remove all transitiona.
+    //
+    // .output-container .resize-handle.show {
+    //   transition: height 0.2s ease, bottom 0.2s ease;
+    this.uiElements.resizeHandle.classList.add('no-transition');
+    // .content-span pre {
+    //   transition: height 0.4s ease;
+    this.dragElementPre.classList.add('no-transition');
+    // .output-container {
+    //   transition: height 0.3s ease, margin-bottom 0.3s ease;
+    this.uiElements.outputContainer.classList.add('no-transition');
+
+    document.addEventListener('mousemove', this.mouseMoveHandler);
+    document.addEventListener('mouseup', this.mouseUpHandler);
+  };
+
+  mouseMoveHandler = (evt) => {
+    if (!this.isResizing) return;
+
+    // Calculate how much the mouse has moved vertically and the new height.
+    const deltaY = this.startY - evt.clientY;
+    const tempHeight = this.startHeight + deltaY;
+
+    if (tempHeight >= this.bottomHeightBoundary && tempHeight <= this.maxHeight) {
+      this.newHeight = tempHeight;
+    } else {
+      if (tempHeight < this.bottomHeightBoundary) {
+        this.newHeight = this.bottomHeightBoundary;
+      } else {
+        // When 'tempHeight > this.maxHeight' clamp it to the maximum.
+        this.newHeight = this.maxHeight;
+      }
+    }
+
+    // Resize elements for visual feedback.
+    //
+    // Resize handler.
+    this.uiElements.resizeHandle.style.bottom = `${this.newHeight + 10}px`;
+    // Container wrapper.
+    this.uiElements.outputContainer.style.marginBottom = `${this.newHeight + 20}px`;
+    this.uiElements.outputContainer.style.height = `calc(100vh - 42px - ${this.newHeight + 20}px)`;
+    // Topmost 'pre' panel.
+    this.dragElementPre.style.height = `${this.newHeight - 40}px`;
+  };
+
+  mouseUpHandler = (evt) => {
+    // Prevent 'pre' click collapse.
+    this.ignoreNextClick = true;
+    setTimeout(() => { this.ignoreNextClick = false; }, 0);
+
+    // Reenable all transitiona.
+    this.uiElements.outputContainer.classList.remove('no-transition');
+    this.uiElements.resizeHandle.classList.remove('no-transition');
+    this.dragElementPre.classList.remove('no-transition');
+
+    this.toggleBottomMargin(1);
+
+    // Remove the event listeners to stop resizing.
+    document.removeEventListener('mousemove', this.mouseMoveHandler);
+    document.removeEventListener('mouseup', this.mouseUpHandler);
+
+    evt.preventDefault();
+    evt.stopPropagation();
+
+    this.isResizing = false;
+  };
+
+  // ***** ***** ***** ***** ***** ***** ***** ***** ***** *****
+  // *****                                                 *****
+  // *****                                                 *****
+  // *****                  renderMatrix                   *****
+  // *****                                                 *****
+  // *****                                                 *****
+  // ***** ***** ***** ***** ***** ***** ***** ***** ***** *****
 
   // [Tested: No]
   renderMatrix() {
